@@ -1,0 +1,144 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Вход - KinoCMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-form {
+        background: var(--card-bg);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    .form-control {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+    }
+    
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
+        color: var(--text-color);
+    }
+    
+    .form-control::placeholder {
+        color: var(--text-muted);
+    }
+    
+    .form-label {
+        color: var(--text-color);
+        font-weight: 500;
+    }
+    
+    .text-danger {
+        color: #ff6b8a !important;
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+    
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(233, 69, 96, 0.25);
+    }
+    
+    .form-check-label {
+        color: var(--text-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="login-form p-4 p-lg-5">
+            <div class="text-center mb-4">
+                <i class="bi bi-box-arrow-in-right" style="font-size: 3rem; color: var(--accent-color);"></i>
+                <h2 class="h3 mt-3 mb-1">Добро пожаловать</h2>
+                <p class="text-muted">Войдите в свой аккаунт</p>
+            </div>
+            
+            <form method="post" novalidate onsubmit="console.log('Form submitted'); return true;">
+                {% csrf_token %}
+                <!-- DEBUG: CSRF Token = {{ csrf_token }} -->
+                
+                <!-- Отображение общих ошибок формы -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">
+                        <i class="bi bi-envelope me-2"></i>Email адрес
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.username.errors %}
+                                <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Пароль -->
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">
+                        <i class="bi bi-lock me-2"></i>Пароль
+                    </label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.password.errors %}
+                                <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Запомнить меня -->
+                <div class="mb-4">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                        <label class="form-check-label" for="remember_me">
+                            Запомнить меня
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Кнопка входа -->
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-primary-custom btn-lg no-loading">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                    </button>
+                </div>
+                
+                <!-- Дополнительные ссылки -->
+                <div class="text-center">
+                    <p class="text-muted mb-2">
+                        <a href="#" class="text-decoration-none" style="color: var(--accent-color);">
+                            Забыли пароль?
+                        </a>
+                    </p>
+                    <p class="text-muted mb-0">
+                        Нет аккаунта? 
+                        <a href="{% url 'users:register' %}" class="text-decoration-none" style="color: var(--accent-color);">
+                            Зарегистрироваться
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

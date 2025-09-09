@@ -1,0 +1,234 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Профиль - {{ user.first_name }} {{ user.last_name }} - KinoCMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
+        color: var(--text-color);
+    }
+    
+    .form-control::placeholder {
+        color: var(--text-muted);
+    }
+    
+    .form-label {
+        color: var(--text-color);
+        font-weight: 500;
+    }
+    
+    .text-danger {
+        color: #ff6b8a !important;
+    }
+    
+    .text-success {
+        color: #4ade80 !important;
+    }
+    
+    .form-check-input[type="radio"] {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .form-check-input[type="radio"]:checked {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+    
+    .form-check-input[type="radio"]:focus {
+        box-shadow: 0 0 0 0.25rem rgba(233, 69, 96, 0.25);
+    }
+    
+    .form-check-label {
+        color: var(--text-color);
+    }
+    
+    .profile-info-item {
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-info-label {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+    }
+    
+    .profile-info-value {
+        color: var(--text-color);
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Левая колонка - информация о пользователе -->
+    <div class="col-lg-4 col-md-5 mb-4">
+        <div class="profile-card p-4">
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <i class="bi bi-person-circle" style="font-size: 4rem; color: var(--accent-color);"></i>
+                </div>
+                <h4 class="mb-1">{{ user.first_name }} {{ user.last_name }}</h4>
+                <p class="text-muted mb-0">{{ user.email }}</p>
+                {% if user.date_joined %}
+                    <small class="text-muted">С нами с {{ user.date_joined|date:"d.m.Y" }}</small>
+                {% endif %}
+            </div>
+            
+            <div class="border-top pt-3">
+                <h6 class="mb-3">Основная информация</h6>
+                
+                {% if user.phone_number %}
+                <div class="profile-info-item">
+                    <div class="profile-info-label">Телефон</div>
+                    <div class="profile-info-value">{{ user.phone_number }}</div>
+                </div>
+                {% endif %}
+                
+                {% if user.city %}
+                <div class="profile-info-item">
+                    <div class="profile-info-label">Город</div>
+                    <div class="profile-info-value">{{ user.get_city_display }}</div>
+                </div>
+                {% endif %}
+                
+                {% if user.gender %}
+                <div class="profile-info-item">
+                    <div class="profile-info-label">Пол</div>
+                    <div class="profile-info-value">{{ user.get_gender_display }}</div>
+                </div>
+                {% endif %}
+                
+                {% if user.date_of_birth %}
+                <div class="profile-info-item">
+                    <div class="profile-info-label">Дата рождения</div>
+                    <div class="profile-info-value">{{ user.date_of_birth|date:"d.m.Y" }}</div>
+                </div>
+                {% endif %}
+                
+                {% if user.language %}
+                <div class="profile-info-item">
+                    <div class="profile-info-label">Язык</div>
+                    <div class="profile-info-value">{{ user.get_language_display }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Правая колонка - редактирование профиля -->
+    <div class="col-lg-8 col-md-7">
+        <div class="profile-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0">Редактировать профиль</h5>
+                <i class="bi bi-pencil-square" style="color: var(--accent-color); font-size: 1.25rem;"></i>
+            </div>
+            
+            <!-- HTMX контейнер для динамической загрузки формы -->
+            <div id="account-details" 
+                 hx-get="{% url 'users:update_account_details' %}" 
+                 hx-trigger="load" 
+                 hx-indicator="#loading-spinner">
+                <!-- Контент будет загружен через HTMX -->
+                <div id="loading-spinner" class="text-center py-5">
+                    <div class="loading-spinner me-2"></div>
+                    <span class="text-muted">Загрузка...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- HTMX -->
+<script src="https://unpkg.com/htmx.org@1.9.8"></script>
+
+<script>
+// Обработка HTMX событий
+document.body.addEventListener('htmx:afterSwap', function(event) {
+    // Скрыть спиннер после загрузки
+    const spinner = document.getElementById('loading-spinner');
+    if (spinner) {
+        spinner.style.display = 'none';
+    }
+    
+    // Показать уведомления, если они есть
+    const successMsg = event.target.querySelector('[data-success-message]');
+    const errorMsg = event.target.querySelector('[data-error-message]');
+    
+    if (successMsg) {
+        showToast(successMsg.dataset.successMessage, 'success');
+    }
+    
+    if (errorMsg) {
+        showToast(errorMsg.dataset.errorMessage, 'error');
+    }
+});
+
+// Функция для отображения toast уведомлений
+function showToast(message, type) {
+    const toastContainer = document.querySelector('.toast-container') || createToastContainer();
+    
+    const toastId = 'toast-' + Date.now();
+    const iconClass = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
+    const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+    
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi ${iconClass} me-2"></i>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, {
+        autohide: true,
+        delay: 4000
+    });
+    
+    toast.show();
+    
+    // Удалить элемент после скрытия
+    toastElement.addEventListener('hidden.bs.toast', function() {
+        toastElement.remove();
+    });
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.className = 'toast-container position-fixed top-0 end-0 p-3';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
+}
+</script>
+{% endblock %}
