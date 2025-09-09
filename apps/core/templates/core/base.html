@@ -1,0 +1,491 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KinoCMS{% endblock %}</title>
+
+    <!-- Local Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <!-- Bootstrap Icons from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    
+    <style>
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --accent-color: #e94560;
+            --text-color: #ffffff;
+            --text-muted: #a8a8a8;
+            --card-bg: #0f3460;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .navbar {
+            background: rgba(26, 26, 46, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(26, 26, 46, 0.98) !important;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-color) !important;
+            text-decoration: none;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text-color) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--accent-color) !important;
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .navbar-nav .nav-link:hover::after {
+            width: 80%;
+        }
+
+        .navbar-toggler {
+            border: none;
+            outline: none !important;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='m4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Card Styles */
+        .modern-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .modern-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-color);
+        }
+
+        /* Button Styles */
+        .btn-primary-custom {
+            background: linear-gradient(45deg, var(--accent-color), #ff6b8a);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(233, 69, 96, 0.4);
+            background: linear-gradient(45deg, #ff6b8a, var(--accent-color));
+            color: white;
+        }
+
+        .btn-outline-custom {
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: var(--secondary-color) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .footer h5 {
+            color: var(--accent-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--accent-color);
+        }
+
+        .footer .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .footer .social-links a:hover {
+            background: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: var(--gradient);
+            min-height: calc(100vh - 76px); /* Вычитаем высоту navbar */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: 2rem 0;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="white" opacity="0.1"/><circle cx="80" cy="40" r="1" fill="white" opacity="0.1"/><circle cx="40" cy="80" r="1.5" fill="white" opacity="0.1"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100%;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            
+            .hero-section {
+                min-height: calc(100vh - 56px); /* Меньшая высота navbar на мобильных */
+                padding: 1rem 0;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Override Bootstrap text-muted for dark theme */
+        .text-muted {
+            color: #a8a8a8 !important;
+        }
+
+        .text-light-muted {
+            color: #a8a8a8;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-camera-reels"></i> KinoCMS
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-house"></i> Главная
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-film"></i> Афиша
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-calendar-event"></i> Расписание
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-clock-history"></i> Скоро
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-building"></i> О кинотеатре
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-percent"></i> Акции
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-telephone"></i> Контакты
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> {{ user.first_name|default:user.email }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="{% url 'users:profile' %}"><i class="bi bi-person"></i> Профиль</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-ticket"></i> Мои билеты</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'users:logout' %}"><i class="bi bi-box-arrow-right"></i> Выйти</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:login' %}">
+                                <i class="bi bi-box-arrow-in-right"></i> Войти
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:register' %}">
+                                <i class="bi bi-person-plus"></i> Регистрация
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section (only on homepage) -->
+    {% block hero %}{% endblock %}
+
+    <!-- Django Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    {% if message.tags == 'error' %}
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                    {% elif message.tags == 'success' %}
+                        <i class="bi bi-check-circle me-2"></i>
+                    {% elif message.tags == 'info' %}
+                        <i class="bi bi-info-circle me-2"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                    {% endif %}
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="{% block main_class %}container my-5 pt-5{% endblock %}">
+        {% block content %}
+        <!-- Default content -->
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5><i class="bi bi-camera-reels"></i> KinoCMS</h5>
+                    <p class="text-muted">Современная сеть кинотеатров с лучшими фильмами и комфортными залами для незабываемого кинопросмотра.</p>
+                    <div class="social-links">
+                        <a href="#" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" title="Twitter"><i class="bi bi-twitter"></i></a>
+                        <a href="#" title="YouTube"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Навигация</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/">Главная</a></li>
+                        <li><a href="#">Афиша</a></li>
+                        <li><a href="#">Расписание</a></li>
+                        <li><a href="#">Скоро</a></li>
+                        <li><a href="#">Акции</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+            
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">&copy; 2025 KinoCMS. Все права защищены.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-flex justify-content-md-end justify-content-center">
+                        <a href="#" class="me-2"><img src="{% static 'img/googleplay.png' %}" alt="Google Play" height="40" onerror="this.style.display='none'"></a>
+                        <a href="#"><img src="{% static 'img/appstore.png' %}" alt="App Store" height="40" onerror="this.style.display='none'"></a>
+                    </div>
+                    <small class="text-muted d-block mt-2">Разработано с <i class="bi bi-heart-fill text-danger"></i> для любителей кино</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Local Bootstrap JS -->
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.8"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add loading state to buttons (excluding form submit buttons)
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.btn:not([type="submit"])');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!this.classList.contains('no-loading') && this.tagName === 'A') {
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<span class="loading-spinner me-2"></span>Загрузка...';
+                        this.disabled = true;
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.disabled = false;
+                        }, 2000);
+                    }
+                });
+            });
+            
+            // Отдельная обработка для submit кнопок
+            const submitButtons = document.querySelectorAll('button[type="submit"]');
+            submitButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const form = this.closest('form');
+                    if (form) {
+                        const spinner = this.querySelector('.loading-spinner') || this.querySelector('.htmx-indicator');
+                        if (spinner) {
+                            spinner.style.display = 'inline-block';
+                        }
+                        // Не блокируем кнопку, позволяем форме отправиться
+                    }
+                });
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
