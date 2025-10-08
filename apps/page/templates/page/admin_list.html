@@ -244,9 +244,15 @@
 {% block extra_js %}
 <script>
 function confirmPageDelete(pageId, pageName) {
-    if (confirm(`Вы уверены, что хотите удалить страницу "${pageName}"?\n\nЭто действие нельзя отменить.`)) {
-        window.location.href = `/admin-panel/pages/${pageId}/delete/`;
-    }
+    // Обновляем текст в модале
+    document.getElementById('pageNameToDelete').textContent = pageName;
+    
+    // Обновляем action формы удаления
+    document.getElementById('deletePageForm').action = `/admin-panel/pages/${pageId}/delete/`;
+    
+    // Показываем модал
+    const deleteModal = new bootstrap.Modal(document.getElementById('deletePageModal'));
+    deleteModal.show();
 }
 
 // Автоматически скрывать алерты через 5 секунд

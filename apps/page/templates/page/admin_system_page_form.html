@@ -1,0 +1,844 @@
+{% extends 'core/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - KinoCMS{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:admin_dashboard' %}">Главная</a></li>
+<li class="breadcrumb-item"><a href="{% url 'page:admin_list' %}">Страницы</a></li>
+<li class="breadcrumb-item active">{{ title }}</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.language-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.language-toggle .btn {
+    min-width: 50px;
+    padding: 5px 10px;
+}
+
+.language-toggle .btn.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+/* Custom switch styling */
+.custom-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.custom-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .switch-slider {
+    background-color: #28a745;
+}
+
+input:focus + .switch-slider {
+    box-shadow: 0 0 1px #28a745;
+}
+
+input:checked + .switch-slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.status-label {
+    font-weight: 500;
+    margin-left: 10px;
+}
+
+.form-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.form-section h5 {
+    margin-bottom: 15px;
+    color: #495057;
+    font-weight: 600;
+}
+
+.multilang-field {
+    position: relative;
+}
+
+.field-group {
+    display: none;
+}
+
+.field-group.active {
+    display: block;
+}
+
+.field-group .form-group {
+    margin-bottom: 20px;
+}
+
+.seo-text-group {
+    display: none;
+}
+
+.seo-text-group.active {
+    display: block;
+}
+
+/* Logo preview styles */
+.logo-upload-container {
+    position: relative;
+}
+
+.current-logo-preview {
+    margin-top: 1rem;
+}
+
+.logo-preview-wrapper {
+    position: relative;
+    display: inline-block;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 200px;
+}
+
+.logo-preview {
+    max-width: 200px;
+    max-height: 150px;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
+.logo-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Gallery styles */
+.gallery-container {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+}
+
+.gallery-forms {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.gallery-item {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    position: relative;
+    background: #f8f9fa;
+    min-height: 200px;
+    transition: all 0.3s ease;
+}
+
+.gallery-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.gallery-item-content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.image-preview-container {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.gallery-image-preview {
+    max-width: 100%;
+    max-height: 150px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(220, 53, 69, 0.9);
+    border-radius: 0 0 0 8px;
+    padding: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.gallery-item:hover .image-overlay {
+    opacity: 1;
+}
+
+.delete-image {
+    color: white;
+    border: none;
+    background: none;
+    font-size: 0.875rem;
+}
+
+.empty-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: #6c757d;
+    text-align: center;
+}
+
+.empty-image-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #adb5bd;
+}
+
+.empty-image-placeholder p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.image-upload-field {
+    padding: 0.5rem;
+    border-top: 1px solid #dee2e6;
+    background: white;
+    border-radius: 0 0 6px 6px;
+}
+
+.image-upload-field input[type="file"] {
+    width: 100%;
+    font-size: 0.75rem;
+}
+
+.gallery-controls {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+/* Hidden delete checkboxes */
+.gallery-item input[type="checkbox"] {
+    display: none;
+}
+
+/* Marked for deletion styling */
+.gallery-item.marked-for-deletion {
+    opacity: 0.5;
+    border-color: #dc3545;
+    background: #f8d7da;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card card-primary">
+      <!-- form start -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card-body">
+          <!-- Page Controls -->
+          <div class="page-controls" style="margin-bottom: 20px;">
+            <!-- Language Toggle -->
+            <div class="language-toggle">
+              <button type="button" class="btn btn-sm btn-outline-primary active" id="lang-ru">РУ</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" id="lang-uk">УК</button>
+            </div>
+            
+            <!-- Status Toggle -->
+            <div class="d-flex align-items-center">
+              <label class="custom-switch">
+                {{ form.status }}
+                <span class="switch-slider"></span>
+              </label>
+              <span class="status-label" id="status-label">
+                {% if form.status.value %}Включена{% else %}Выключена{% endif %}
+              </span>
+            </div>
+          </div>
+          {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <h5><i class="icon fas fa-ban"></i> Ошибки в форме!</h5>
+              {% for field in form %}
+                {% if field.errors %}
+                  <strong>{{ field.label }}:</strong>
+                  {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+              {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+            </div>
+          {% endif %}
+          
+          <!-- Page Name Section -->
+          <div class="form-section">
+            <h5><i class="fas fa-heading"></i> Название страницы</h5>
+            <div class="multilang-field">
+              <div class="field-group active" data-lang="ru">
+                <div class="form-group">
+                  <label for="{{ form.name_ru.id_for_label }}">{{ form.name_ru.label }}</label>
+                  {{ form.name_ru }}
+                  <small class="form-text text-muted">Название страницы на русском языке</small>
+                </div>
+              </div>
+              
+              <div class="field-group" data-lang="uk">
+                <div class="form-group">
+                  <label for="{{ form.name_uk.id_for_label }}">{{ form.name_uk.label }}</label>
+                  {{ form.name_uk }}
+                  <small class="form-text text-muted">Назва сторінки українською мовою</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Description Section -->
+          <div class="form-section">
+            <h5><i class="fas fa-align-left"></i> Описание</h5>
+            <div class="multilang-field">
+              <div class="field-group active" data-lang="ru">
+                <div class="form-group">
+                  <label for="{{ form.description_ru.id_for_label }}">{{ form.description_ru.label }}</label>
+                  {{ form.description_ru }}
+                  <small class="form-text text-muted">Описание и содержание страницы на русском языке</small>
+                </div>
+              </div>
+              
+              <div class="field-group" data-lang="uk">
+                <div class="form-group">
+                  <label for="{{ form.description_uk.id_for_label }}">{{ form.description_uk.label }}</label>
+                  {{ form.description_uk }}
+                  <small class="form-text text-muted">Опис та зміст сторінки українською мовою</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Logo Section -->
+          <div class="form-section">
+            <h5><i class="fas fa-image"></i> Логотип</h5>
+            <div class="form-group">
+              {{ form.logo.label_tag }}
+              <div class="logo-upload-container">
+                {{ form.logo }}
+                {% if page.logo %}
+                  <div class="current-logo-preview mt-3">
+                    <label class="form-label">Текущий логотип:</label>
+                    <div class="logo-preview-wrapper">
+                      <img src="{{ page.logo.url }}" alt="Текущий логотип" class="logo-preview">
+                      <div class="logo-overlay">
+                        <small class="text-white">{{ page.logo.name }}</small>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+              {% if form.logo.help_text %}
+                <small class="form-text text-muted">{{ form.logo.help_text }}</small>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Gallery Section -->
+          {% if gallery_formset %}
+          <div class="form-section">
+            <h5><i class="fas fa-images"></i> Галерея изображений</h5>
+            <div class="gallery-container">
+              {{ gallery_formset.management_form }}
+              <div class="gallery-forms">
+                {% for form in gallery_formset %}
+                  <div class="gallery-item" data-form-index="{{ forloop.counter0 }}">
+                    {{ form.id }}
+                    {{ form.gallery }}
+                    {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                    
+                    <div class="gallery-item-content">
+                      {% if form.instance.image %}
+                        <div class="image-preview-container">
+                          <img src="{{ form.instance.image.url }}" alt="Изображение {{ forloop.counter }}" class="gallery-image-preview">
+                          <div class="image-overlay">
+                            <button type="button" class="btn btn-sm btn-danger delete-image">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      {% else %}
+                        <div class="empty-image-placeholder">
+                          <i class="fas fa-plus-circle"></i>
+                          <p>Добавить изображение</p>
+                        </div>
+                      {% endif %}
+                      
+                      <div class="image-upload-field">
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                          <div class="invalid-feedback d-block">
+                            {% for error in form.image.errors %}
+                              {{ error }}
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+              
+              <div class="gallery-controls mt-3">
+                <button type="button" class="btn btn-success" id="add-gallery-image">
+                  <i class="fas fa-plus"></i> Добавить еще изображение
+                </button>
+                <small class="form-text text-muted ml-3">
+                  Можно загрузить до 10 изображений. Поддерживаемые форматы: JPG, PNG, GIF
+                </small>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          
+          <!-- SEO Section -->
+          {% if seo_form %}
+          <div class="form-section">
+            <h5><i class="fas fa-search"></i> SEO настройки</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ seo_form.title.label_tag }}
+                  {{ seo_form.title }}
+                  {% if seo_form.title.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in seo_form.title.errors %}
+                        {{ error }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  <small class="form-text text-muted">Заголовок страницы в поисковой выдаче (60 символов)</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ seo_form.url.label_tag }}
+                  {{ seo_form.url }}
+                  {% if seo_form.url.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in seo_form.url.errors %}
+                        {{ error }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  <small class="form-text text-muted">Каноническая ссылка на страницу</small>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ seo_form.keywords.label_tag }}
+                  {{ seo_form.keywords }}
+                  {% if seo_form.keywords.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in seo_form.keywords.errors %}
+                        {{ error }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  <small class="form-text text-muted">Ключевые слова через запятую</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ seo_form.description.label_tag }}
+                  {{ seo_form.description }}
+                  {% if seo_form.description.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in seo_form.description.errors %}
+                        {{ error }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  <small class="form-text text-muted">Описание страницы в поисковой выдаче (160 символов)</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          
+          <!-- Дополнительные поля -->
+          {% for field in form %}
+            {% if field.name not in 'status,name_ru,name_uk,description_ru,description_uk,logo,gallery,name,description,date,can_delete,seo_block' %}
+              <div class="form-section">
+                <h5><i class="fas fa-cog"></i> {{ field.label }}</h5>
+                <div class="form-group">
+                  {{ field.label_tag }}
+                  {{ field }}
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                  {% endif %}
+                  {% if field.errors %}
+                    {% for error in field.errors %}
+                      <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+          
+          <!-- Hidden fields -->
+          {{ form.name.as_hidden }}
+          {{ form.description.as_hidden }}
+          {% if form.can_delete %}{{ form.can_delete.as_hidden }}{% endif %}
+          {% if form.date %}{{ form.date.as_hidden }}{% endif %}
+        </div>
+        
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            {% if is_create %}Создать{% else %}Сохранить изменения{% endif %}
+          </button>
+          <a href="{% url 'page:admin_list' %}" class="btn btn-secondary ml-2">
+            <i class="fas fa-arrow-left"></i> Назад к списку
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Language switcher functionality
+    const langRuBtn = document.getElementById('lang-ru');
+    const langUkBtn = document.getElementById('lang-uk');
+    const fieldGroups = document.querySelectorAll('.field-group');
+    
+    function switchLanguage(lang) {
+        // Update button states
+        if (lang === 'ru') {
+            langRuBtn.classList.add('active');
+            langUkBtn.classList.remove('active');
+        } else {
+            langUkBtn.classList.add('active');
+            langRuBtn.classList.remove('active');
+        }
+        
+        // Show/hide appropriate field groups
+        fieldGroups.forEach(group => {
+            if (group.dataset.lang === lang) {
+                group.classList.add('active');
+                group.style.display = 'block';
+            } else {
+                group.classList.remove('active');
+                group.style.display = 'none';
+            }
+        });
+    }
+    
+    langRuBtn.addEventListener('click', () => switchLanguage('ru'));
+    langUkBtn.addEventListener('click', () => switchLanguage('uk'));
+    
+    // Status switch functionality
+    const statusSwitch = document.querySelector('.custom-switch input[type="checkbox"]');
+    const statusLabel = document.getElementById('status-label');
+    
+    function updateStatusLabel() {
+        if (statusSwitch) {
+            statusLabel.textContent = statusSwitch.checked ? 'Включена' : 'Выключена';
+        }
+    }
+    
+    if (statusSwitch) {
+        statusSwitch.addEventListener('change', updateStatusLabel);
+        updateStatusLabel(); // Set initial state
+    }
+    
+    // Auto-hide alerts
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            if (alert && alert.parentNode) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    if (alert && alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 500);
+            }
+        }, 5000);
+    });
+    
+    // Gallery functionality
+    initGalleryFunctionality();
+});
+
+function initGalleryFunctionality() {
+    // Handle logo preview
+    const logoInput = document.querySelector('input[type="file"][name$="logo"]');
+    if (logoInput) {
+        logoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // Find or create logo preview container
+                    let previewContainer = document.querySelector('.current-logo-preview');
+                    const logoUploadContainer = document.querySelector('.logo-upload-container');
+                    
+                    if (!previewContainer) {
+                        previewContainer = document.createElement('div');
+                        previewContainer.className = 'current-logo-preview mt-3';
+                        logoUploadContainer.appendChild(previewContainer);
+                    }
+                    
+                    previewContainer.innerHTML = `
+                        <label class="form-label">Новый логотип:</label>
+                        <div class="logo-preview-wrapper">
+                            <img src="${event.target.result}" alt="Новый логотип" class="logo-preview">
+                            <div class="logo-overlay">
+                                <small class="text-white">${file.name}</small>
+                            </div>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Функция для обработки предпросмотра изображений
+    window.handleImagePreview = function(e, galleryItem) {
+        const file = e.target.files[0];
+        const previewContainer = galleryItem.querySelector('.image-preview-container');
+        const placeholder = galleryItem.querySelector('.empty-image-placeholder');
+        
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Create or update preview
+                let img = galleryItem.querySelector('.gallery-image-preview');
+                if (!img) {
+                    // Hide placeholder and create preview container
+                    if (placeholder) {
+                        placeholder.style.display = 'none';
+                    }
+                    
+                    let newPreviewContainer = previewContainer;
+                    if (!newPreviewContainer) {
+                        newPreviewContainer = document.createElement('div');
+                        newPreviewContainer.className = 'image-preview-container';
+                        const itemContent = galleryItem.querySelector('.gallery-item-content');
+                        itemContent.insertBefore(newPreviewContainer, itemContent.firstChild);
+                    }
+                    
+                    img = document.createElement('img');
+                    img.className = 'gallery-image-preview';
+                    img.alt = 'Превью изображения';
+                    
+                    const overlay = document.createElement('div');
+                    overlay.className = 'image-overlay';
+                    overlay.innerHTML = `
+                        <button type="button" class="btn btn-sm btn-danger delete-image" title="Очистить изображение">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    newPreviewContainer.appendChild(img);
+                    newPreviewContainer.appendChild(overlay);
+                    
+                    // Add clear functionality for new images
+                    overlay.querySelector('.delete-image').addEventListener('click', function() {
+                        // For new images, just clear the preview and reset the input
+                        newPreviewContainer.remove();
+                        e.target.value = '';  // Clear the file input
+                        if (placeholder) {
+                            placeholder.style.display = 'flex';
+                        }
+                    });
+                }
+                
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    
+    // Handle image upload preview for existing forms
+    document.querySelectorAll('.gallery-item input[type="file"]').forEach(input => {
+        input.addEventListener('change', function(e) {
+            const galleryItem = e.target.closest('.gallery-item');
+            handleImagePreview(e, galleryItem);
+        });
+    });
+    
+    // Handle existing delete buttons
+    document.querySelectorAll('.delete-image').forEach(button => {
+        button.addEventListener('click', function() {
+            const galleryItem = this.closest('.gallery-item');
+            markForDeletion(galleryItem);
+        });
+    });
+    
+    // Add new gallery image - Create completely new DOM elements
+    const addButton = document.getElementById('add-gallery-image');
+    if (addButton) {
+        addButton.addEventListener('click', function() {
+            const galleryForms = document.querySelector('.gallery-forms');
+            const totalForms = document.querySelector('#id_images-TOTAL_FORMS');
+            const maxForms = document.querySelector('#id_images-MAX_NUM_FORMS');
+            
+            if (!totalForms || !maxForms) {
+                alert('Ошибка: не найдены поля управления формсетом');
+                return;
+            }
+            
+            let currentCount = parseInt(totalForms.value) || 0;
+            const maxCount = parseInt(maxForms.value) || 10;
+            
+            if (currentCount >= maxCount) {
+                alert(`Максимальное количество изображений: ${maxCount}`);
+                return;
+            }
+            
+            // Создаем новый элемент галереи
+            const newItem = document.createElement('div');
+            newItem.className = 'gallery-item';
+            newItem.setAttribute('data-form-index', currentCount);
+            
+            newItem.innerHTML = `
+                <input type="hidden" name="images-${currentCount}-id" id="id_images-${currentCount}-id" value="">
+                <div class="gallery-item-content">
+                    <div class="empty-image-placeholder">
+                        <i class="fas fa-plus-circle"></i>
+                        <p>Добавить изображение</p>
+                    </div>
+                    <div class="image-upload-field">
+                        <input type="file" name="images-${currentCount}-image" accept="image/*" 
+                               class="form-control-file" id="id_images-${currentCount}-image">
+                    </div>
+                </div>
+            `;
+            
+            // Добавляем элемент в DOM
+            galleryForms.appendChild(newItem);
+            
+            // Обновляем счетчик форм
+            totalForms.value = currentCount + 1;
+            
+            // Добавляем обработчик для нового input
+            const newFileInput = newItem.querySelector('input[type="file"]');
+            if (newFileInput) {
+                newFileInput.addEventListener('change', function(e) {
+                    handleImagePreview(e, newItem);
+                });
+                
+                // Открываем диалог выбора файла сразу
+                newFileInput.click();
+            }
+        });
+    }
+}
+
+function markForDeletion(galleryItem) {
+    const deleteCheckbox = galleryItem.querySelector('input[type="checkbox"][name$="-DELETE"]');
+    if (deleteCheckbox) {
+        deleteCheckbox.checked = !deleteCheckbox.checked;
+        
+        if (deleteCheckbox.checked) {
+            galleryItem.classList.add('marked-for-deletion');
+        } else {
+            galleryItem.classList.remove('marked-for-deletion');
+        }
+    } else {
+        // For new items without delete checkbox, just hide/remove
+        galleryItem.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

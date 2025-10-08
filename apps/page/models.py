@@ -38,7 +38,7 @@ class PageMain(models.Model):
     phone_number2 = models.CharField(max_length=20)
     status = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
-    seo_text = models.TextField()
+    seo_text = models.TextField(blank=True, null=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):

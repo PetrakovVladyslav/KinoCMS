@@ -12,6 +12,3 @@ class PageElseTranslationOptions(TranslationOptions):
     fields = ('name', 'description')
 
 
-# PageContacts - no multilingual fields needed
-# SeoBlock - no multilingual fields needed  
-# Gallery - no multilingual fields needed
