@@ -1,476 +1,312 @@
-from django.shortcuts import redirect, render
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, View
-from django.urls import reverse_lazy
-from django.db import models
+from django.http import JsonResponse
 
 from .models import PageMain, PageElse, PageContacts
-from .forms import PageMainForm, PageElseForm, ContactsForm, ContactsFormSet, SeoForm, GalleryForm, ImageInlineFormset
-from apps.core.models import SeoBlock, Gallery, Image
+from .forms import PageMainForm, PageElseForm, PageContactsForm
 
 
-class StaffRequiredMixin(UserPassesTestMixin):
-    """Mixin to require staff access"""
-    def test_func(self):
-        return self.request.user.is_authenticated and self.request.user.is_staff
-
-
-class PageListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
-    """Объединенный список всех страниц"""
-    template_name = 'page/admin_list.html'
-    context_object_name = 'pages'
-    paginate_by = 10
-
-    def get_queryset(self):
-        # Объединяем все типы страниц в один список
-        main_pages = PageMain.objects.all().annotate(
-            page_type=models.Value('main', models.CharField())
+@staff_member_required(login_url='admin:login')
+def main_page_view(request):
+    """Редактирование главной страницы"""
+    page_main = PageMain.objects.first()
+    if not page_main:
+        # Создаем главную страницу если её нет
+        page_main = PageMain.objects.create(
+            phone_number1='',
+            phone_number2='',
+            seo_text='',
         )
-        else_pages = PageElse.objects.all().annotate(
-            page_type=models.Value('else', models.CharField())
+    
+    if request.method == 'POST':
+        form = PageMainForm(request.POST, request.FILES, instance=page_main)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Главная страница успешно обновлена')
+            return redirect(request.path)
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        form = PageMainForm(instance=page_main)
+    
+    context = {
+        'form': form,
+        'title': 'Редактировать главную страницу',
+        'page': page_main,
+    }
+    return render(request, 'page/admin_page_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def coffee_bar_view(request):
+    """Редактирование страницы Кофе-бар"""
+    # Ищем страницу по названию или создаем новую
+    try:
+        page = PageElse.objects.get(name__icontains='кофе', can_delete=False)
+    except PageElse.DoesNotExist:
+        page = PageElse.objects.create(
+            name='Кофе-бар',
+            name_ru='Кофе-бар', 
+            name_uk='Кав\'ярня',
+            description='',
+            can_delete=False
         )
-        contacts_pages = PageContacts.objects.all().annotate(
-            page_type=models.Value('contacts', models.CharField())
+    
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES, instance=page)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Страница "Кофе-бар" успешно обновлена')
+            return redirect(request.path)
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        form = PageElseForm(instance=page)
+    
+    context = {
+        'form': form,
+        'title': 'Редактировать страницу "Кофе-бар"',
+        'page': page,
+    }
+    return render(request, 'page/admin_page_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def vip_hall_view(request):
+    """Редактирование страницы VIP-зал"""
+    # Ищем страницу по названию или создаем новую
+    try:
+        page = PageElse.objects.get(name__icontains='vip', can_delete=False)
+    except PageElse.DoesNotExist:
+        page = PageElse.objects.create(
+            name='VIP-зал',
+            name_ru='VIP-зал',
+            name_uk='VIP-зал', 
+            description='',
+            can_delete=False
         )
-        
-        # Создаем список объектов с унифицированными полями
-        all_pages = []
-        
-        for page in main_pages:
-            all_pages.append({
-                'id': page.id,
-                'name': 'Главная страница',
-                'type': 'main',
-                'date': page.date,
-                'status': page.status,
-                'model': 'main'
-            })
-            
-        for page in else_pages:
-            # Use translated name fields, fallback to base name field, then default
-            name = (getattr(page, 'name_ru', None) or 
-                   getattr(page, 'name_uk', None) or 
-                   getattr(page, 'name', None) or 
-                   'Без названия')
-            # Если название пустая строка, заменяем на дефолтное
-            if not name.strip():
-                name = 'Без названия'
-            all_pages.append({
-                'id': page.id,
-                'name': name,
-                'type': 'else',
-                'date': page.date,
-                'status': page.status,
-                'model': 'else',
-                'can_delete': page.can_delete
-            })
-            
-        # Show only one Contacts entry regardless of how many cinema contacts exist
-        if contacts_pages.exists():
-            first_contact = contacts_pages.first()
-            all_pages.append({
-                'id': first_contact.id,  # Use first contact ID for URL
-                'name': 'Контакты',  # Static name for contacts page
-                'type': 'contacts',
-                'date': first_contact.date,
-                'status': any(p.status for p in contacts_pages),  # Active if any contact is active
-                'model': 'contacts'
-            })
-            
-        # Сортируем по дате создания
-        all_pages.sort(key=lambda x: x['date'], reverse=True)
-        return all_pages
+    
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES, instance=page)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Страница "VIP-зал" успешно обновлена')
+            return redirect(request.path)
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        form = PageElseForm(instance=page)
+    
+    context = {
+        'form': form,
+        'title': 'Редактировать страницу "VIP-зал"',
+        'page': page,
+    }
+    return render(request, 'page/admin_page_form.html', context)
 
 
-# Views для PageMain
-class PageMainUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
-    model = PageMain
-    form_class = PageMainForm
-    template_name = 'page/admin_form.html'
-    success_url = reverse_lazy('page:admin_list')
+@staff_member_required(login_url='admin:login')
+def advertising_view(request):
+    """Редактирование страницы Реклама"""
+    # Ищем страницу по названию или создаем новую
+    try:
+        page = PageElse.objects.get(name__icontains='реклам', can_delete=False)
+    except PageElse.DoesNotExist:
+        page = PageElse.objects.create(
+            name='Реклама',
+            name_ru='Реклама',
+            name_uk='Реклама',
+            description='',
+            can_delete=False
+        )
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Редактировать главную страницу'
-        context['is_create'] = False
-        context['show_language_switcher'] = True  # PageMain has multilingual seo_text
-        
-        # Get or create SEO block
-        if self.object.seo_block:
-            seo_block = self.object.seo_block
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES, instance=page)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Страница "Реклама" успешно обновлена')
+            return redirect(request.path)
         else:
-            seo_block = SeoBlock()
-        context['seo_form'] = SeoForm(instance=seo_block)
-        
-        # Get or create Gallery (PageMain doesn't have gallery, so skip it)
-        context['gallery_form'] = GalleryForm()
-        context['image_formset'] = ImageInlineFormset(queryset=Image.objects.none())
-        
-        return context
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        form = PageElseForm(instance=page)
     
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        
-        # Get or create SEO block
-        if self.object.seo_block:
-            seo_block = self.object.seo_block
-        else:
-            seo_block = SeoBlock()
-        seo_form = SeoForm(request.POST, instance=seo_block)
-        
-        # PageMain doesn't have gallery, so create empty forms
-        gallery_form = GalleryForm()
-        image_formset = ImageInlineFormset()
-        
-        if form.is_valid() and seo_form.is_valid():
-            return self.form_valid(form, seo_form, gallery_form, image_formset)
-        else:
-            return self.form_invalid(form, seo_form, gallery_form, image_formset)
-    
-    def form_valid(self, form, seo_form, gallery_form, image_formset):
-        # Save main form
-        response = super().form_valid(form)
-        
-        # Save SEO form if it has data
-        if seo_form.is_valid():
-            # Check if any SEO fields have data
-            has_seo_data = any([
-                seo_form.cleaned_data.get('title'),
-                seo_form.cleaned_data.get('keywords'),
-                seo_form.cleaned_data.get('description'),
-                seo_form.cleaned_data.get('url')
-            ])
-            
-            if has_seo_data:
-                seo_block = seo_form.save()
-                # Link SEO block to the page object
-                self.object.seo_block = seo_block
-                self.object.save(update_fields=['seo_block'])
-        
-        # PageMain doesn't have gallery, so we skip gallery and images
-        
-        messages.success(self.request, 'Главная страница успешно обновлена')
-        return response
-    
-    def form_invalid(self, form, seo_form, gallery_form, image_formset):
-        context = self.get_context_data()
-        context['form'] = form
-        context['seo_form'] = seo_form
-        context['gallery_form'] = gallery_form
-        context['image_formset'] = image_formset
-        return self.render_to_response(context)
+    context = {
+        'form': form,
+        'title': 'Редактировать страницу "Реклама"',
+        'page': page,
+    }
+    return render(request, 'page/admin_page_form.html', context)
 
 
-# Views для PageElse
-class PageElseCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
-    model = PageElse
-    form_class = PageElseForm
-    template_name = 'page/admin_form.html'
-    success_url = reverse_lazy('page:admin_list')
+@staff_member_required(login_url='admin:login')
+def mobile_view(request):
+    """Редактирование страницы Мобильные приложения"""
+    # Ищем страницу по названию или создаем новую
+    try:
+        page = PageElse.objects.get(name__icontains='мобиль', can_delete=False)
+    except PageElse.DoesNotExist:
+        page = PageElse.objects.create(
+            name='Мобильные приложения',
+            name_ru='Мобильные приложения',
+            name_uk='Мобільні додатки',
+            description='',
+            can_delete=False
+        )
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Создать новую страницу'
-        context['is_create'] = True
-        context['show_language_switcher'] = True  # PageElse has multilingual name and description
-        
-        # Empty forms for create
-        context['seo_form'] = SeoForm()
-        context['gallery_form'] = GalleryForm()
-        context['image_formset'] = ImageInlineFormset(queryset=Image.objects.none())
-        
-        return context
-    
-    def post(self, request, *args, **kwargs):
-        self.object = None
-        form = self.get_form()
-        
-        # Create forms
-        seo_form = SeoForm(request.POST)
-        gallery_form = GalleryForm(request.POST)
-        image_formset = ImageInlineFormset(request.POST, request.FILES)
-        
-        if form.is_valid() and seo_form.is_valid() and gallery_form.is_valid() and image_formset.is_valid():
-            return self.form_valid(form, seo_form, gallery_form, image_formset)
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES, instance=page)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Страница "Мобильные приложения" успешно обновлена')
+            return redirect(request.path)
         else:
-            return self.form_invalid(form, seo_form, gallery_form, image_formset)
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        form = PageElseForm(instance=page)
     
-    def form_valid(self, form, seo_form, gallery_form, image_formset):
-        # Устанавливаем can_delete=True для новых страниц
-        form.instance.can_delete = True
-        
-        # Save main form first
-        response = super().form_valid(form)
-        
-        # Save SEO form if it has data
-        if seo_form.is_valid():
-            # Check if any SEO fields have data
-            has_seo_data = any([
-                seo_form.cleaned_data.get('title'),
-                seo_form.cleaned_data.get('keywords'),
-                seo_form.cleaned_data.get('description'),
-                seo_form.cleaned_data.get('url')
-            ])
-            
-            if has_seo_data:
-                seo_block = seo_form.save()
-                # Link SEO block to the page object
-                self.object.seo_block = seo_block
-                self.object.save(update_fields=['seo_block'])
-        
-        # Save Gallery and images if we have any images
-        if image_formset.is_valid():
-            images_to_save = []
-            for img_form in image_formset:
-                if img_form.cleaned_data and not img_form.cleaned_data.get('DELETE', False):
-                    if img_form.cleaned_data.get('image'):
-                        images_to_save.append(img_form)
-            
-            if images_to_save:
-                # Create gallery for new page
-                gallery = Gallery.objects.create(name=f'Gallery-{self.object.pk}')
-                self.object.gallery = gallery
-                self.object.save(update_fields=['gallery'])
-                
-                # Save images
-                images = image_formset.save(commit=False)
-                for image in images:
-                    if image.image:  # Only save if image is present
-                        image.gallery = gallery
-                        image.save()
-        
-        messages.success(self.request, f'Страница "{self.object.name}" успешно создана')
-        return response
-    
-    def form_invalid(self, form, seo_form, gallery_form, image_formset):
-        context = self.get_context_data()
-        context['form'] = form
-        context['seo_form'] = seo_form
-        context['gallery_form'] = gallery_form
-        context['image_formset'] = image_formset
-        return self.render_to_response(context)
+    context = {
+        'form': form,
+        'title': 'Редактировать страницу "Мобильные приложения"',
+        'page': page,
+    }
+    return render(request, 'page/admin_page_form.html', context)
 
 
-class PageElseUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
-    model = PageElse
-    form_class = PageElseForm
-    template_name = 'page/admin_form.html'
-    success_url = reverse_lazy('page:admin_list')
+@staff_member_required(login_url='admin:login')
+def contacts_view(request):
+    """Редактирование страницы контактов"""
+    contacts = PageContacts.objects.all()
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Генерируем название страницы
-        page_name = (getattr(self.object, 'name_ru', None) or 
-                    getattr(self.object, 'name_uk', None) or 
-                    getattr(self.object, 'name', None) or 
-                    'Без названия')
-        if not page_name.strip():
-            page_name = 'Без названия'
-        context['title'] = f'Редактировать страницу "{page_name}"'
-        context['is_create'] = False
-        context['show_language_switcher'] = True  # PageElse has multilingual name and description
+    if request.method == 'POST':
+        # Простая обработка: проходим по всем существующим контактам
+        # и обновляем их, или создаем новые
+        updated_count = 0
         
-        # Get or create SEO block
-        if self.object.seo_block:
-            seo_block = self.object.seo_block
+        for i, contact in enumerate(contacts):
+            form = PageContactsForm(request.POST, request.FILES, instance=contact, prefix=str(i))
+            if form.is_valid():
+                form.save()
+                updated_count += 1
+        
+        # Проверяем, есть ли данные для нового контакта
+        new_form = PageContactsForm(request.POST, request.FILES, prefix='new')
+        if new_form.is_valid() and new_form.cleaned_data.get('cinema_name'):
+            new_form.save()
+            updated_count += 1
+        
+        if updated_count > 0:
+            messages.success(request, f'Обновлено {updated_count} контактов')
         else:
-            seo_block = SeoBlock()
-        context['seo_form'] = SeoForm(instance=seo_block)
+            messages.warning(request, 'Нет изменений для сохранения')
         
-        # Get or create Gallery
-        if self.object.gallery:
-            gallery = self.object.gallery
-            images = gallery.images.all()
-        else:
-            gallery = Gallery()
-            images = Image.objects.none()
-        context['gallery_form'] = GalleryForm(instance=gallery)
-        context['image_formset'] = ImageInlineFormset(queryset=images)
-        
-        return context
+        return redirect(request.path)
     
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        
-        # Get or create SEO block
-        if self.object.seo_block:
-            seo_block = self.object.seo_block
-        else:
-            seo_block = SeoBlock()
-        seo_form = SeoForm(request.POST, instance=seo_block)
-        
-        # Get or create Gallery
-        if self.object.gallery:
-            gallery = self.object.gallery
-        else:
-            gallery = Gallery()
-        gallery_form = GalleryForm(request.POST, instance=gallery)
-        
-        # Image formset
-        if self.object.gallery:
-            image_formset = ImageInlineFormset(request.POST, request.FILES, queryset=self.object.gallery.images.all())
-        else:
-            image_formset = ImageInlineFormset(request.POST, request.FILES, queryset=Image.objects.none())
-        
-        if form.is_valid() and seo_form.is_valid() and gallery_form.is_valid() and image_formset.is_valid():
-            return self.form_valid(form, seo_form, gallery_form, image_formset)
-        else:
-            return self.form_invalid(form, seo_form, gallery_form, image_formset)
+    # GET request: создаем формы для существующих контактов + одну пустую для нового
+    contact_forms = []
+    for i, contact in enumerate(contacts):
+        contact_forms.append(PageContactsForm(instance=contact, prefix=str(i)))
     
-    def form_valid(self, form, seo_form, gallery_form, image_formset):
-        # Save main form
-        response = super().form_valid(form)
-        
-        # Save SEO form if it has data
-        if seo_form.is_valid():
-            # Check if any SEO fields have data
-            has_seo_data = any([
-                seo_form.cleaned_data.get('title'),
-                seo_form.cleaned_data.get('keywords'),
-                seo_form.cleaned_data.get('description'),
-                seo_form.cleaned_data.get('url')
-            ])
-            
-            if has_seo_data:
-                seo_block = seo_form.save()
-                # Link SEO block to the page object
-                self.object.seo_block = seo_block
-                self.object.save(update_fields=['seo_block'])
-        
-        # Save Gallery and images if we have any images
-        if image_formset.is_valid():
-            images_to_save = []
-            for img_form in image_formset:
-                if img_form.cleaned_data and not img_form.cleaned_data.get('DELETE', False):
-                    if img_form.cleaned_data.get('image'):
-                        images_to_save.append(img_form)
-            
-            if images_to_save:
-                # Create or get gallery
-                if self.object.gallery:
-                    gallery = self.object.gallery
-                else:
-                    gallery = Gallery.objects.create(name=f'Gallery-{self.object.pk}')
-                    self.object.gallery = gallery
-                    self.object.save(update_fields=['gallery'])
-                
-                # Save images
-                images = image_formset.save(commit=False)
-                for image in images:
-                    if image.image:  # Only save if image is present
-                        image.gallery = gallery
-                        image.save()
-                
-                # Delete marked images
-                for image in image_formset.deleted_objects:
-                    image.delete()
-        
-        messages.success(self.request, f'Страница "{self.object.name}" успешно обновлена')
-        return response
+    # Добавляем пустую форму для нового контакта
+    new_contact_form = PageContactsForm(prefix='new')
     
-    def form_invalid(self, form, seo_form, gallery_form, image_formset):
-        context = self.get_context_data()
-        context['form'] = form
-        context['seo_form'] = seo_form
-        context['gallery_form'] = gallery_form
-        context['image_formset'] = image_formset
-        return self.render_to_response(context)
+    context = {
+        'contact_forms': contact_forms,
+        'new_contact_form': new_contact_form,
+        'title': 'Редактировать контакты',
+        'contacts_count': len(contacts),
+    }
+    return render(request, 'page/admin_contacts_form.html', context)
 
 
-class PageElseDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
-    model = PageElse
-    success_url = reverse_lazy('page:admin_list')
+@staff_member_required(login_url='admin:login')
+def admin_list_view(request):
+    """Список всех страниц для администрирования"""
+    # Получаем главную страницу
+    main_page = PageMain.objects.first()
     
-    def dispatch(self, request, *args, **kwargs):
-        # Проверяем, можно ли удалять страницу
-        page = self.get_object()
-        if not page.can_delete:
-            messages.error(request, f'Нельзя удалить страницу "{page.name}". Она является системной.')
+    # Получаем системные страницы
+    system_pages = PageElse.objects.filter(can_delete=False)
+    
+    # Получаем пользовательские страницы 
+    user_pages = PageElse.objects.filter(can_delete=True)
+    
+    # Получаем контакты
+    contacts = PageContacts.objects.all()
+    
+    context = {
+        'main_page': main_page,
+        'system_pages': system_pages,
+        'user_pages': user_pages,
+        'contacts': contacts,
+        'title': 'Управление страницами',
+    }
+    return render(request, 'page/admin_list.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def page_create_view(request):
+    """Создание новой пользовательской страницы"""
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES)
+        if form.is_valid():
+            page = form.save(commit=False)
+            page.can_delete = True  # Новые страницы можно удалять
+            page.save()
+            messages.success(request, f'Страница "{page.name}" успешно создана')
             return redirect('page:admin_list')
-        return super().dispatch(request, *args, **kwargs)
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        form = PageElseForm()
     
-    def delete(self, request, *args, **kwargs):
-        page_name = self.get_object().name
-        messages.success(self.request, f'Страница "{page_name}" успешно удалена')
-        return super().delete(request, *args, **kwargs)
+    context = {
+        'form': form,
+        'title': 'Создать новую страницу',
+        'is_create': True,
+    }
+    return render(request, 'page/admin_page_form.html', context)
 
 
-# Views для PageContacts
-class PageContactsUpdateView(LoginRequiredMixin, StaffRequiredMixin, View):
-    template_name = 'page/admin_contacts_form.html'
+@staff_member_required(login_url='admin:login')
+def page_update_view(request, pk):
+    """Редактирование пользовательской страницы"""
+    page = get_object_or_404(PageElse, pk=pk, can_delete=True)
     
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        return render(request, self.template_name, context)
-    
-    def get_context_data(self):
-        context = {}
-        context['title'] = 'Редактировать страницу контактов'
-        context['is_create'] = False
-        context['show_language_switcher'] = False  # PageContacts has no multilingual fields
-        
-        # Get all contacts for formset
-        contacts = PageContacts.objects.all()
-        context['contacts_formset'] = ContactsFormSet(queryset=contacts)
-        
-        # Get SEO block from first contact (assuming shared SEO)
-        first_contact = contacts.first() if contacts.exists() else None
-        if first_contact and first_contact.seo_block:
-            seo_block = first_contact.seo_block
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES, instance=page)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Страница "{page.name}" успешно обновлена')
+            return redirect('page:admin_list')
         else:
-            seo_block = SeoBlock()
-        context['seo_form'] = SeoForm(instance=seo_block)
-        
-        return context
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        form = PageElseForm(instance=page)
     
-    def post(self, request, *args, **kwargs):
-        contacts = PageContacts.objects.all()
-        contacts_formset = ContactsFormSet(request.POST, request.FILES, queryset=contacts)
-        
-        # Get SEO form
-        first_contact = contacts.first() if contacts.exists() else None
-        if first_contact and first_contact.seo_block:
-            seo_block = first_contact.seo_block
-        else:
-            seo_block = SeoBlock()
-        seo_form = SeoForm(request.POST, instance=seo_block)
-        
-        if contacts_formset.is_valid() and seo_form.is_valid():
-            return self.form_valid(contacts_formset, seo_form)
-        else:
-            return self.form_invalid(contacts_formset, seo_form)
+    context = {
+        'form': form,
+        'title': f'Редактировать страницу "{page.name}"',
+        'page': page,
+        'is_create': False,
+    }
+    return render(request, 'page/admin_page_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def page_delete_view(request, pk):
+    """Удаление пользовательской страницы"""
+    page = get_object_or_404(PageElse, pk=pk, can_delete=True)
     
-    def form_valid(self, contacts_formset, seo_form):
-        # Save contacts formset
-        contacts_formset.save()
-        
-        # Save SEO form if it has data
-        if seo_form.is_valid():
-            has_seo_data = any([
-                seo_form.cleaned_data.get('title'),
-                seo_form.cleaned_data.get('keywords'),
-                seo_form.cleaned_data.get('description'),
-                seo_form.cleaned_data.get('url')
-            ])
-            
-            if has_seo_data:
-                seo_block = seo_form.save()
-                # Link SEO block to first contact
-                first_contact = PageContacts.objects.first()
-                if first_contact:
-                    first_contact.seo_block = seo_block
-                    first_contact.save(update_fields=['seo_block'])
-        
-        messages.success(self.request, 'Страница контактов успешно обновлена')
+    if request.method == 'POST':
+        page_name = page.name
+        page.delete()
+        messages.success(request, f'Страница "{page_name}" успешно удалена')
         return redirect('page:admin_list')
     
-    def form_invalid(self, contacts_formset, seo_form):
-        context = self.get_context_data()
-        context['contacts_formset'] = contacts_formset
-        context['seo_form'] = seo_form
-        return render(self.request, self.template_name, context)
-
-
+    context = {
+        'page': page,
+        'title': f'Удалить страницу "{page.name}"',
+    }
+    return render(request, 'page/admin_page_delete.html', context)

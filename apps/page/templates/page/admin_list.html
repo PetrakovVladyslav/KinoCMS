@@ -33,7 +33,7 @@
       <div class="card-header">
         <h3 class="card-title">Список страниц сайта</h3>
         <div class="card-tools">
-          <a href="{% url 'page:else_create' %}" class="btn btn-success">
+          <a href="{% url 'page:page_create' %}" class="btn btn-success">
             <i class="fas fa-plus"></i> Создать новую страницу
           </a>
         </div>
@@ -50,56 +50,116 @@
             </tr>
           </thead>
           <tbody>
-            {% for page in pages %}
+            <!-- Главная страница -->
+            {% if main_page %}
+            <tr>
+              <td><strong>Главная страница</strong></td>
+              <td>{{ main_page.date|date:"d.m.Y H:i" }}</td>
+              <td>
+                {% if main_page.status %}
+                  <span class="badge bg-success"><i class="fas fa-check"></i> Включена</span>
+                {% else %}
+                  <span class="badge bg-danger"><i class="fas fa-times"></i> Выключена</span>
+                {% endif %}
+              </td>
+              <td class="text-center page-actions">
+                <a href="{% url 'page:main_edit' %}" class="btn btn-sm btn-warning" title="Редактировать">
+                  <i class="fas fa-edit"></i>
+                </a>
+              </td>
+            </tr>
+            {% endif %}
+            
+            <!-- Системные страницы -->
+            {% for page in system_pages %}
             <tr>
               <td>
-                <strong>{{ page.name }}</strong>
+                <strong>{{ page.name_ru|default:page.name }}</strong>
+                <span class="badge badge-info ml-2">системная</span>
               </td>
               <td>{{ page.date|date:"d.m.Y H:i" }}</td>
               <td>
                 {% if page.status %}
-                  <span class="badge bg-success">
-                    <i class="fas fa-check"></i> Включена
-                  </span>
+                  <span class="badge bg-success"><i class="fas fa-check"></i> Включена</span>
                 {% else %}
-                  <span class="badge bg-danger">
-                    <i class="fas fa-times"></i> Выключена
-                  </span>
+                  <span class="badge bg-danger"><i class="fas fa-times"></i> Выключена</span>
+                {% endif %}
+              </td>
+              <td class="text-center page-actions">
+                {% if page.name_ru == 'Кофе-бар' or page.name|contains:'кофе' %}
+                  <a href="{% url 'page:coffee_bar' %}" class="btn btn-sm btn-warning" title="Редактировать">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                {% elif page.name_ru == 'VIP-зал' or page.name|contains:'vip' %}
+                  <a href="{% url 'page:vip_hall' %}" class="btn btn-sm btn-warning" title="Редактировать">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                {% elif page.name_ru == 'Реклама' or page.name|contains:'реклам' %}
+                  <a href="{% url 'page:advertising' %}" class="btn btn-sm btn-warning" title="Редактировать">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                {% elif page.name_ru == 'Мобильные приложения' or page.name|contains:'мобил' %}
+                  <a href="{% url 'page:mobile' %}" class="btn btn-sm btn-warning" title="Редактировать">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                {% else %}
+                  <a href="{% url 'page:page_edit' page.id %}" class="btn btn-sm btn-warning" title="Редактировать">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+            
+            <!-- Контакты -->
+            {% if contacts %}
+            <tr>
+              <td>
+                <strong>Контакты</strong>
+                <span class="badge badge-info ml-2">системная</span>
+              </td>
+              <td>{{ contacts.0.date|date:"d.m.Y H:i" }}</td>
+              <td>
+                <span class="badge bg-info"><i class="fas fa-info-circle"></i> {{ contacts|length }} кинотеатров</span>
+              </td>
+              <td class="text-center page-actions">
+                <a href="{% url 'page:contacts' %}" class="btn btn-sm btn-warning" title="Редактировать">
+                  <i class="fas fa-edit"></i>
+                </a>
+              </td>
+            </tr>
+            {% endif %}
+            
+            <!-- Пользовательские страницы -->
+            {% for page in user_pages %}
+            <tr>
+              <td>
+                <strong>{{ page.name_ru|default:page.name }}</strong>
+                <span class="badge badge-success ml-2">пользовательская</span>
+              </td>
+              <td>{{ page.date|date:"d.m.Y H:i" }}</td>
+              <td>
+                {% if page.status %}
+                  <span class="badge bg-success"><i class="fas fa-check"></i> Включена</span>
+                {% else %}
+                  <span class="badge bg-danger"><i class="fas fa-times"></i> Выключена</span>
                 {% endif %}
               </td>
               <td class="text-center page-actions">
                 <div class="btn-group" role="group">
-                  {% if page.model == 'main' %}
-                    <a href="{% url 'page:main_edit' page.id %}" 
-                       class="btn btn-sm btn-warning" 
-                       title="Редактировать">
-                      <i class="fas fa-edit"></i>
-                    </a>
-                  {% elif page.model == 'contacts' %}
-                    <a href="{% url 'page:contacts_edit' page.id %}" 
-                       class="btn btn-sm btn-warning" 
-                       title="Редактировать">
-                      <i class="fas fa-edit"></i>
-                    </a>
-                  {% else %}
-                    <a href="{% url 'page:else_edit' page.id %}" 
-                       class="btn btn-sm btn-warning" 
-                       title="Редактировать">
-                      <i class="fas fa-edit"></i>
-                    </a>
-                    {% if page.can_delete %}
-                    <button type="button" 
-                            class="btn btn-sm btn-danger" 
-                            title="Удалить"
-                            onclick="confirmPageDelete({{ page.id }}, '{{ page.name|escapejs }}', '{{ page.model }}')">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                    {% endif %}
-                  {% endif %}
+                  <a href="{% url 'page:page_edit' page.id %}" class="btn btn-sm btn-warning" title="Редактировать">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button type="button" class="btn btn-sm btn-danger" title="Удалить"
+                          onclick="confirmPageDelete({{ page.id }}, '{{ page.name_ru|default:page.name|escapejs }}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
                 </div>
               </td>
             </tr>
-            {% empty %}
+            {% endfor %}
+            
+            {% if not main_page and not system_pages and not contacts and not user_pages %}
             <tr>
               <td colspan="4" class="text-center">
                 <div class="py-4">
@@ -109,7 +169,7 @@
                 </div>
               </td>
             </tr>
-            {% endfor %}
+            {% endif %}
           </tbody>
         </table>
       </div>
@@ -179,18 +239,9 @@
 
 {% block extra_js %}
 <script>
-function confirmPageDelete(pageId, pageName, pageModel) {
-    document.getElementById('pageNameToDelete').textContent = pageName;
-    
-    // Только PageElse можно удалять
-    if (pageModel === 'else') {
-        const deleteUrl = `/admin-panel/pages/else/${pageId}/delete/`;
-        document.getElementById('deletePageForm').action = deleteUrl;
-        
-        const deleteModal = new bootstrap.Modal(document.getElementById('deletePageModal'));
-        deleteModal.show();
-    } else {
-        alert('Системные страницы нельзя удалять.');
+function confirmPageDelete(pageId, pageName) {
+    if (confirm(`Вы уверены, что хотите удалить страницу "${pageName}"?\n\nЭто действие нельзя отменить.`)) {
+        window.location.href = `/admin-panel/pages/${pageId}/delete/`;
     }
 }
 

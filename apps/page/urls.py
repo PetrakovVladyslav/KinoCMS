@@ -5,16 +5,18 @@ app_name = 'page'
 
 urlpatterns = [
     # Список всех страниц
-    path('admin-panel/pages/', views.PageListView.as_view(), name='admin_list'),
+    path('admin-panel/pages/', views.admin_list_view, name='admin_list'),
     
-    # Создание страниц (только PageElse)
-    path('admin-panel/pages/else/add/', views.PageElseCreateView.as_view(), name='else_create'),
+    # Системные страницы
+    path('admin-panel/pages/main/', views.main_page_view, name='main_edit'),
+    path('admin-panel/pages/coffee-bar/', views.coffee_bar_view, name='coffee_bar'),
+    path('admin-panel/pages/vip-hall/', views.vip_hall_view, name='vip_hall'),
+    path('admin-panel/pages/advertising/', views.advertising_view, name='advertising'),
+    path('admin-panel/pages/mobile/', views.mobile_view, name='mobile'),
+    path('admin-panel/pages/contacts/', views.contacts_view, name='contacts'),
     
-    # Редактирование страниц
-    path('admin-panel/pages/main/<int:pk>/edit/', views.PageMainUpdateView.as_view(), name='main_edit'),
-    path('admin-panel/pages/else/<int:pk>/edit/', views.PageElseUpdateView.as_view(), name='else_edit'),
-    path('admin-panel/pages/contacts/<int:pk>/edit/', views.PageContactsUpdateView.as_view(), name='contacts_edit'),
-    
-    # Удаление страниц (только PageElse)
-    path('admin-panel/pages/else/<int:pk>/delete/', views.PageElseDeleteView.as_view(), name='else_delete'),
+    # Пользовательские страницы
+    path('admin-panel/pages/create/', views.page_create_view, name='page_create'),
+    path('admin-panel/pages/<int:pk>/edit/', views.page_update_view, name='page_edit'),
+    path('admin-panel/pages/<int:pk>/delete/', views.page_delete_view, name='page_delete'),
 ]
