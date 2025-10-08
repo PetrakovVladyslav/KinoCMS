@@ -86,20 +86,24 @@
                 {% endif %}
               </td>
               <td class="text-center page-actions">
-                {% if 'кофе' in page.name_ru or 'кофе' in page.name %}
+                {% if page.name == 'О кинотеатре' %}
+                  <a href="{% url 'page:about_cinema' %}" class="btn btn-sm btn-warning" title="Редактировать">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                {% elif page.name == 'Кафе-бар' %}
                   <a href="{% url 'page:coffee_bar' %}" class="btn btn-sm btn-warning" title="Редактировать">
                     <i class="fas fa-edit"></i>
                   </a>
-                {% elif 'vip' in page.name_ru|lower or 'vip' in page.name|lower %}
+                {% elif page.name == 'VIP-зал' %}
                   <a href="{% url 'page:vip_hall' %}" class="btn btn-sm btn-warning" title="Редактировать">
                     <i class="fas fa-edit"></i>
                   </a>
-                {% elif 'реклам' in page.name_ru or 'реклам' in page.name %}
+                {% elif page.name == 'Реклама' %}
                   <a href="{% url 'page:advertising' %}" class="btn btn-sm btn-warning" title="Редактировать">
                     <i class="fas fa-edit"></i>
                   </a>
-                {% elif 'мобил' in page.name_ru or 'мобил' in page.name %}
-                  <a href="{% url 'page:mobile' %}" class="btn btn-sm btn-warning" title="Редактировать">
+                {% elif page.name == 'Детская комната' %}
+                  <a href="{% url 'page:children_room' %}" class="btn btn-sm btn-warning" title="Редактировать">
                     <i class="fas fa-edit"></i>
                   </a>
                 {% else %}

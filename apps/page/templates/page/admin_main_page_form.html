@@ -1,0 +1,309 @@
+{% extends 'core/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - KinoCMS{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:admin_dashboard' %}">Главная</a></li>
+<li class="breadcrumb-item"><a href="{% url 'page:admin_list' %}">Страницы</a></li>
+<li class="breadcrumb-item active">{{ title }}</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-status-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.language-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.language-toggle .btn {
+    min-width: 50px;
+    padding: 5px 10px;
+}
+
+.language-toggle .btn.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+/* Custom switch styling */
+.custom-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.custom-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .switch-slider {
+    background-color: #28a745;
+}
+
+input:focus + .switch-slider {
+    box-shadow: 0 0 1px #28a745;
+}
+
+input:checked + .switch-slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.status-label {
+    font-weight: 500;
+    margin-left: 10px;
+}
+
+.seo-text-container {
+    position: relative;
+}
+
+#seo-text-base {
+    display: none;
+}
+
+.form-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.form-section h5 {
+    margin-bottom: 15px;
+    color: #495057;
+    font-weight: 600;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">{{ title }}</h3>
+        
+        <!-- Page Status Toggle -->
+        <div class="page-status-toggle">
+          <!-- Language Toggle -->
+          <div class="language-toggle">
+            <button type="button" class="btn btn-sm btn-outline-primary active" id="lang-ru">РУ</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="lang-uk">УК</button>
+          </div>
+          
+          <!-- Status Toggle -->
+          <div class="d-flex align-items-center">
+            <label class="custom-switch">
+              {{ form.status }}
+              <span class="switch-slider"></span>
+            </label>
+            <span class="status-label" id="status-label">
+              {% if form.status.value %}Включена{% else %}Выключена{% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- form start -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card-body">
+          {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <h5><i class="icon fas fa-ban"></i> Ошибки в форме!</h5>
+              {% for field in form %}
+                {% if field.errors %}
+                  <strong>{{ field.label }}:</strong>
+                  {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+              {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+            </div>
+          {% endif %}
+          
+          <!-- Phone Section -->
+          <div class="form-section">
+            <h5><i class="fas fa-phone"></i> Контактные телефоны</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form.phone_number1.label_tag }}
+                  {{ form.phone_number1 }}
+                  {% if form.phone_number1.help_text %}
+                    <small class="form-text text-muted">{{ form.phone_number1.help_text }}</small>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form.phone_number2.label_tag }}
+                  {{ form.phone_number2 }}
+                  {% if form.phone_number2.help_text %}
+                    <small class="form-text text-muted">{{ form.phone_number2.help_text }}</small>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- SEO Text Section -->
+          <div class="form-section">
+            <h5><i class="fas fa-search"></i> SEO текст</h5>
+            <div class="seo-text-container">
+              <div class="form-group seo-text-group" data-lang="ru">
+                <label for="{{ form.seo_text_ru.id_for_label }}">{{ form.seo_text_ru.label }}</label>
+                {{ form.seo_text_ru }}
+                <small class="form-text text-muted">Текст для поисковых систем на русском языке</small>
+              </div>
+              
+              <div class="form-group seo-text-group" data-lang="uk" style="display: none;">
+                <label for="{{ form.seo_text_uk.id_for_label }}">{{ form.seo_text_uk.label }}</label>
+                {{ form.seo_text_uk }}
+                <small class="form-text text-muted">Текст для поисковых систем на украинском языке</small>
+              </div>
+            </div>
+          </div>
+          
+          <!-- SEO Block Section -->
+          <div class="form-section">
+            <h5><i class="fas fa-cog"></i> SEO блок</h5>
+            <p class="text-muted mb-3">Дополнительные SEO настройки будут добавлены в будущих версиях</p>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              SEO блок в разработке
+            </div>
+          </div>
+          
+          <!-- Hidden fields -->
+          {{ form.seo_text.as_hidden }}
+        </div>
+        
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Сохранить изменения
+          </button>
+          <a href="{% url 'page:admin_list' %}" class="btn btn-secondary ml-2">
+            <i class="fas fa-arrow-left"></i> Назад к списку
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Language switcher functionality
+    const langRuBtn = document.getElementById('lang-ru');
+    const langUkBtn = document.getElementById('lang-uk');
+    const seoTextGroups = document.querySelectorAll('.seo-text-group');
+    
+    function switchLanguage(lang) {
+        // Update button states
+        if (lang === 'ru') {
+            langRuBtn.classList.add('active');
+            langUkBtn.classList.remove('active');
+        } else {
+            langUkBtn.classList.add('active');
+            langRuBtn.classList.remove('active');
+        }
+        
+        // Show/hide appropriate text fields
+        seoTextGroups.forEach(group => {
+            if (group.dataset.lang === lang) {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+            }
+        });
+    }
+    
+    langRuBtn.addEventListener('click', () => switchLanguage('ru'));
+    langUkBtn.addEventListener('click', () => switchLanguage('uk'));
+    
+    // Status switch functionality
+    const statusSwitch = document.getElementById('status-switch');
+    const statusLabel = document.getElementById('status-label');
+    
+    function updateStatusLabel() {
+        statusLabel.textContent = statusSwitch.checked ? 'Включена' : 'Выключена';
+    }
+    
+    if (statusSwitch) {
+        statusSwitch.addEventListener('change', updateStatusLabel);
+        updateStatusLabel(); // Set initial state
+    }
+    
+    // Auto-hide alerts
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            if (alert && alert.parentNode) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    if (alert && alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 500);
+            }
+        }, 5000);
+    });
+});
+</script>
+{% endblock %}

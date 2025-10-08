@@ -9,10 +9,11 @@ urlpatterns = [
     
     # Системные страницы
     path('admin-panel/pages/main/', views.main_page_view, name='main_edit'),
+    path('admin-panel/pages/about-cinema/', views.about_cinema_view, name='about_cinema'),
     path('admin-panel/pages/coffee-bar/', views.coffee_bar_view, name='coffee_bar'),
     path('admin-panel/pages/vip-hall/', views.vip_hall_view, name='vip_hall'),
     path('admin-panel/pages/advertising/', views.advertising_view, name='advertising'),
-    path('admin-panel/pages/mobile/', views.mobile_view, name='mobile'),
+    path('admin-panel/pages/children-room/', views.children_room_view, name='children_room'),
     path('admin-panel/pages/contacts/', views.contacts_view, name='contacts'),
     
     # Пользовательские страницы

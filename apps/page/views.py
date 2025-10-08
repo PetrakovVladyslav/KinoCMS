@@ -35,23 +35,22 @@ def main_page_view(request):
         'title': 'Редактировать главную страницу',
         'page': page_main,
     }
-    return render(request, 'page/admin_page_form.html', context)
+    return render(request, 'page/admin_main_page_form.html', context)
 
 
 @staff_member_required(login_url='admin:login')
 def coffee_bar_view(request):
-    """Редактирование страницы Кофе-бар"""
+    """Редактирование страницы Кафе-бар"""
     # Ищем страницу по названию или создаем новую
-    try:
-        page = PageElse.objects.get(name__icontains='кофе', can_delete=False)
-    except PageElse.DoesNotExist:
-        page = PageElse.objects.create(
-            name='Кофе-бар',
-            name_ru='Кофе-бар', 
-            name_uk='Кав\'ярня',
-            description='',
-            can_delete=False
-        )
+    page, created = PageElse.objects.get_or_create(
+        name='Кафе-бар',
+        defaults={
+            'name_ru': 'Кафе-бар', 
+            'name_uk': 'Кафе-бар',
+            'description': '',
+            'can_delete': False
+        }
+    )
     
     if request.method == 'POST':
         form = PageElseForm(request.POST, request.FILES, instance=page)
@@ -73,19 +72,49 @@ def coffee_bar_view(request):
 
 
 @staff_member_required(login_url='admin:login')
+def about_cinema_view(request):
+    """Редактирование страницы О кинотеатре"""
+    page, created = PageElse.objects.get_or_create(
+        name='О кинотеатре',
+        defaults={
+            'name_ru': 'О кинотеатре', 
+            'name_uk': 'Про кінотеатр',
+            'description': '',
+            'can_delete': False
+        }
+    )
+    
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES, instance=page)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Страница "О кинотеатре" успешно обновлена')
+            return redirect(request.path)
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        form = PageElseForm(instance=page)
+    
+    context = {
+        'form': form,
+        'title': 'Редактировать страницу "О кинотеатре"',
+        'page': page,
+    }
+    return render(request, 'page/admin_page_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
 def vip_hall_view(request):
     """Редактирование страницы VIP-зал"""
-    # Ищем страницу по названию или создаем новую
-    try:
-        page = PageElse.objects.get(name__icontains='vip', can_delete=False)
-    except PageElse.DoesNotExist:
-        page = PageElse.objects.create(
-            name='VIP-зал',
-            name_ru='VIP-зал',
-            name_uk='VIP-зал', 
-            description='',
-            can_delete=False
-        )
+    page, created = PageElse.objects.get_or_create(
+        name='VIP-зал',
+        defaults={
+            'name_ru': 'VIP-зал',
+            'name_uk': 'VIP-зал', 
+            'description': '',
+            'can_delete': False
+        }
+    )
     
     if request.method == 'POST':
         form = PageElseForm(request.POST, request.FILES, instance=page)
@@ -141,19 +170,35 @@ def advertising_view(request):
 
 
 @staff_member_required(login_url='admin:login')
-def mobile_view(request):
-    """Редактирование страницы Мобильные приложения"""
-    # Ищем страницу по названию или создаем новую
-    try:
-        page = PageElse.objects.get(name__icontains='мобиль', can_delete=False)
-    except PageElse.DoesNotExist:
-        page = PageElse.objects.create(
-            name='Мобильные приложения',
-            name_ru='Мобильные приложения',
-            name_uk='Мобільні додатки',
-            description='',
-            can_delete=False
-        )
+def children_room_view(request):
+    """Редактирование страницы Детская комната"""
+    page, created = PageElse.objects.get_or_create(
+        name='Детская комната',
+        defaults={
+            'name_ru': 'Детская комната',
+            'name_uk': 'Дитяча кімната',
+            'description': '',
+            'can_delete': False
+        }
+    )
+    
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES, instance=page)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Страница "Детская комната" успешно обновлена')
+            return redirect(request.path)
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        form = PageElseForm(instance=page)
+    
+    context = {
+        'form': form,
+        'title': 'Редактировать страницу "Детская комната"',
+        'page': page,
+    }
+    return render(request, 'page/admin_page_form.html', context)
     
     if request.method == 'POST':
         form = PageElseForm(request.POST, request.FILES, instance=page)
@@ -223,8 +268,37 @@ def contacts_view(request):
 @staff_member_required(login_url='admin:login')
 def admin_list_view(request):
     """Список всех страниц для администрирования"""
+    
+    # Автоматически создаем системные страницы если их нет
+    system_pages_config = [
+        {'name': 'О кинотеатре', 'name_ru': 'О кинотеатре', 'name_uk': 'Про кінотеатр'},
+        {'name': 'Кафе-бар', 'name_ru': 'Кафе-бар', 'name_uk': 'Кафе-бар'},
+        {'name': 'VIP-зал', 'name_ru': 'VIP-зал', 'name_uk': 'VIP-зал'},
+        {'name': 'Реклама', 'name_ru': 'Реклама', 'name_uk': 'Реклама'},
+        {'name': 'Детская комната', 'name_ru': 'Детская комната', 'name_uk': 'Дитяча кімната'},
+    ]
+    
+    for config in system_pages_config:
+        PageElse.objects.get_or_create(
+            name=config['name'],
+            defaults={
+                'name_ru': config['name_ru'],
+                'name_uk': config['name_uk'],
+                'description': '',
+                'can_delete': False,
+                'status': True
+            }
+        )
+    
     # Получаем главную страницу
     main_page = PageMain.objects.first()
+    if not main_page:
+        main_page = PageMain.objects.create(
+            phone_number1='',
+            phone_number2='',
+            seo_text='',
+            status=True
+        )
     
     # Получаем системные страницы
     system_pages = PageElse.objects.filter(can_delete=False)
@@ -232,8 +306,16 @@ def admin_list_view(request):
     # Получаем пользовательские страницы 
     user_pages = PageElse.objects.filter(can_delete=True)
     
-    # Получаем контакты
+    # Получаем контакты (создаем по умолчанию если нет)
     contacts = PageContacts.objects.all()
+    if not contacts.exists():
+        PageContacts.objects.create(
+            cinema_name='Кинотеатр',
+            address='ул. Пример, 1',
+            coordinates='',
+            status=True
+        )
+        contacts = PageContacts.objects.all()
     
     context = {
         'main_page': main_page,
