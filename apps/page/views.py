@@ -3,7 +3,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.forms import formset_factory
 
-from .models import PageMain, PageElse, PageContacts
+from .models import PageElse, PageContacts
 from .forms import PageMainForm, PageElseForm, PageContactsForm, ImageFormSet, SeoBlockForm
 from .utils import (
     ensure_gallery_for_page,
@@ -19,6 +19,10 @@ from .utils import (
 
 
 def system_page_view_factory(page_name: str, name_ru: str, name_uk: str, template_title: str):
+    """
+    Фабрика для создания представлений системных страниц.
+    Используется для создания одинаковых view-функций для разных страниц.
+    """
 
 
     @staff_member_required(login_url='admin:login')
@@ -135,7 +139,7 @@ def contacts_view(request):
     additional_contacts = PageContacts.objects.exclude(pk=main_contact.pk)
 
     # Создаем formset для дополнительных контактов
-    AdditionalContactsFormSet = formset_factory(
+    additional_contacts_formset_class = formset_factory(
         PageContactsForm,
         extra=1,
         can_delete=True,
@@ -147,7 +151,7 @@ def contacts_view(request):
         main_form = PageContactsForm(
             request.POST, request.FILES, instance=main_contact, prefix='main'
         )
-        additional_formset = AdditionalContactsFormSet(
+        additional_formset = additional_contacts_formset_class(
             request.POST, request.FILES, prefix='additional'
         )
         seo_form = SeoBlockForm(request.POST, instance=seo_block)
@@ -188,7 +192,7 @@ def contacts_view(request):
             for contact in additional_contacts
         ]
 
-        additional_formset = AdditionalContactsFormSet(
+        additional_formset = additional_contacts_formset_class(
             initial=initial_additional,
             prefix='additional'
         )
