@@ -118,13 +118,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGES = (
     ('ru', 'Russian'),
-    ('en', 'English'),
+    ('uk', 'Ukrainian'),
 )
 
-MODELTRANSLATION_LANGUAGES = ('ru', 'en')
+MODELTRANSLATION_LANGUAGES = ('ru', 'uk')
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'ru'
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 

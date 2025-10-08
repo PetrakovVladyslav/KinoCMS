@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KinoCMS | Вход в систему</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="{% static 'adminlte/dist/css/source-sans-3.css' %}">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap-icons.min.css' %}">
+  <!-- AdminLTE CSS -->
+  <link rel="stylesheet" href="{% static 'adminlte/dist/css/adminlte.css' %}">
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+  <!-- /.login-logo -->
+  <div class="card card-outline card-primary">
+    <div class="card-header text-center">
+      <a href="#" class="h1"><b>Kino</b>CMS</a>
+    </div>
+    <div class="card-body">
+      <p class="login-box-msg">Войдите в административную панель</p>
+
+      {% if form.errors %}
+        <div class="alert alert-danger">
+          {% for field in form %}
+            {% for error in field.errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+          <input type="text" name="username" class="form-control" placeholder="Имя пользователя" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="bi bi-person"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" name="password" class="form-control" placeholder="Пароль" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="bi bi-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-8">
+            <div class="icheck-primary">
+              <input type="checkbox" id="remember">
+              <label for="remember">
+                Запомнить меня
+              </label>
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-block">Войти</button>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>
+
+      <p class="mb-1">
+        <a href="#">Забыли пароль?</a>
+      </p>
+    </div>
+    <!-- /.card-body -->
+  </div>
+  <!-- /.card -->
+</div>
+<!-- /.login-box -->
+
+<!-- Bootstrap 5 -->
+<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'adminlte/dist/js/adminlte.js' %}"></script>
+
+<style>
+  .form-control {
+    border-radius: 0.25rem 0 0 0.25rem;
+  }
+  .input-group-text {
+    border-radius: 0 0.25rem 0.25rem 0;
+  }
+</style>
+
+</body>
+</html>

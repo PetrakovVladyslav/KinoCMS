@@ -1,0 +1,323 @@
+{% extends 'core/admin_base.html' %}
+
+{% block title %}Редактирование пользователя - KinoCMS{% endblock %}
+
+{% block page_title %}Редактирование пользователя{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:admin_dashboard' %}">Главная</a></li>
+<li class="breadcrumb-item"><a href="{% url 'core:admin_users_list' %}">Пользователи</a></li>
+<li class="breadcrumb-item active">Редактирование</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="bi bi-person-gear me-2"></i>Редактирование пользователя
+        </h3>
+        <div class="card-tools">
+          <a href="{% url 'core:admin_users_list' %}" class="btn btn-sm btn-secondary">
+            <i class="bi bi-arrow-left"></i> Назад к списку
+          </a>
+        </div>
+      </div>
+      
+      <form method="post">
+        <div class="card-body">
+          {% csrf_token %}
+          
+          <!-- Общие ошибки формы -->
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger mb-4" role="alert">
+              {% for error in form.non_field_errors %}
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+          
+          <div class="row">
+            <!-- Имя и Фамилия -->
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                <i class="bi bi-person me-2"></i>{{ form.first_name.label }}
+              </label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.first_name.errors %}
+                    <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                <i class="bi bi-person me-2"></i>{{ form.last_name.label }}
+              </label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.last_name.errors %}
+                    <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="{{ form.email.id_for_label }}" class="form-label">
+              <i class="bi bi-envelope me-2"></i>{{ form.email.label }}
+            </label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <div class="text-danger mt-1">
+                {% for error in form.email.errors %}
+                  <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Телефон и Карта -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                <i class="bi bi-telephone me-2"></i>{{ form.phone_number.label }}
+              </label>
+              {{ form.phone_number }}
+              {% if form.phone_number.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.phone_number.errors %}
+                    <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <div class="form-text text-muted mt-1">
+                <small>Формат: 0990000000 (10 цифр, начиная с 0)</small>
+              </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.card_number.id_for_label }}" class="form-label">
+                <i class="bi bi-credit-card me-2"></i>{{ form.card_number.label }}
+              </label>
+              {{ form.card_number }}
+              {% if form.card_number.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.card_number.errors %}
+                    <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <div class="form-text text-muted mt-1">
+                <small>16 цифр номера карты</small>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Адрес -->
+          <div class="mb-3">
+            <label for="{{ form.address.id_for_label }}" class="form-label">
+              <i class="bi bi-house me-2"></i>{{ form.address.label }}
+            </label>
+            {{ form.address }}
+            {% if form.address.errors %}
+              <div class="text-danger mt-1">
+                {% for error in form.address.errors %}
+                  <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Дата рождения и Город -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">
+                <i class="bi bi-calendar me-2"></i>{{ form.date_of_birth.label }}
+              </label>
+              {{ form.date_of_birth }}
+              {% if form.date_of_birth.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.date_of_birth.errors %}
+                    <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.city.id_for_label }}" class="form-label">
+                <i class="bi bi-geo-alt me-2"></i>{{ form.city.label }}
+              </label>
+              {{ form.city }}
+              {% if form.city.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.city.errors %}
+                    <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Пол -->
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="bi bi-person-badge me-2"></i>{{ form.gender.label }}
+            </label>
+            <div class="mt-2">
+              {% for radio in form.gender %}
+                <div class="form-check form-check-inline">
+                  {{ radio.tag }}
+                  <label class="form-check-label" for="{{ radio.id_for_label }}">
+                    {{ radio.choice_label }}
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+            {% if form.gender.errors %}
+              <div class="text-danger mt-1">
+                {% for error in form.gender.errors %}
+                  <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Язык -->
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="bi bi-translate me-2"></i>{{ form.language.label }}
+            </label>
+            <div class="mt-2">
+              {% for radio in form.language %}
+                <div class="form-check form-check-inline">
+                  {{ radio.tag }}
+                  <label class="form-check-label" for="{{ radio.id_for_label }}">
+                    {{ radio.choice_label }}
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+            {% if form.language.errors %}
+              <div class="text-danger mt-1">
+                {% for error in form.language.errors %}
+                  <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Смена пароля -->
+          <hr class="my-4">
+          <h6 class="mb-3">
+            <i class="bi bi-shield-lock me-2"></i>Смена пароля
+            <small class="text-muted">(необязательно)</small>
+          </h6>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.password1.id_for_label }}" class="form-label">
+                {{ form.password1.label }}
+              </label>
+              {{ form.password1 }}
+              {% if form.password1.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.password1.errors %}
+                    <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <div class="form-text text-muted mt-1">
+                <small>Оставьте пустым, если не хотите менять пароль</small>
+              </div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.password2.id_for_label }}" class="form-label">
+                {{ form.password2.label }}
+              </label>
+              {{ form.password2 }}
+              {% if form.password2.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in form.password2.errors %}
+                    <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-footer">
+          <div class="d-flex justify-content-between">
+            <a href="{% url 'core:admin_users_list' %}" class="btn btn-secondary">
+              <i class="bi bi-x-circle me-2"></i>Отмена
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-2"></i>Сохранить изменения
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Информационная карточка -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Информация о пользователе</h3>
+      </div>
+      <div class="card-body">
+        <div class="text-center mb-3">
+          <i class="bi bi-person-circle" style="font-size: 4rem; color: var(--bs-primary);"></i>
+          <h5 class="mt-2">{{ user_obj.get_full_name }}</h5>
+          <p class="text-muted">{{ user_obj.email }}</p>
+        </div>
+        
+        <table class="table table-sm">
+          <tr>
+            <td><strong>ID:</strong></td>
+            <td>{{ user_obj.id }}</td>
+          </tr>
+          <tr>
+            <td><strong>Регистрация:</strong></td>
+            <td>{{ user_obj.date_joined|date:"d.m.Y H:i" }}</td>
+          </tr>
+          <tr>
+            <td><strong>Последний вход:</strong></td>
+            <td>
+              {% if user_obj.last_login %}
+                {{ user_obj.last_login|date:"d.m.Y H:i" }}
+              {% else %}
+                Никогда
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Статус:</strong></td>
+            <td>
+              {% if user_obj.is_active %}
+                <span class="badge bg-success">Активен</span>
+              {% else %}
+                <span class="badge bg-danger">Неактивен</span>
+              {% endif %}
+              {% if user_obj.is_staff %}
+                <span class="badge bg-info ms-1">Персонал</span>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

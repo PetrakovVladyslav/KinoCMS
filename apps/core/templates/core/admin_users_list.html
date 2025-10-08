@@ -1,0 +1,372 @@
+{% extends 'core/admin_base.html' %}
+
+{% block title %}Пользователи - KinoCMS{% endblock %}
+
+{% block page_title %}Пользователи{% endblock %}
+
+{% block breadcrumb_active %}Пользователи{% endblock %}
+
+{% block extra_css %}
+<style>
+.user-actions {
+    white-space: nowrap;
+}
+.user-actions .btn {
+    padding: 0.25rem 0.5rem;
+    margin: 0 0.125rem;
+}
+.table th {
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+.pagination-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+.pagination-info {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+.sortable-header {
+    cursor: pointer;
+}
+.sortable-header:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h3 class="card-title mb-0">
+              <i class="bi bi-people me-2"></i>Пользователи
+            </h3>
+          </div>
+          <div class="col-md-6">
+            <form method="get" class="d-flex">
+              <div class="input-group">
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Поиск по имени, email, телефону..." 
+                       value="{{ search_query }}"
+                       aria-label="Поиск пользователей">
+                <button class="btn btn-primary" type="submit">
+                  <i class="bi bi-search"></i> Поиск
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-body p-0">
+        {% if users %}
+        <div class="table-responsive">
+          <table class="table table-striped table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" class="sortable-header">
+                  <a href="javascript:void(0)" onclick="sortTable('id')" class="text-decoration-none text-dark d-flex align-items-center">
+                    ID
+                    {% if current_sort == 'id' %}
+                      <i class="bi bi-arrow-up ms-1"></i>
+                    {% elif current_sort == '-id' %}
+                      <i class="bi bi-arrow-down ms-1"></i>
+                    {% endif %}
+                  </a>
+                </th>
+                <th scope="col">
+                  <a href="javascript:void(0)" onclick="sortTable('date_joined')" class="text-decoration-none text-dark d-flex align-items-center">
+                    Дата регистрации
+                    {% if current_sort == 'date_joined' %}
+                      <i class="bi bi-arrow-up ms-1"></i>
+                    {% elif current_sort == '-date_joined' %}
+                      <i class="bi bi-arrow-down ms-1"></i>
+                    {% endif %}
+                  </a>
+                </th>
+                <th scope="col">
+                  <a href="javascript:void(0)" onclick="sortTable('date_of_birth')" class="text-decoration-none text-dark d-flex align-items-center">
+                    День рождения
+                    {% if current_sort == 'date_of_birth' %}
+                      <i class="bi bi-arrow-up ms-1"></i>
+                    {% elif current_sort == '-date_of_birth' %}
+                      <i class="bi bi-arrow-down ms-1"></i>
+                    {% endif %}
+                  </a>
+                </th>
+                <th scope="col">
+                  <a href="javascript:void(0)" onclick="sortTable('email')" class="text-decoration-none text-dark d-flex align-items-center">
+                    Email
+                    {% if current_sort == 'email' %}
+                      <i class="bi bi-arrow-up ms-1"></i>
+                    {% elif current_sort == '-email' %}
+                      <i class="bi bi-arrow-down ms-1"></i>
+                    {% endif %}
+                  </a>
+                </th>
+                <th scope="col">
+                  <a href="javascript:void(0)" onclick="sortTable('phone_number')" class="text-decoration-none text-dark d-flex align-items-center">
+                    Телефон
+                    {% if current_sort == 'phone_number' %}
+                      <i class="bi bi-arrow-up ms-1"></i>
+                    {% elif current_sort == '-phone_number' %}
+                      <i class="bi bi-arrow-down ms-1"></i>
+                    {% endif %}
+                  </a>
+                </th>
+                <th scope="col">
+                  <a href="javascript:void(0)" onclick="sortTable('first_name')" class="text-decoration-none text-dark d-flex align-items-center">
+                    ФИО
+                    {% if current_sort == 'first_name' %}
+                      <i class="bi bi-arrow-up ms-1"></i>
+                    {% elif current_sort == '-first_name' %}
+                      <i class="bi bi-arrow-down ms-1"></i>
+                    {% endif %}
+                  </a>
+                </th>
+                <th scope="col">
+                  <a href="javascript:void(0)" onclick="sortTable('gender')" class="text-decoration-none text-dark d-flex align-items-center">
+                    Пол
+                    {% if current_sort == 'gender' %}
+                      <i class="bi bi-arrow-up ms-1"></i>
+                    {% elif current_sort == '-gender' %}
+                      <i class="bi bi-arrow-down ms-1"></i>
+                    {% endif %}
+                  </a>
+                </th>
+                <th scope="col">
+                  <a href="javascript:void(0)" onclick="sortTable('city')" class="text-decoration-none text-dark d-flex align-items-center">
+                    Город
+                    {% if current_sort == 'city' %}
+                      <i class="bi bi-arrow-up ms-1"></i>
+                    {% elif current_sort == '-city' %}
+                      <i class="bi bi-arrow-down ms-1"></i>
+                    {% endif %}
+                  </a>
+                </th>
+                <th scope="col" class="text-center">Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+              <tr>
+                <td class="fw-medium">{{ user.id }}</td>
+                <td>
+                  {% if user.date_joined %}
+                    {{ user.date_joined|date:"d.m.Y" }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if user.date_of_birth %}
+                    {{ user.date_of_birth|date:"d.m.Y" }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="mailto:{{ user.email }}" class="text-decoration-none">
+                    {{ user.email }}
+                  </a>
+                </td>
+                <td>
+                  {% if user.phone_number %}
+                    {{ user.phone_number }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td class="fw-medium">
+                  {{ user.first_name }} {{ user.last_name }}
+                </td>
+                <td>
+                  {% if user.gender %}
+                    <span class="badge bg-{% if user.gender == 'male' %}info{% else %}danger{% endif %}">
+                      {{ user.get_gender_display }}
+                    </span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if user.city %}
+                    {{ user.get_city_display }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td class="text-center user-actions">
+                  <div class="btn-group" role="group">
+                    <a href="{% url 'core:admin_user_edit' user.id %}" 
+                       class="btn btn-sm btn-warning" 
+                       title="Редактировать">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button type="button" 
+                            class="btn btn-sm btn-danger" 
+                            title="Удалить"
+                            onclick="confirmDelete({{ user.id }}, '{{ user.get_full_name|escapejs }}')">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+          <i class="bi bi-people" style="font-size: 3rem; color: #6c757d;"></i>
+          <h5 class="mt-3 text-muted">
+            {% if search_query %}
+              Пользователи не найдены
+            {% else %}
+              Пользователи отсутствуют
+            {% endif %}
+          </h5>
+          {% if search_query %}
+            <p class="text-muted">По запросу "{{ search_query }}" ничего не найдено</p>
+            <a href="{% url 'core:admin_users_list' %}" class="btn btn-outline-primary">
+              Показать всех пользователей
+            </a>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      
+      {% if users.has_other_pages %}
+      <div class="card-footer">
+        <div class="pagination-wrapper">
+          <div class="pagination-info">
+            Показано {{ users.start_index }}-{{ users.end_index }} из {{ total_users }} пользователей
+          </div>
+          
+          <nav aria-label="Навигация по страницам">
+            <ul class="pagination pagination-sm mb-0">
+              {% if users.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ users.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                     aria-label="Предыдущая">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+              {% endif %}
+              
+              {% for page_num in users.paginator.page_range %}
+                {% if page_num == users.number %}
+                  <li class="page-item active">
+                    <span class="page-link">{{ page_num }}</span>
+                  </li>
+                {% elif page_num > users.number|add:'-3' and page_num < users.number|add:'3' %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page_num }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                      {{ page_num }}
+                    </a>
+                  </li>
+                {% elif page_num == 1 or page_num == users.paginator.num_pages %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page_num }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                      {{ page_num }}
+                    </a>
+                  </li>
+                  {% if page_num == 1 and users.number > 4 %}
+                    <li class="page-item disabled">
+                      <span class="page-link">...</span>
+                    </li>
+                  {% elif page_num == users.paginator.num_pages and users.number < users.paginator.num_pages|add:'-3' %}
+                    <li class="page-item disabled">
+                      <span class="page-link">...</span>
+                    </li>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              
+              {% if users.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ users.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                     aria-label="Следующая">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="deleteModalLabel">Подтверждение удаления</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        <p>Вы уверены, что хотите удалить пользователя <strong id="userNameToDelete"></strong>?</p>
+        <p class="text-muted small">Это действие нельзя отменить.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <form id="deleteForm" method="post" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete(userId, userName) {
+    document.getElementById('userNameToDelete').textContent = userName;
+    document.getElementById('deleteForm').action = `/admin-panel/users/${userId}/delete/`;
+    
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+// Автоматически скрывать алерты через 5 секунд
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
+function sortTable(field) {
+    const currentSort = new URLSearchParams(window.location.search).get('sort');
+    let newSort = field;
+
+    // Если уже сортируем по этому полю, меняем направление
+    if (currentSort === field) {
+        newSort = '-' + field;
+    } else if (currentSort === '-' + field) {
+        newSort = field;
+    }
+
+    // Сохраняем поисковый запрос
+    const search = new URLSearchParams(window.location.search).get('search') || '';
+    const url = `?sort=${newSort}${search ? '&search=' + search : ''}`;
+
+    window.location.href = url;
+}
+</script>
+{% endblock %}

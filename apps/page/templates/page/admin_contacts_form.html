@@ -1,0 +1,406 @@
+{% extends 'core/admin_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - KinoCMS{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:admin_dashboard' %}">Главная</a></li>
+<li class="breadcrumb-item"><a href="{% url 'page:admin_list' %}">Страницы</a></li>
+<li class="breadcrumb-item active">Редактирование</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+          <h3 class="card-title mb-0">
+            <i class="fas fa-edit"></i>
+            Контакты
+          </h3>
+        </div>
+      </div>
+      <!-- /.card-header -->
+      
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" id="contactsForm">
+          {% csrf_token %}
+          
+          {% if contacts_formset.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ contacts_formset.non_field_errors }}
+            </div>
+          {% endif %}
+          
+          <!-- Contacts Formset -->
+          {{ contacts_formset.management_form }}
+          
+          <div id="contacts-formset">
+            {% for form in contacts_formset %}
+              <div class="contact-block mb-4" data-contact-index="{{ forloop.counter0 }}">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0">
+                        <i class="fas fa-building"></i> 
+                        Кинотеатр {% if forloop.first %}(основной){% else %}{{ forloop.counter }}{% endif %}
+                      </h5>
+                      {% if not forloop.first %}
+                        <div class="form-check form-switch">
+                          <input class="form-check-input contact-status-switch" type="checkbox" 
+                                 id="contact_{{ forloop.counter0 }}_status" 
+                                 {% if form.status.value %}checked{% endif %}
+                                 onchange="toggleContactStatus({{ forloop.counter0 }})">
+                          <label class="form-check-label" for="contact_{{ forloop.counter0 }}_status" 
+                                 id="contactStatusLabel_{{ forloop.counter0 }}">
+                            {% if form.status.value %}
+                              <span class="text-success"><i class="fas fa-check-circle"></i> Включен</span>
+                            {% else %}
+                              <span class="text-danger"><i class="fas fa-times-circle"></i> Отключен</span>
+                            {% endif %}
+                          </label>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  
+                  <div class="card-body">
+                    {{ form.id }}
+                    {% if form.DELETE %}
+                      <input type="hidden" name="{{ form.DELETE.name }}" value="{{ form.DELETE.value|default:'0' }}">
+                    {% endif %}
+                    
+                    <div class="row">
+                      <div class="col-md-6">
+                        <!-- Cinema Name -->
+                        <div class="form-group mb-3">
+                          <label for="{{ form.cinema_name.id_for_label }}" class="form-label">
+                            {{ form.cinema_name.label }}
+                          </label>
+                          {{ form.cinema_name }}
+                          {% if form.cinema_name.errors %}
+                            <div class="invalid-feedback d-block">
+                              {% for error in form.cinema_name.errors %}
+                                {{ error }}
+                              {% endfor %}
+                            </div>
+                          {% endif %}
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="form-group mb-3">
+                          <label for="{{ form.address.id_for_label }}" class="form-label">
+                            {{ form.address.label }}
+                          </label>
+                          {{ form.address }}
+                          {% if form.address.errors %}
+                            <div class="invalid-feedback d-block">
+                              {% for error in form.address.errors %}
+                                {{ error }}
+                              {% endfor %}
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-6">
+                        <!-- Coordinates -->
+                        <div class="form-group mb-3">
+                          <label for="{{ form.coordinates.id_for_label }}" class="form-label">
+                            {{ form.coordinates.label }}
+                          </label>
+                          {{ form.coordinates }}
+                          {% if form.coordinates.errors %}
+                            <div class="invalid-feedback d-block">
+                              {% for error in form.coordinates.errors %}
+                                {{ error }}
+                              {% endfor %}
+                            </div>
+                          {% endif %}
+                        </div>
+                        
+                        <!-- Logo -->
+                        <div class="form-group mb-3">
+                          <label for="{{ form.logo.id_for_label }}" class="form-label">
+                            {{ form.logo.label }}
+                          </label>
+                          <div class="d-flex align-items-start gap-3">
+                            <div class="logo-preview">
+                              <img id="logoPreview_{{ forloop.counter0 }}" 
+                                   src="{% if form.logo.value %}{{ form.logo.value.url }}{% endif %}" 
+                                   style="max-width: 100px; max-height: 100px; {% if not form.logo.value %}display: none;{% endif %}" 
+                                   class="img-thumbnail" alt="Предпросмотр логотипа">
+                              <div id="logoPlaceholder_{{ forloop.counter0 }}" 
+                                   style="width: 100px; height: 100px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; {% if form.logo.value %}display: none;{% endif %}" 
+                                   class="text-muted">
+                                <i class="fas fa-image fa-2x"></i>
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              {{ form.logo }}
+                              {% if form.logo.errors %}
+                                <div class="invalid-feedback d-block">
+                                  {% for error in form.logo.errors %}
+                                    {{ error }}
+                                  {% endfor %}
+                                </div>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Hidden status field -->
+                    <input type="hidden" id="{{ form.status.id_for_label }}" name="{{ form.status.name }}" 
+                           value="{% if form.status.value %}on{% else %}{% endif %}">
+                    {{ form.status.errors }}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          
+          <!-- Add Cinema Button -->
+          <div class="mb-4">
+            <button type="button" id="add-contact" class="btn btn-outline-primary">
+              <i class="fas fa-plus"></i> Добавить еще кинотеатр
+            </button>
+          </div>
+          
+          <!-- SEO Section -->
+          <div class="row">
+            <div class="col-12">
+              <hr>
+              <h5 class="mb-3">
+                <i class="fas fa-search text-primary"></i> SEO настройки
+              </h5>
+              
+              {% if seo_form.non_field_errors %}
+                <div class="alert alert-danger">
+                  {{ seo_form.non_field_errors }}
+                </div>
+              {% endif %}
+              
+              <div class="row">
+                <div class="col-md-8">
+                  {% for field in seo_form %}
+                    <div class="form-group mb-3">
+                      <label for="{{ field.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                      </label>
+                      {{ field }}
+                      {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                      {% endif %}
+                      {% if field.errors %}
+                        <div class="invalid-feedback d-block">
+                          {% for error in field.errors %}
+                            {{ error }}
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+                <div class="col-md-4">
+                  <div class="card bg-light">
+                    <div class="card-body">
+                      <h6 class="card-title">
+                        <i class="fas fa-info-circle text-info"></i> Подсказка
+                      </h6>
+                      <p class="card-text small">
+                        SEO настройки помогают сайту лучше индексироваться поисковыми системами.
+                      </p>
+                      <ul class="list-unstyled small">
+                        <li><i class="fas fa-check text-success"></i> Заголовок: 50-60 символов</li>
+                        <li><i class="fas fa-check text-success"></i> Описание: 150-160 символов</li>
+                        <li><i class="fas fa-check text-success"></i> Ключевые слова: 5-10 штук</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- /.card-body -->
+      
+      <div class="card-footer">
+        <button type="submit" form="contactsForm" class="btn btn-success">
+          <i class="fas fa-save"></i> 
+          Сохранить
+        </button>
+        <a href="{% url 'page:admin_list' %}" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Отмена
+        </a>
+      </div>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle contact status
+function toggleContactStatus(index) {
+    const statusSwitch = document.getElementById(`contact_${index}_status`);
+    const statusLabel = document.getElementById(`contactStatusLabel_${index}`);
+    const hiddenStatusInput = document.querySelector(`input[name="form-${index}-status"]`);
+    
+    if (statusSwitch.checked) {
+        statusLabel.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> Включен</span>';
+        hiddenStatusInput.value = 'on';
+    } else {
+        statusLabel.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle"></i> Отключен</span>';
+        hiddenStatusInput.value = '';
+    }
+}
+
+// Add new contact functionality
+function setupContactFormset() {
+    const addContactBtn = document.getElementById('add-contact');
+    const contactsFormset = document.getElementById('contacts-formset');
+    
+    if (addContactBtn && contactsFormset) {
+        const totalFormsInput = document.querySelector('input[name="form-TOTAL_FORMS"]');
+        
+        addContactBtn.addEventListener('click', function() {
+            const totalForms = parseInt(totalFormsInput.value);
+            const newContactForm = createContactForm(totalForms);
+            
+            contactsFormset.insertAdjacentHTML('beforeend', newContactForm);
+            totalFormsInput.value = totalForms + 1;
+            
+            // Setup logo preview for new form
+            setupLogoPreviews();
+        });
+    }
+}
+
+// Create new contact form HTML
+function createContactForm(index) {
+    return `
+        <div class="contact-block mb-4" data-contact-index="${index}">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-building"></i> 
+                            Кинотеатр ${index + 1}
+                        </h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input contact-status-switch" type="checkbox" 
+                                   id="contact_${index}_status" checked
+                                   onchange="toggleContactStatus(${index})">
+                            <label class="form-check-label" for="contact_${index}_status" 
+                                   id="contactStatusLabel_${index}">
+                                <span class="text-success"><i class="fas fa-check-circle"></i> Включен</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <input type="hidden" name="form-${index}-id" id="id_form-${index}-id">
+                    <input type="hidden" name="form-${index}-DELETE" value="0">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="id_form-${index}-cinema_name" class="form-label">Название кинотеатра</label>
+                                <input type="text" class="form-control" name="form-${index}-cinema_name" 
+                                       id="id_form-${index}-cinema_name" placeholder="Название кинотеатра">
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="id_form-${index}-address" class="form-label">Адрес кинотеатра</label>
+                                <textarea class="form-control" name="form-${index}-address" 
+                                          id="id_form-${index}-address" rows="4" 
+                                          placeholder="Адрес кинотеатра"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="id_form-${index}-coordinates" class="form-label">Координаты для карты</label>
+                                <input type="text" class="form-control" name="form-${index}-coordinates" 
+                                       id="id_form-${index}-coordinates" placeholder="Координаты для карты">
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="id_form-${index}-logo" class="form-label">Логотип</label>
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="logo-preview">
+                                        <img id="logoPreview_${index}" style="max-width: 100px; max-height: 100px; display: none;" 
+                                             class="img-thumbnail" alt="Предпросмотр логотипа">
+                                        <div id="logoPlaceholder_${index}" 
+                                             style="width: 100px; height: 100px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center;" 
+                                             class="text-muted">
+                                            <i class="fas fa-image fa-2x"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <input type="file" class="form-control-file" name="form-${index}-logo" 
+                                               id="id_form-${index}-logo">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" id="id_form-${index}-status" name="form-${index}-status" value="on">
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Setup logo previews for all logo inputs
+function setupLogoPreviews() {
+    const logoInputs = document.querySelectorAll('input[type="file"][name*="logo"]');
+    
+    logoInputs.forEach(function(input, index) {
+        input.removeEventListener('change', handleLogoPreview);
+        input.addEventListener('change', function(e) {
+            handleLogoPreview(e, index);
+        });
+    });
+}
+
+// Handle logo preview
+function handleLogoPreview(e, index) {
+    const file = e.target.files[0];
+    const preview = document.getElementById(`logoPreview_${index}`);
+    const placeholder = document.getElementById(`logoPlaceholder_${index}`);
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+        if (placeholder) {
+            placeholder.style.display = 'flex';
+        }
+    }
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    setupContactFormset();
+    setupLogoPreviews();
+});
+</script>
+{% endblock %}

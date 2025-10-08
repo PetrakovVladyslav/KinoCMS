@@ -1,0 +1,452 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ movie.title }} - KinoCMS{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-bar {
+        background: var(--secondary-color);
+        padding: 8px 0;
+        font-size: 0.9rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .social-icons a {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 30px;
+        color: white;
+        margin: 0 2px;
+        font-size: 14px;
+        text-decoration: none;
+    }
+    
+    .social-facebook { background: #3b5998; }
+    .social-twitter { background: #1da1f2; }
+    .social-instagram { background: #e4405f; }
+    .social-youtube { background: #ff0000; }
+    .social-vk { background: #45668e; }
+    .social-ok { background: #ee8208; }
+    .social-telegram { background: #0088cc; }
+    
+    .trailer-container {
+        position: relative;
+        background: #000;
+        overflow: hidden;
+    }
+    
+    .trailer-thumbnail {
+        position: relative;
+        height: 300px;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .play-button {
+        width: 80px;
+        height: 80px;
+        background: rgba(233, 69, 96, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .play-button:hover {
+        background: var(--accent-color);
+        transform: scale(1.1);
+    }
+    
+    .schedule-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 1rem 0;
+    }
+    
+    .schedule-day {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        min-width: 80px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .schedule-day:hover,
+    .schedule-day.active {
+        border-color: var(--accent-color);
+        background: rgba(233, 69, 96, 0.1);
+    }
+    
+    .session-time {
+        display: inline-block;
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin: 3px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+    }
+    
+    .session-time:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+    
+    .movie-info-card {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .gallery-container {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .cinema-select {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        margin: 0 10px;
+    }
+    
+    .format-tabs {
+        display: flex;
+        gap: 10px;
+        margin: 1rem 0;
+    }
+    
+    .format-tab {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .format-tab:hover,
+    .format-tab.active {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    /* НОВЫЕ СТИЛИ ДЛЯ ГАЛЕРЕИ */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 1rem;
+    }
+
+    .gallery-item {
+        position: relative;
+        aspect-ratio: 16/9;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-item:hover {
+        transform: scale(1.05);
+    }
+
+    .gallery-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: filter 0.3s ease;
+    }
+
+    .gallery-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .gallery-item:hover .gallery-overlay {
+        opacity: 1;
+    }
+
+    .gallery-item:hover .gallery-image {
+        filter: brightness(0.7);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Contact Bar -->
+<div class="contact-bar">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-telephone me-2"></i>
+                    <span class="me-4">(048) 777-77-7</span>
+                    <i class="bi bi-telephone me-2"></i>
+                    <span>(097) 777-77-7</span>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="social-icons">
+                    <a href="#" class="social-facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-twitter"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="social-instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-youtube"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="social-vk">VK</a>
+                    <a href="#" class="social-ok">ОК</a>
+                    <a href="#" class="social-telegram"><i class="bi bi-telegram"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Trailer Section -->
+<div class="container-fluid p-0">
+    <div class="trailer-container">
+        <div class="trailer-thumbnail" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ movie.poster.url }}');">
+            <div class="play-button" onclick="playTrailer()">
+                <i class="bi bi-play-fill"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Movie Schedule Section -->
+<section class="py-4" style="background: rgba(15, 52, 96, 0.3);">
+    <div class="container">
+        <div class="row align-items-center mb-3">
+            <div class="col-md-6">
+                <h5 class="mb-0 text-white">Расписание сеансов кинотеатра:</h5>
+            </div>
+            <div class="col-md-6 text-end">
+                <select class="cinema-select">
+                    <option>Cinema Park</option>
+                    <option>Multiplex</option>
+                </select>
+                <div class="format-tabs d-inline-flex">
+                    <button class="format-tab active">Все</button>
+                    <button class="format-tab">3D</button>
+                    <button class="format-tab">2D</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Days -->
+        <div class="schedule-grid">
+            <div class="schedule-day active">
+                <div class="fw-bold">18 Чт</div>
+                <small>Августа</small>
+            </div>
+            <div class="schedule-day">
+                <div class="fw-bold">19 Пт</div>
+                <small>Августа</small>
+            </div>
+            <div class="schedule-day">
+                <div class="fw-bold">20 Сб</div>
+                <small>Августа</small>
+            </div>
+            <div class="schedule-day">
+                <div class="fw-bold">21 Вс</div>
+                <small>Августа</small>
+            </div>
+            <div class="schedule-day">
+                <div class="fw-bold">22 Пн</div>
+                <small>Августа</small>
+            </div>
+            <div class="schedule-day">
+                <div class="fw-bold">23 Вт</div>
+                <small>Августа</small>
+            </div>
+            <div class="schedule-day">
+                <div class="fw-bold">24 Ср</div>
+                <small>Августа</small>
+            </div>
+        </div>
+
+        <!-- Session Times -->
+        <div class="mt-3">
+            <div class="mb-2">
+                <strong class="text-white">Cinema Park:</strong>
+            </div>
+            <div class="session-times">
+                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
+                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
+                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
+                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
+                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Movie Content -->
+<div class="container py-5">
+    <div class="row">
+        <!-- Left Column - Movie Poster -->
+        <div class="col-lg-4 mb-4">
+            <div class="movie-info-card text-center">
+                {% if movie.poster %}
+                    <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                {% else %}
+                    <div class="bg-secondary rounded mb-3" style="height: 400px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-film" style="font-size: 4rem; color: var(--text-muted);"></i>
+                    </div>
+                {% endif %}
+                <a href="#" class="btn btn-primary-custom w-100">
+                    <i class="bi bi-ticket me-2"></i>Купить билет
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Column - Movie Info -->
+        <div class="col-lg-8">
+            <!-- Movie Title and Info -->
+            <div class="movie-info-card">
+                <h1 class="display-5 fw-bold text-white mb-3">{{ movie.title }}</h1>
+
+                {% if movie.description %}
+                    <p class="text-light-muted mb-4">{{ movie.description }}</p>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-white mb-2">Форматы показа:</h6>
+                        <div class="d-flex gap-2 mb-3">
+                            {% if movie.type2d %}<span class="badge bg-info">2D</span>{% endif %}
+                            {% if movie.type3d %}<span class="badge bg-success">3D</span>{% endif %}
+                            {% if movie.typeimax %}<span class="badge bg-warning text-dark">IMAX</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        {% if movie.trailer_url %}
+                            <a href="{{ movie.trailer_url }}" target="_blank" class="btn btn-outline-custom">
+                                <i class="bi bi-play me-2"></i>Смотреть трейлер
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gallery Section - ЗАМЕНИТЕ ЭТОТ БЛОК -->
+            {% if movie.get_gallery_images %}
+            <div class="gallery-container mb-4">
+                <div class="p-3">
+                    <h4 class="text-white mb-3">Кадры и постеры</h4>
+                    <div class="gallery-grid">
+                        {% for image in movie.get_gallery_images %}
+                            <div class="gallery-item" onclick="openImageModal('{{ image.image.url }}', '{{ image.alt_text|default:movie.title }}')">
+                                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:movie.title }}" class="gallery-image">
+                                <div class="gallery-overlay">
+                                    <i class="bi bi-zoom-in"></i>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Modal -->
+            <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content bg-dark">
+                        <div class="modal-header border-secondary">
+                            <h5 class="modal-title text-white" id="imageModalLabel"></h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-0">
+                            <img id="modalImage" src="" alt="" class="img-fluid w-100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function playTrailer() {
+    {% if movie.trailer_url %}
+        window.open('{{ movie.trailer_url }}', '_blank');
+    {% else %}
+        alert('Трейлер недоступен');
+    {% endif %}
+}
+
+// Schedule day selection
+document.querySelectorAll('.schedule-day').forEach(day => {
+    day.addEventListener('click', function() {
+        document.querySelectorAll('.schedule-day').forEach(d => d.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+// Format tabs
+document.querySelectorAll('.format-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.format-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+// НОВАЯ ФУНКЦИЯ ДЛЯ МОДАЛЬНОГО ОКНА ГАЛЕРЕИ
+function openImageModal(imageUrl, altText) {
+    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    const modalImage = document.getElementById('modalImage');
+    const modalLabel = document.getElementById('imageModalLabel');
+
+    modalImage.src = imageUrl;
+    modalImage.alt = altText;
+    modalLabel.textContent = altText;
+
+    modal.show();
+}
+</script>
+{% endblock %}

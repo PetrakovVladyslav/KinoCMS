@@ -41,8 +41,13 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('apps.core.urls')),
     path('', include('apps.cinema.urls')),
-    path('', include('apps.users.urls'))
+    path('', include('apps.users.urls')),
+    path('', include('apps.page.urls'))
 ]
+
+# Serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 
