@@ -86,19 +86,19 @@
                 {% endif %}
               </td>
               <td class="text-center page-actions">
-                {% if page.name_ru == 'Кофе-бар' or page.name|contains:'кофе' %}
+                {% if 'кофе' in page.name_ru or 'кофе' in page.name %}
                   <a href="{% url 'page:coffee_bar' %}" class="btn btn-sm btn-warning" title="Редактировать">
                     <i class="fas fa-edit"></i>
                   </a>
-                {% elif page.name_ru == 'VIP-зал' or page.name|contains:'vip' %}
+                {% elif 'vip' in page.name_ru|lower or 'vip' in page.name|lower %}
                   <a href="{% url 'page:vip_hall' %}" class="btn btn-sm btn-warning" title="Редактировать">
                     <i class="fas fa-edit"></i>
                   </a>
-                {% elif page.name_ru == 'Реклама' or page.name|contains:'реклам' %}
+                {% elif 'реклам' in page.name_ru or 'реклам' in page.name %}
                   <a href="{% url 'page:advertising' %}" class="btn btn-sm btn-warning" title="Редактировать">
                     <i class="fas fa-edit"></i>
                   </a>
-                {% elif page.name_ru == 'Мобильные приложения' or page.name|contains:'мобил' %}
+                {% elif 'мобил' in page.name_ru or 'мобил' in page.name %}
                   <a href="{% url 'page:mobile' %}" class="btn btn-sm btn-warning" title="Редактировать">
                     <i class="fas fa-edit"></i>
                   </a>
