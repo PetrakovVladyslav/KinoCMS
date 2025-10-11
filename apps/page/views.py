@@ -19,10 +19,6 @@ from .utils import (
 
 
 def system_page_view_factory(page_name: str, name_ru: str, name_uk: str, template_title: str):
-    """
-    Фабрика для создания представлений системных страниц.
-    Используется для создания одинаковых view-функций для разных страниц.
-    """
 
 
     @staff_member_required(login_url='admin:login')
@@ -75,7 +71,7 @@ def system_page_view_factory(page_name: str, name_ru: str, name_uk: str, templat
 
 
 # Создаем системные представления из конфигурации
-# Это избавляет от дублирования кода и позволяет управлять страницами из одного места
+
 _system_views = {}
 for config in SYSTEM_PAGES_CONFIG:
     view_name = config['name'].lower().replace(' ', '_').replace('-', '_')
