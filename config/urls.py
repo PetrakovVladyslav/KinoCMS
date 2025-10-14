@@ -14,12 +14,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.i18n import set_language
+from apps.page.models import PageMain
+from apps.cinema.models import Movie
+from datetime import date
+from django.utils import timezone
 
 @login_required
 def admin_dashboard_demo(request):
@@ -31,19 +37,25 @@ def admin_dashboard_demo(request):
     }
     return render(request, 'core/admin_dashboard.html', context)
 
-def home_view(request):
-    return render(request, 'page/home.html')
 
 urlpatterns = [
-    path('', home_view, name='home'),
+    #path('', home_view, name='home'),  # Добавляем главную страницу в основные паттерны
     path('admin/', admin.site.urls),
     path('admin-dashboard/', admin_dashboard_demo, name='admin_dashboard_demo'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('apps.core.urls')),
     path('', include('apps.cinema.urls')),
     path('', include('apps.users.urls')),
-    path('', include('apps.page.urls'))
+    path('', include('apps.page.urls')),
+    path('i18n/', include('django.conf.urls.i18n')),
+    path('i18n/setlang/', set_language, name='set_language')
 ]
+
+# Добавляем поддержку интернационализации
+urlpatterns += i18n_patterns(
+    #path('', home_view, name='home_i18n')
+    path('', include('apps.page.urls'))
+)
 
 # Serve media files during development
 if settings.DEBUG:

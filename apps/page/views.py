@@ -1,8 +1,11 @@
+from datetime import timezone
+from django.utils import timezone
+from apps.cinema.models import Movie
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.forms import formset_factory
-
+from django.db import models
 from .models import PageElse, PageContacts
 from .forms import PageMainForm, PageElseForm, PageContactsForm, ImageFormSet, SeoBlockForm
 from .utils import (
@@ -323,3 +326,48 @@ def page_delete_view(request, pk):
     else:
         messages.warning(request, 'Некорректная попытка удаления страницы')
         return redirect('page:admin_list')
+
+
+
+
+def home_view(request):
+    today = timezone.localdate()
+    today_movies = Movie.objects.filter(
+        start_date__lte=today
+    ).filter(
+        models.Q(end_date__isnull=True) | models.Q(end_date__gte=today)
+    )
+
+    coming_soon_movies = Movie.objects.filter(start_date__gt=today)
+
+    context = {
+        'today_movies' : today_movies,
+        'coming_soon_movies' : coming_soon_movies,
+        'today_date' : today.strftime('%d.%B'),
+    }
+
+    return render(request, 'page/home.html', context)
+
+'''
+def home_view(request):
+    # Получаем данные главной страницы
+    try:
+        page_main = PageMain.objects.filter(status=True).first()
+    except PageMain.DoesNotExist:
+        page_main = None
+
+    # Получаем фильмы (пока все, потом можно будет фильтровать по датам)
+    today_movies = Movie.objects.all()[:6]  # Первые 6 фильмов для "сегодня"
+    coming_soon_movies = Movie.objects.all()[6:12]  # Следующие 6 для "скоро"
+
+    # Текущая дата
+    today_date = timezone.now().strftime('%d %B')
+
+    context = {
+        'page_main': page_main,  # Нужно для header и для содержимого
+        'today_movies': today_movies,
+        'coming_soon_movies': coming_soon_movies,
+        'today_date': today_date,
+    }
+    return render(request, 'page/home.html', context)
+'''

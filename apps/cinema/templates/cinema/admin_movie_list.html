@@ -1,0 +1,317 @@
+{% extends 'core/admin_base.html' %}
+{% load static %}
+
+{% block title %}Управление фильмами - KinoCMS{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Movie card styling */
+.movie-card {
+    position: relative;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.movie-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.movie-poster {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+}
+
+.movie-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.movie-poster-placeholder {
+    width: 100%;
+    height: 300px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 48px;
+}
+
+.movie-delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(220, 53, 69, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.movie-delete-btn:hover {
+    background: #dc3545;
+    transform: scale(1.1);
+}
+
+.movie-info {
+    padding: 15px;
+    text-align: center;
+}
+
+.movie-title {
+    color: #495057;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: color 0.3s ease;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.movie-title:hover {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.movie-dates {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.section-title {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+}
+
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.add-movie-btn {
+    background: #28a745;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.add-movie-btn:hover {
+    background: #218838;
+    color: white;
+    text-decoration: none;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+</style>
+{% endblock %}
+
+{% block page_title %}Управление фильмами{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:admin_dashboard' %}">Главная</a></li>
+<li class="breadcrumb-item active">Фильмы</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Header with Add Button -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-end align-items-center">
+        <a href="{% url 'cinema:movie_create' %}" class="btn btn-success">
+          <i class="fas fa-plus"></i> Добавить новый фильм
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current Movies Section -->
+  <div class="row">
+    <div class="col-12, text-center">
+      <h3 class="section-title">
+        <i class="fas fa-play-circle"></i> Фильмы в прокате
+      </h3>
+      
+      {% if current_movies %}
+        <div class="movies-grid">
+          {% for movie in current_movies %}
+            <div class="movie-card">
+              <div class="movie-poster">
+                {% if movie.poster %}
+                  <img src="{{ movie.poster.url }}" alt="{{ movie.title_ru|default:movie.title }}">
+                {% else %}
+                  <div class="movie-poster-placeholder">
+                    <i class="fas fa-film"></i>
+                  </div>
+                {% endif %}
+                <button type="button" class="movie-delete-btn" title="Удалить фильм"
+                        onclick="confirmMovieDelete({{ movie.id }}, '{{ movie.title_ru|default:movie.title|escapejs }}')">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="movie-info">
+                <a href="{% url 'cinema:movie_edit' movie.id %}" class="movie-title" title="Редактировать фильм">
+                  {{ movie.title_ru|default:movie.title }}
+                </a>
+                <div class="movie-dates">
+                  <i class="fas fa-calendar-alt"></i> 
+                  {{ movie.start_date|date:"d.m.Y" }} - {{ movie.end_date|date:"d.m.Y" }}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <i class="fas fa-film"></i>
+          <h5>Нет фильмов в прокате</h5>
+          <p class="text-muted">Фильмы, идущие в настоящее время, будут отображаться здесь</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Upcoming Movies Section -->
+  <div class="row">
+    <div class="col-12, text-center">
+      <h3 class="section-title">
+        <i class="fas fa-clock"></i> Скоро в прокате
+      </h3>
+      
+      {% if upcoming_movies %}
+        <div class="movies-grid">
+          {% for movie in upcoming_movies %}
+            <div class="movie-card">
+              <div class="movie-poster">
+                {% if movie.poster %}
+                  <img src="{{ movie.poster.url }}" alt="{{ movie.title_ru|default:movie.title }}">
+                {% else %}
+                  <div class="movie-poster-placeholder">
+                    <i class="fas fa-film"></i>
+                  </div>
+                {% endif %}
+                <button type="button" class="movie-delete-btn" title="Удалить фильм"
+                        onclick="confirmMovieDelete({{ movie.id }}, '{{ movie.title_ru|default:movie.title|escapejs }}')">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="movie-info">
+                <a href="{% url 'cinema:movie_edit' movie.id %}" class="movie-title" title="Редактировать фильм">
+                  {{ movie.title_ru|default:movie.title }}
+                </a>
+                <div class="movie-dates">
+                  <i class="fas fa-calendar-alt"></i> 
+                  Премьера: {{ movie.start_date|date:"d.m.Y" }}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <i class="fas fa-calendar-plus"></i>
+          <h5>Нет запланированных фильмов</h5>
+          <p class="text-muted">Фильмы, запланированные к показу, будут отображаться здесь</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для подтверждения удаления фильма -->
+<div class="modal fade" id="deleteMovieModal" tabindex="-1" aria-labelledby="deleteMovieModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteMovieModalLabel">Подтверждение удаления</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        <p>Вы уверены, что хотите удалить фильм <strong id="movieNameToDelete"></strong>?</p>
+        <p class="text-warning"><i class="fas fa-exclamation-triangle"></i> Будут также удалены:</p>
+        <ul class="text-muted small">
+          <li>Все сеансы этого фильма</li>
+          <li>Связанная галерея изображений</li>
+          <li>SEO настройки</li>
+        </ul>
+        <p class="text-danger small">Это действие нельзя отменить.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <form id="deleteMovieForm" method="post" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash"></i> Удалить фильм
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmMovieDelete(movieId, movieName) {
+    // Обновляем текст в модале
+    document.getElementById('movieNameToDelete').textContent = movieName;
+    
+    // Обновляем action формы удаления
+    document.getElementById('deleteMovieForm').action = `/admin-panel/movies/${movieId}/delete/`;
+    
+    // Показываем модал
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteMovieModal'));
+    deleteModal.show();
+}
+
+// Автоматически скрывать алерты через 5 секунд
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            if (alert && alert.parentNode) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    if (alert && alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 500);
+            }
+        }, 5000);
+    });
+});
+</script>
+{% endblock %}

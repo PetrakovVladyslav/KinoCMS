@@ -3,6 +3,7 @@ from django.forms import inlineformset_factory
 from .models import PageMain, PageElse, PageContacts
 from apps.core.models import Gallery, Image, SeoBlock
 
+
 # КОНСТАНТЫ ДЛЯ ФОРМ
 
 FORM_CSS_CLASSES = {

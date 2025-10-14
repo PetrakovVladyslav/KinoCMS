@@ -11,7 +11,7 @@ def register(request):
             user = form.save()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 'Регистрация прошла успешно!')
-            return redirect('home')
+            return redirect('page:home')
         else:
             messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
     else:
@@ -25,7 +25,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, f'Добро пожаловать, {user.first_name}!')
-            return redirect('home')
+            return redirect('page:home')
         else:
             messages.error(request, 'Пожалуйста, проверьте введенные данные')
     else:
@@ -35,7 +35,7 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     messages.success(request, 'Вы успешно вышли из системы')
-    return redirect('home')
+    return redirect('page:home')
 
 @login_required
 def profile_view(request):

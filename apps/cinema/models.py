@@ -1,9 +1,12 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.text import slugify
 from django.contrib.contenttypes.fields import GenericRelation
-
+from .enums import MovieFormat
 from apps.core.models import Gallery, SeoBlock
+
+
 
 # Create your models here.
 
@@ -13,9 +16,14 @@ class Movie(models.Model):
     poster = models.ImageField(upload_to='posters/', null=True, blank=True)
     gallery = models.OneToOneField(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     trailer_url = models.URLField(null=True, blank=True, verbose_name='Ссылка на трейлер')
-    type3d = models.BooleanField(null=True, default=False, verbose_name='2D')
-    type2d = models.BooleanField(null=True, default=False, verbose_name='3D')
-    typeimax = models.BooleanField(null=True, default=False, verbose_name='IMAX')
+    start_date = models.DateField(null=True, blank=True, verbose_name='Дата начала проката')
+    end_date = models.DateField(null=True, blank=True, verbose_name='Дата окончания проката')
+    formats = ArrayField(
+        models.CharField(max_length=10, choices=MovieFormat.choices),
+        default=list,
+        blank=True,
+        verbose_name='Форматы показа'
+    )
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:

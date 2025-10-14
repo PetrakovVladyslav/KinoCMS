@@ -1,4 +1,6 @@
 from django.contrib import admin
+from modeltranslation.admin import TranslationAdmin
+
 from .models import PageContacts, PageNewsPromos, PageMain, PageElse
 
 # Register your models here.
@@ -16,7 +18,7 @@ class PageNewsPromosAdmin(admin.ModelAdmin):
     search_fields = ['name', 'description']
     
 @admin.register(PageMain)
-class PageMainAdmin(admin.ModelAdmin):
+class PageMainAdmin(TranslationAdmin):
     list_display = ['phone_number1', 'phone_number2', 'status', 'date']
     list_filter = ['status', 'date']
     

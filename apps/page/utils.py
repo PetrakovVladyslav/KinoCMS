@@ -132,6 +132,7 @@ def get_or_create_main_page():
 
     from .models import PageMain
 
+
     main_page = PageMain.objects.first()
     if not main_page:
         main_page = PageMain.objects.create(**DEFAULT_MAIN_PAGE_DATA)

@@ -20,4 +20,6 @@ urlpatterns = [
     path('admin-panel/pages/create/', views.page_create_view, name='page_create'),
     path('admin-panel/pages/<int:pk>/edit/', views.page_update_view, name='page_edit'),
     path('admin-panel/pages/<int:pk>/delete/', views.page_delete_view, name='page_delete'),
+
+    path('', views.home_view, name='home'),
 ]
