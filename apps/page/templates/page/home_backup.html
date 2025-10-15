@@ -1,0 +1,145 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}KinoCMS - Главная{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center;
+    }
+    
+    .hero-content {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+    
+    .hero-content .container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+</style>
+{% endblock %}
+
+{% block hero %}
+<!-- Hero Section для главной страницы -->
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8">
+                    <div class="mb-5">
+                        <i class="bi bi-camera-reels" style="font-size: 4rem; color: var(--accent-color); margin-bottom: 2rem;"></i>
+                    </div>
+                    <h1 class="display-3 fw-bold mb-4">Добро пожаловать в KinoCMS</h1>
+                    <p class="lead mb-4">Современная система управления кинотеатром с удобным интерфейсом для администраторов и посетителей.</p>
+                    
+                    <!-- Показываем дополнительные кнопки только для авторизованных пользователей -->
+                    {% if user.is_authenticated %}
+                        <div class="d-flex flex-wrap justify-content-center gap-3 mt-5">
+                            <a href="{% url 'users:profile' %}" class="btn btn-primary-custom btn-lg">
+                                <i class="bi bi-person me-2"></i>Мой профиль
+                            </a>
+                            {% if user.is_staff %}
+                                <a href="{% url 'admin_dashboard_demo' %}" class="btn btn-outline-custom btn-lg">
+                                    <i class="bi bi-speedometer2 me-2"></i>Панель управления
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- Основной контент -->
+<div class="row">
+    <!-- Карточки с информацией -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="modern-card p-4 text-center">
+            <i class="bi bi-film" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+            <h5 class="card-title">Афиша фильмов</h5>
+            <p class="card-text text-muted">Актуальная информация о всех фильмах в прокате</p>
+            <a href="#" class="btn btn-outline-custom">Смотреть афишу</a>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="modern-card p-4 text-center">
+            <i class="bi bi-calendar-event" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+            <h5 class="card-title">Расписание сеансов</h5>
+            <p class="card-text text-muted">Удобное расписание всех киносеансов</p>
+            <a href="#" class="btn btn-outline-custom">Посмотреть расписание</a>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="modern-card p-4 text-center">
+            <i class="bi bi-percent" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+            <h5 class="card-title">Акции и скидки</h5>
+            <p class="card-text text-muted">Выгодные предложения и специальные акции</p>
+            <a href="#" class="btn btn-outline-custom">Узнать больше</a>
+        </div>
+    </div>
+</div>
+
+<!-- Статистика для администраторов -->
+{% if user.is_staff %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="modern-card p-4">
+            <h5 class="mb-4">
+                <i class="bi bi-bar-chart me-2"></i>Статистика системы
+            </h5>
+            <div class="row text-center">
+                <div class="col-md-3 mb-3">
+                    <div class="p-3">
+                        <i class="bi bi-film" style="font-size: 2rem; color: var(--accent-color);"></i>
+                        <h4 class="mt-2 mb-0">42</h4>
+                        <small class="text-muted">Фильмов</small>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="p-3">
+                        <i class="bi bi-calendar3" style="font-size: 2rem; color: var(--accent-color);"></i>
+                        <h4 class="mt-2 mb-0">156</h4>
+                        <small class="text-muted">Сеансов</small>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="p-3">
+                        <i class="bi bi-people" style="font-size: 2rem; color: var(--accent-color);"></i>
+                        <h4 class="mt-2 mb-0">1234</h4>
+                        <small class="text-muted">Пользователей</small>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="p-3">
+                        <i class="bi bi-file-earmark" style="font-size: 2rem; color: var(--accent-color);"></i>
+                        <h4 class="mt-2 mb-0">8</h4>
+                        <small class="text-muted">Страниц</small>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="{% url 'admin_dashboard_demo' %}" class="btn btn-primary-custom">
+                    <i class="bi bi-speedometer2 me-2"></i>Перейти к панели управления
+                </a>
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-custom ms-3">
+                    <i class="bi bi-gear me-2"></i>Django Админка
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
