@@ -6,14 +6,14 @@ from django.db.models import Q
 from django.http import JsonResponse
 from apps.users.models import CustomUser
 from apps.users.forms import CustomUserUpdateForm
+from django.contrib.admin.views.decorators import staff_member_required
+
 
 # Create your views here.
 
-def is_staff_user(user):
-    return user.is_authenticated and user.is_staff
 
-@login_required
-@user_passes_test(is_staff_user)
+@staff_member_required(login_url='admin:login')
+
 def admin_dashboard(request):
     context = {
         'total_movies': 42,
@@ -23,8 +23,8 @@ def admin_dashboard(request):
     }
     return render(request, 'core/admin_dashboard.html', context)
 
-@login_required
-@user_passes_test(is_staff_user)
+@staff_member_required(login_url='admin:login')
+
 def admin_users_list(request):
     # Поиск
     search_query = request.GET.get('search', '')
@@ -65,8 +65,8 @@ def admin_users_list(request):
     }
     return render(request, 'core/admin_users_list.html', context)
 
-@login_required
-@user_passes_test(is_staff_user)
+@staff_member_required(login_url='admin:login')
+
 def admin_user_edit(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     
@@ -89,8 +89,8 @@ def admin_user_edit(request, user_id):
     }
     return render(request, 'core/admin_user_edit.html', context)
 
-@login_required
-@user_passes_test(is_staff_user)
+@staff_member_required(login_url='admin:login')
+
 def admin_user_delete(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     

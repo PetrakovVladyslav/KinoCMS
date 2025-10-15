@@ -21,6 +21,14 @@ urlpatterns = [
     path('admin-panel/pages/<int:pk>/edit/', views.page_update_view, name='page_edit'),
     path('admin-panel/pages/<int:pk>/delete/', views.page_delete_view, name='page_delete'),
 
+    # Админские списки новостей и акций
+    path('admin-panel/news/', views.admin_news_list_view, name='admin_news_list'),
+    path('admin-panel/sales/', views.admin_sales_list_view, name='admin_sales_list'),
+    
+    # Формы создания
+    path('admin-panel/news/create/', views.news_view, name='news_create'),
+    path('admin-panel/sales/create/', views.sales_view, name='sales_create'),
+
     path('', views.home_view, name='home'),
     path('afisha/', views.afisha_view, name='afisha'),
     path('soon/', views.soon_view, name='soon'),

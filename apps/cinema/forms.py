@@ -1,56 +1,16 @@
 from django import forms
 from .models import Movie
-from apps.core.models import Gallery, Image, SeoBlock
-from django.forms import inlineformset_factory
 from .enums import MovieFormat
 
-# Константа для форматирования дат
+from apps.core.forms import (
+    SeoBlockForm,
+    ImageFormSet,
+    FORM_CSS_CLASSES,
+    PLACEHOLDERS,
+    LABELS
+)
+
 DATE_INPUT_FORMAT = '%Y-%m-%d'
-
-
-FORM_CSS_CLASSES = {
-    'TEXT_INPUT': 'form-control',
-    'TEXTAREA': 'form-control',
-    'DATE_INPUT': 'form-control',
-    'CHECKBOX': 'form-check-input',
-    'FILE_INPUT': 'form-control-file',
-    'CUSTOM_SWITCH': 'custom-control-input',
-}
-
-PLACEHOLDERS = {
-
-    'PHONE_1': '+38 (099) 123-45-67',
-    'PHONE_2': '+38 (099) 765-43-21',
-
-    'TRAILER_URL': 'https://',
-
-    # SEO
-    'SEO_TITLE': 'Заголовок страницы для поисковых систем',
-    'SEO_URL': 'https://',
-    'SEO_KEYWORDS': 'ключевые, слова, через, запятую',
-    'SEO_DESCRIPTION': 'Описание страницы для поисковых систем (до 160 символов)',
-}
-
-LABELS = {
-
-    'TITLE_RU': 'Название фильма (русский)',
-    'TITLE_UK': 'Название фильма (украинский)',
-    'DESCRIPTION_RU': 'Описание (русский)',
-    'DESCRIPTION_UK': 'Описание (украинский)',
-    'POSTER': 'Постер',
-    'START_DATE': 'Дата начала проката',
-    'END_DATE': 'Дата окончания проката',
-
-
-    'CAN_DELETE': 'Можно удалять',
-    'IMAGE': 'Изображение',
-
-    # SEO labels
-    'META_TITLE': 'Title',
-    'CANONICAL_URL': 'URL',
-    'META_KEYWORDS': 'Keywords',
-    'META_DESCRIPTION': 'Description'
-}
 
 class PageMovieForm(forms.ModelForm):
     formats = forms.MultipleChoiceField(
@@ -148,61 +108,3 @@ class PageMovieForm(forms.ModelForm):
         return instance
 
 
-class SeoBlockForm(forms.ModelForm):
-
-    class Meta:
-        model = SeoBlock
-        fields = ['title', 'url', 'keywords', 'description']
-
-        widgets = {
-            'title': forms.TextInput(attrs={
-                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
-                'placeholder': PLACEHOLDERS['SEO_TITLE']
-            }),
-            'url': forms.URLInput(attrs={
-                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
-                'placeholder': PLACEHOLDERS['SEO_URL']
-            }),
-            'keywords': forms.TextInput(attrs={
-                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
-                'placeholder': PLACEHOLDERS['SEO_KEYWORDS']
-            }),
-            'description': forms.Textarea(attrs={
-                'class': FORM_CSS_CLASSES['TEXTAREA'],
-                'rows': 3,
-                'placeholder': PLACEHOLDERS['SEO_DESCRIPTION']
-            }),
-        }
-
-        labels = {
-            'title': LABELS['META_TITLE'],
-            'url': LABELS['CANONICAL_URL'],
-            'keywords': LABELS['META_KEYWORDS'],
-            'description': LABELS['META_DESCRIPTION'],
-        }
-
-class ImageForm(forms.ModelForm):
-
-    class Meta:
-        model = Image
-        fields = ['image']
-
-        widgets = {
-            'image': forms.FileInput(attrs={
-                'class': FORM_CSS_CLASSES['FILE_INPUT'],
-                'accept': 'image/*'
-            })
-        }
-
-        labels = {
-            'image': LABELS['IMAGE'],
-        }
-
-ImageFormSet = inlineformset_factory(
-    Gallery,
-    Image,
-    form=ImageForm,
-    extra=5,
-    max_num=10,
-    can_delete=True
-)

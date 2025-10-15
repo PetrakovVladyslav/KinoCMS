@@ -46,7 +46,6 @@ urlpatterns = [
     path('', include('apps.core.urls')),
     path('', include('apps.cinema.urls')),
     path('', include('apps.users.urls')),
-    path('', include('apps.page.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
     path('i18n/setlang/', set_language, name='set_language')
 ]

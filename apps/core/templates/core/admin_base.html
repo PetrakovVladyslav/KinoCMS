@@ -150,21 +150,20 @@
                 </ul>
               </li>
               <li class="nav-item">
-                <a href="#" class="nav-link">
-                  <i class="nav-icon fas fa-newspaper"></i>
+                <a href="{% url 'page:admin_news_list' %}" class="nav-link">
+                  <i class="nav-icon fas fa-file-alt"></i>
                   <p>
                     Новости
-                    <i class="nav-arrow fas fa-chevron-right"></i>
                   </p>
                 </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="#" class="nav-link">
-                      <i class="nav-icon far fa-circle"></i>
-                      <p>Страница новости</p>
-                    </a>
-                  </li>
-                </ul>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'page:admin_sales_list' %}" class="nav-link">
+                  <i class="nav-icon fas fa-file-alt"></i>
+                  <p>
+                    Акции
+                  </p>
+                </a>
               </li>
               <li class="nav-item">
                 <a href="{% url 'page:admin_list' %}" class="nav-link">
