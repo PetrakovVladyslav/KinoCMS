@@ -140,21 +140,32 @@ def get_or_create_main_page():
 
 
 def ensure_system_pages():
-
     from .models import PageElse
-
-    for config in SYSTEM_PAGES_CONFIG:
-        PageElse.objects.get_or_create(
-            name=config['name'],
-            defaults={
-                'name_ru': config['name_ru'],
-                'name_uk': config['name_uk'],
-                'description': '',
-                'can_delete': False,
-                'status': True
-            }
-        )
-
+    
+    # Проверяем, есть ли уже все системные страницы
+    existing_pages = set(PageElse.objects.filter(
+        name__in=[config['name'] for config in SYSTEM_PAGES_CONFIG],
+        can_delete=False
+    ).values_list('name', flat=True))
+    
+    required_pages = set(config['name'] for config in SYSTEM_PAGES_CONFIG)
+    
+    # Создаем только недостающие страницы
+    missing_pages = required_pages - existing_pages
+    
+    if missing_pages:
+        for config in SYSTEM_PAGES_CONFIG:
+            if config['name'] in missing_pages:
+                PageElse.objects.get_or_create(
+                    name=config['name'],
+                    defaults={
+                        'name_ru': config['name_ru'],
+                        'name_uk': config['name_uk'],
+                        'description': '',
+                        'can_delete': False,
+                        'status': True
+                    }
+                )
 
 def get_system_page_config(page_name: str) -> Optional[Dict[str, str]]:
 

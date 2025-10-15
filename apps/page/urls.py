@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin-panel/pages/<int:pk>/delete/', views.page_delete_view, name='page_delete'),
 
     path('', views.home_view, name='home'),
+    path('afisha/', views.afisha_view, name='afisha'),
+    path('soon/', views.soon_view, name='soon'),
 ]

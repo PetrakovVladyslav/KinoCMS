@@ -210,9 +210,9 @@ def contacts_view(request):
 
 @staff_member_required(login_url='admin:login')
 def admin_list_view(request):
-
-    ensure_system_pages()
-
+    # Вызываем ensure_system_pages только если нет системных страниц
+    if not PageElse.objects.filter(can_delete=False).exists():
+        ensure_system_pages()
 
     main_page = get_or_create_main_page()
 
@@ -348,6 +348,36 @@ def home_view(request):
 
     return render(request, 'page/home.html', context)
 
+
+def afisha_view(request):
+    """Страница афиши - фильмы в прокате"""
+    today = timezone.localdate()
+    current_movies = Movie.objects.filter(
+        start_date__lte=today
+    ).filter(
+        models.Q(end_date__isnull=True) | models.Q(end_date__gte=today)
+    )
+
+    context = {
+        'movies': current_movies,
+        'page_title': 'Афиша',
+    }
+
+    return render(request, 'page/afisha.html', context)
+
+
+def soon_view(request):
+    """Страница скоро в прокате"""
+    today = timezone.localdate()
+    upcoming_movies = Movie.objects.filter(start_date__gt=today)
+
+    context = {
+        'movies': upcoming_movies,
+        'page_title': 'Скоро в прокате',
+    }
+
+    return render(request, 'page/soon.html', context)
+
 '''
 def home_view(request):
     # Получаем данные главной страницы
@@ -371,3 +401,4 @@ def home_view(request):
     }
     return render(request, 'page/home.html', context)
 '''
+
