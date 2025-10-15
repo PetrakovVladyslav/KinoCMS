@@ -8,6 +8,8 @@ from apps.core.forms import (
     LABELS
 )
 
+DATE_INPUT_FORMAT = '%Y-%m-%d'
+
 
 class PageMainForm(forms.ModelForm):
 
@@ -187,9 +189,13 @@ class PageNewsSalesForm(forms.ModelForm):
                 'class': FORM_CSS_CLASSES['TEXTAREA'],
                 'rows': 6
             }),
-            'publish_date': forms.DateInput(attrs={
-                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
-                'type': 'date'
+            'publish_date': forms.DateInput(format=DATE_INPUT_FORMAT, attrs={
+                'class': FORM_CSS_CLASSES['DATE_INPUT'],
+                'type': 'date',
+                'style': 'max-width: 200px;'
+            }),
+            'logo': forms.FileInput(attrs={
+                'class': FORM_CSS_CLASSES['FILE_INPUT']
             }),
             'video_url': forms.URLInput(attrs={
                 'class': FORM_CSS_CLASSES['TEXT_INPUT'],
@@ -205,27 +211,20 @@ class PageNewsSalesForm(forms.ModelForm):
             'name_uk': LABELS['NAME_UK'],
             'description_ru': LABELS['DESCRIPTION_RU'],
             'description_uk': LABELS['DESCRIPTION_UK'],
+            'logo': LABELS['LOGO'],
             'publish_date': 'Дата публикации',
             'video_url': 'Ссылка на видео',
             'status': LABELS['STATUS'],
         }
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Устанавливаем формат для поля даты
+        self.fields['publish_date'].input_formats = [DATE_INPUT_FORMAT]
+    
     def save(self, commit=True):
-        """Синхронизация базовых полей с мультиязычными"""
-        instance = super().save(commit=False)
-        
-        # Обновляем базовые поля из мультиязычных
-        if self.cleaned_data.get('name_ru'):
-            instance.name = self.cleaned_data['name_ru']
-        elif self.cleaned_data.get('name_uk'):
-            instance.name = self.cleaned_data['name_uk']
-        
-        if self.cleaned_data.get('description_ru'):
-            instance.description = self.cleaned_data['description_ru']
-        elif self.cleaned_data.get('description_uk'):
-            instance.description = self.cleaned_data['description_uk']
-        
-        if commit:
-            instance.save()
+        # Стандартное сохранение без вмешательства в мультиязычные поля
+        instance = super().save(commit=commit)
         return instance
 

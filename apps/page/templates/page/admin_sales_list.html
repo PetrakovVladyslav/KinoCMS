@@ -1,10 +1,147 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'core/admin_base.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}Список акций - KinoCMS{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-actions {
+    white-space: nowrap;
+}
+.page-actions .btn {
+    padding: 0.25rem 0.5rem;
+    margin: 0 0.125rem;
+}
+.table th {
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+</style>
+{% endblock %}
+
+{% block page_title %}Список акций{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:admin_dashboard' %}">Главная</a></li>
+<li class="breadcrumb-item active">Акции</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Список акций</h3>
+        <div class="card-tools">
+          <a href="{% url 'page:sales_create' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Создать акцию
+          </a>
+        </div>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap">
+          <thead>
+            <tr>
+              <th>Название</th>
+              <th>Дата создания</th>
+              <th>Статус</th>
+              <th class="text-center">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sale in sales_list %}
+            <tr>
+              <td>
+                <strong>{{ sale.name_ru|default:sale.name }}</strong>
+              </td>
+              <td>{{ sale.date|date:"d.m.Y H:i" }}</td>
+              <td>
+                {% if sale.status %}
+                  <span class="badge bg-success"><i class="fas fa-check"></i> Включена</span>
+                {% else %}
+                  <span class="badge bg-danger"><i class="fas fa-times"></i> Выключена</span>
+                {% endif %}
+              </td>
+              <td class="text-center page-actions">
+                <div class="btn-group" role="group">
+                  <a href="{% url 'page:sales_edit' sale.id %}" class="btn btn-sm btn-warning" title="Редактировать">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button type="button" class="btn btn-sm btn-danger" title="Удалить"
+                          onclick="confirmSaleDelete({{ sale.id }}, '{{ sale.name_ru|default:sale.name|escapejs }}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center">
+                <div class="py-4">
+                  <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                  <h5 class="text-muted">Акции не найдены</h5>
+                  <p class="text-muted">Создайте первую акцию, используя кнопку выше.</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+
+<!-- Модальное окно для подтверждения удаления -->
+<div class="modal fade" id="deleteSaleModal" tabindex="-1" aria-labelledby="deleteSaleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="deleteSaleModalLabel">Подтверждение удаления</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        <p>Вы уверены, что хотите удалить акцию <strong id="saleNameToDelete"></strong>?</p>
+        <p class="text-muted small">Это действие нельзя отменить.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <form id="deleteSaleForm" method="post" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmSaleDelete(saleId, saleName) {
+    // Обновляем текст в модале
+    document.getElementById('saleNameToDelete').textContent = saleName;
+    
+    // Обновляем action формы удаления
+    document.getElementById('deleteSaleForm').action = `{% url 'page:sales_delete' 0 %}`.replace('0', saleId);
+    
+    // Показываем модал
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteSaleModal'));
+    deleteModal.show();
+}
+
+// Автоматически скрывать алерты через 5 секунд
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
+</script>
+{% endblock %}

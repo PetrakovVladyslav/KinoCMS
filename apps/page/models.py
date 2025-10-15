@@ -51,6 +51,7 @@ class PageNewsSales(models.Model):
     publish_date = models.DateField(null=True, blank=True, verbose_name='Дата публикации')
     
     # Медиа
+    logo = models.ImageField(upload_to='page/logo', null=True, blank=True, verbose_name='Главная картинка')
     gallery = models.OneToOneField(Gallery, on_delete=models.CASCADE, blank=True, null=True)
     video_url = models.URLField(blank=True, verbose_name='Ссылка на видео')
     

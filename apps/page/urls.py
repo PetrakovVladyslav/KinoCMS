@@ -28,8 +28,17 @@ urlpatterns = [
     # Формы создания
     path('admin-panel/news/create/', views.news_view, name='news_create'),
     path('admin-panel/sales/create/', views.sales_view, name='sales_create'),
+    
+    # Редактирование и удаление
+    path('admin-panel/news/<int:news_id>/edit/', views.news_update_view, name='news_edit'),
+    path('admin-panel/news/<int:news_id>/delete/', views.news_delete_view, name='news_delete'),
+    path('admin-panel/sales/<int:sales_id>/edit/', views.sales_update_view, name='sales_edit'),
+    path('admin-panel/sales/<int:sales_id>/delete/', views.sales_delete_view, name='sales_delete'),
 
+    # Публичные страницы
     path('', views.home_view, name='home'),
     path('afisha/', views.afisha_view, name='afisha'),
     path('soon/', views.soon_view, name='soon'),
+    path('sales/', views.sale_news_list_view, name='sale_news_list'),
+    path('sale/<int:item_id>/', views.sale_detail_view, name='sale_detail'),
 ]

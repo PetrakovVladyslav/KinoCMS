@@ -130,6 +130,43 @@ input:checked + .switch-slider:before {
     margin-bottom: 20px;
 }
 
+/* Logo preview styles */
+.logo-upload-container {
+    position: relative;
+}
+
+.current-logo-preview {
+    margin-top: 1rem;
+}
+
+.logo-preview-wrapper {
+    position: relative;
+    display: inline-block;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 200px;
+}
+
+.logo-preview {
+    max-width: 200px;
+    max-height: 150px;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
+.logo-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
 /* Gallery styles */
 .gallery-container {
     border: 1px solid #dee2e6;
@@ -327,45 +364,39 @@ input:checked + .switch-slider:before {
             </div>
           {% endif %}
           
-          <!-- Sales Name and Publish Date Section -->
+          <!-- News Name and Publish Date Section -->
           <div class="form-section">
             <h5><i class="fas fa-tag"></i> Основная информация</h5>
-            <div class="multilang-field">
-              <div class="field-group active" data-lang="ru">
-                <div class="split-field">
-                  <div class="field-half">
+            <div class="row">
+              <div class="col-md-8">
+                <div class="multilang-field">
+                  <div class="field-group active" data-lang="ru">
                     <div class="form-group">
                       <label for="{{ form.name_ru.id_for_label }}">Название новости (РУ)</label>
                       {{ form.name_ru }}
                       <small class="form-text text-muted">Название новости на русском языке</small>
                     </div>
                   </div>
-                  <div class="field-half">
-                    <div class="form-group">
-                      <label for="{{ form.publish_date.id_for_label }}">Дата публикации</label>
-                      {{ form.publish_date }}
-                      <small class="form-text text-muted">Дата начала отображения на сайте</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="field-group" data-lang="uk">
-                <div class="split-field">
-                  <div class="field-half">
+                  
+                  <div class="field-group" data-lang="uk">
                     <div class="form-group">
                       <label for="{{ form.name_uk.id_for_label }}">Назва новини (УК)</label>
                       {{ form.name_uk }}
                       <small class="form-text text-muted">Назва новини українською мовою</small>
                     </div>
                   </div>
-                  <div class="field-half">
-                    <div class="form-group">
-                      <label for="{{ form.publish_date.id_for_label }}">Дата публікації</label>
-                      {{ form.publish_date }}
-                      <small class="form-text text-muted">Дата початку відображення на сайті</small>
-                    </div>
-                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  {{ form.publish_date.label_tag }}
+                  {{ form.publish_date }}
+                  {% if form.publish_date.errors %}
+                    {% for error in form.publish_date.errors %}
+                      <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                  <small class="form-text text-muted">Дата начала отображения на сайте</small>
                 </div>
               </div>
             </div>
@@ -390,6 +421,31 @@ input:checked + .switch-slider:before {
                   <small class="form-text text-muted">Опис новини українською мовою</small>
                 </div>
               </div>
+            </div>
+          </div>
+          
+          <!-- Logo Section -->
+          <div class="form-section">
+            <h5><i class="fas fa-image"></i> Логотип</h5>
+            <div class="form-group">
+              {{ form.logo.label_tag }}
+              <div class="logo-upload-container">
+                {{ form.logo }}
+                {% if form.logo.value %}
+                  <div class="current-logo-preview mt-3">
+                    <label class="form-label">Текущий логотип:</label>
+                    <div class="logo-preview-wrapper">
+                      <img src="{{ form.logo.value.url }}" alt="Текущий логотип" class="logo-preview">
+                      <div class="logo-overlay">
+                        <small class="text-white">{{ form.logo.value.name }}</small>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+              {% if form.logo.help_text %}
+                <small class="form-text text-muted">{{ form.logo.help_text }}</small>
+              {% endif %}
             </div>
           </div>
           
@@ -536,7 +592,7 @@ input:checked + .switch-slider:before {
           
           <!-- Дополнительные поля -->
           {% for field in form %}
-            {% if field.name not in 'status,name_ru,name_uk,description_ru,description_uk,publish_date,video_url,gallery,name,description,date,can_delete,seo_block' %}
+            {% if field.name not in 'status,name_ru,name_uk,description_ru,description_uk,publish_date,video_url,gallery,name,description,date,can_delete,seo_block,logo' %}
               <div class="form-section">
                 <h5><i class="fas fa-cog"></i> {{ field.label }}</h5>
                 <div class="form-group">
@@ -646,6 +702,39 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initGalleryFunctionality() {
+    // Handle logo preview
+    const logoInput = document.querySelector('input[type="file"][name$="logo"]');
+    if (logoInput) {
+        logoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // Find or create logo preview container
+                    let previewContainer = document.querySelector('.current-logo-preview');
+                    const logoUploadContainer = document.querySelector('.logo-upload-container');
+                    
+                    if (!previewContainer) {
+                        previewContainer = document.createElement('div');
+                        previewContainer.className = 'current-logo-preview mt-3';
+                        logoUploadContainer.appendChild(previewContainer);
+                    }
+                    
+                    previewContainer.innerHTML = `
+                        <label class="form-label">Новый логотип:</label>
+                        <div class="logo-preview-wrapper">
+                            <img src="${event.target.result}" alt="Новый логотип" class="logo-preview">
+                            <div class="logo-overlay">
+                                <small class="text-white">${file.name}</small>
+                            </div>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
     // Функция для обработки предпросмотра изображений
     window.handleImagePreview = function(e, galleryItem) {
         const file = e.target.files[0];

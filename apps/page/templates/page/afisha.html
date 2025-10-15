@@ -140,6 +140,7 @@
     <!-- Movies section -->
     <section class="movies py-5">
         <div class="container">
+            <h2 class="text-center mb-5" style="color: var(--text-color); font-size: 2.5rem; font-weight: 700;">{{ page_title }}</h2>
             <div class="movie-cards">
                 {% for movie in movies %}
                     <article class="movie-card" data-url="{% url 'cinema:movie_detail' movie.pk %}" role="link" tabindex="0">
