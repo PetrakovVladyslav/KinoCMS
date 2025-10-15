@@ -157,63 +157,164 @@
         border-color: var(--accent-color);
     }
 
-    /* НОВЫЕ СТИЛИ ДЛЯ ГАЛЕРЕИ */
-    .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-top: 1rem;
+    /* СТИЛИ ДЛЯ ДИНАМИЧЕСКИХ ФОРМАТОВ */
+    .format-badges {
+        flex-shrink: 0;
+    }
+    
+    .format-badge {
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .format-badge.format-2d {
+        background: linear-gradient(45deg, #17a2b8, #20c997);
+        color: white;
+    }
+    
+    .format-badge.format-3d {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+    }
+    
+    .format-badge.format-imax {
+        background: linear-gradient(45deg, #ffc107, #fd7e14);
+        color: #212529;
     }
 
-    .gallery-item {
+    /* СТИЛИ ДЛЯ СЛАЙДЕРА ГАЛЕРЕИ */
+    .slider {
         position: relative;
-        aspect-ratio: 16/9;
-        border-radius: 8px;
+        width: 100%;
+        height: 350px;
         overflow: hidden;
-        cursor: pointer;
-        transition: transform 0.3s ease;
+        border-radius: 12px;
+        background: #000;
     }
 
-    .gallery-item:hover {
-        transform: scale(1.05);
+    .slides {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.5s ease;
     }
 
-    .gallery-image {
+    .slide {
+        flex: 0 0 100%;
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    .slide-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: filter 0.3s ease;
+        transition: transform 0.3s ease;
     }
 
-    .gallery-overlay {
+    .slide:hover .slide-image {
+        transform: scale(1.05);
+    }
+
+    .slider-nav {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        top: 50%;
+        transform: translateY(-50%);
         background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+    }
+
+    .slider-nav:hover {
+        background: var(--accent-color);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .slider-nav.prev {
+        left: 15px;
+    }
+
+    .slider-nav.next {
+        right: 15px;
+    }
+
+    /* Индикаторы слайдера */
+    .slider-indicators {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 10;
+    }
+
+    .indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .indicator.active {
+        background: var(--accent-color);
+        transform: scale(1.2);
+    }
+
+    .indicator:hover {
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Счетчик слайдов */
+    .slide-counter {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.7);
         color: white;
-        font-size: 1.5rem;
-    }
-
-    .gallery-item:hover .gallery-overlay {
-        opacity: 1;
-    }
-
-    .gallery-item:hover .gallery-image {
-        filter: brightness(0.7);
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        z-index: 10;
     }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
-        .gallery-grid {
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
+        .slider {
+            height: 250px;
+        }
+        
+        .slider-nav {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+        
+        .format-badges {
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        
+        .movie-header {
+            flex-direction: column;
+            text-align: center;
         }
     }
 </style>
@@ -246,8 +347,11 @@
                 </select>
                 <div class="format-tabs d-inline-flex">
                     <button class="format-tab active">Все</button>
-                    <button class="format-tab">3D</button>
-                    <button class="format-tab">2D</button>
+                    {% if movie.formats %}
+                        {% for format in movie.formats %}
+                            <button class="format-tab" data-format="{{ format }}">{{ format }}</button>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -323,7 +427,24 @@
         <div class="col-lg-8">
             <!-- Movie Title and Info -->
             <div class="movie-info-card">
-                <h1 class="display-5 fw-bold text-white mb-3">{{ movie.title }}</h1>
+                <div class="movie-header d-flex justify-content-between align-items-start mb-3">
+                    <h1 class="display-5 fw-bold text-white mb-0">{{ movie.title }}</h1>
+                    
+                    <!-- Dynamic Format Badges in Top Right -->
+                    {% if movie.formats %}
+                    <div class="format-badges d-flex gap-2 flex-wrap">
+                        {% for format in movie.formats %}
+                            {% if format == '2D' %}
+                                <span class="format-badge format-2d">2D</span>
+                            {% elif format == '3D' %}
+                                <span class="format-badge format-3d">3D</span>
+                            {% elif format == 'IMAX' %}
+                                <span class="format-badge format-imax">IMAX</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
 
                 {% if movie.description %}
                     <p class="text-light-muted mb-4">{{ movie.description }}</p>
@@ -331,14 +452,9 @@
 
                 <div class="row">
                     <div class="col-md-6">
-                        <h6 class="text-white mb-2">Форматы показа:</h6>
-                        <div class="d-flex gap-2 mb-3">
-                            {% if movie.type2d %}<span class="badge bg-info">2D</span>{% endif %}
-                            {% if movie.type3d %}<span class="badge bg-success">3D</span>{% endif %}
-                            {% if movie.typeimax %}<span class="badge bg-warning text-dark">IMAX</span>{% endif %}
-                        </div>
+                        <!-- Место для дополнительной информации -->
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 text-end">
                         {% if movie.trailer_url %}
                             <a href="{{ movie.trailer_url }}" target="_blank" class="btn btn-outline-custom">
                                 <i class="bi bi-play me-2"></i>Смотреть трейлер
@@ -348,34 +464,34 @@
                 </div>
             </div>
 
-            <!-- Gallery Section - ЗАМЕНИТЕ ЭТОТ БЛОК -->
+            <!-- Gallery Slider Section -->
             {% if movie.get_gallery_images %}
             <div class="gallery-container mb-4">
                 <div class="p-3">
                     <h4 class="text-white mb-3">Кадры и постеры</h4>
-                    <div class="gallery-grid">
-                        {% for image in movie.get_gallery_images %}
-                            <div class="gallery-item" onclick="openImageModal('{{ image.image.url }}', '{{ image.alt_text|default:movie.title }}')">
-                                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:movie.title }}" class="gallery-image">
-                                <div class="gallery-overlay">
-                                    <i class="bi bi-zoom-in"></i>
-                                </div>
+                    <div class="slider" id="gallerySlider">
+                        <div class="slides" id="slidesTrack">
+                            {% for image in movie.get_gallery_images %}
+                            <div class="slide">
+                                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:movie.title }}" class="slide-image">
                             </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Image Modal -->
-            <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered">
-                    <div class="modal-content bg-dark">
-                        <div class="modal-header border-secondary">
-                            <h5 class="modal-title text-white" id="imageModalLabel"></h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            {% endfor %}
                         </div>
-                        <div class="modal-body p-0">
-                            <img id="modalImage" src="" alt="" class="img-fluid w-100">
+
+                        <!-- Навигация -->
+                        <button class="slider-nav prev" onclick="prevSlide()"><i class="bi bi-chevron-left"></i></button>
+                        <button class="slider-nav next" onclick="nextSlide()"><i class="bi bi-chevron-right"></i></button>
+                        
+                        <!-- Счетчик слайдов -->
+                        <div class="slide-counter" id="slideCounter">
+                            <span id="currentSlide">1</span> / <span id="totalSlides">{{ movie.get_gallery_images.count }}</span>
+                        </div>
+                        
+                        <!-- Индикаторы -->
+                        <div class="slider-indicators" id="sliderIndicators">
+                            {% for image in movie.get_gallery_images %}
+                            <div class="indicator{% if forloop.first %} active{% endif %}" onclick="goToSlide({{ forloop.counter0 }})"></div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -410,17 +526,137 @@ document.querySelectorAll('.format-tab').forEach(tab => {
     });
 });
 
-// НОВАЯ ФУНКЦИЯ ДЛЯ МОДАЛЬНОГО ОКНА ГАЛЕРЕИ
-function openImageModal(imageUrl, altText) {
-    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-    const modalImage = document.getElementById('modalImage');
-    const modalLabel = document.getElementById('imageModalLabel');
+// СЛАЙДЕР ГАЛЕРЕИ
+let currentSlideIndex = 0;
+let totalSlides = 0;
+let slidesTrack = null;
+let autoSlideInterval = null;
 
-    modalImage.src = imageUrl;
-    modalImage.alt = altText;
-    modalLabel.textContent = altText;
-
-    modal.show();
+// Инициализация слайдера
+function initSlider() {
+    slidesTrack = document.getElementById('slidesTrack');
+    const slides = document.querySelectorAll('#gallerySlider .slide');
+    totalSlides = slides.length;
+    
+    if (totalSlides <= 1) return; // Нет смысла в слайдере для одного изображения
+    
+    updateSliderPosition();
+    startAutoSlide();
+    
+    // Остановка авто-прокрутки при наведении
+    const slider = document.getElementById('gallerySlider');
+    if (slider) {
+        slider.addEventListener('mouseenter', stopAutoSlide);
+        slider.addEventListener('mouseleave', startAutoSlide);
+    }
 }
+
+function updateSliderPosition() {
+    if (!slidesTrack) return;
+    
+    const translateX = -currentSlideIndex * 100;
+    slidesTrack.style.transform = `translateX(${translateX}%)`;
+    
+    // Обновляем счетчик
+    const currentSlideSpan = document.getElementById('currentSlide');
+    if (currentSlideSpan) {
+        currentSlideSpan.textContent = currentSlideIndex + 1;
+    }
+    
+    // Обновляем индикаторы
+    const indicators = document.querySelectorAll('.indicator');
+    indicators.forEach((indicator, index) => {
+        indicator.classList.toggle('active', index === currentSlideIndex);
+    });
+}
+
+function nextSlide() {
+    if (totalSlides <= 1) return;
+    currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
+    updateSliderPosition();
+    restartAutoSlide();
+}
+
+function prevSlide() {
+    if (totalSlides <= 1) return;
+    currentSlideIndex = (currentSlideIndex - 1 + totalSlides) % totalSlides;
+    updateSliderPosition();
+    restartAutoSlide();
+}
+
+function goToSlide(index) {
+    if (totalSlides <= 1 || index < 0 || index >= totalSlides) return;
+    currentSlideIndex = index;
+    updateSliderPosition();
+    restartAutoSlide();
+}
+
+function startAutoSlide() {
+    if (totalSlides <= 1) return;
+    stopAutoSlide();
+    autoSlideInterval = setInterval(() => {
+        nextSlide();
+    }, 5000); // Меняем слайд каждые 5 секунд
+}
+
+function stopAutoSlide() {
+    if (autoSlideInterval) {
+        clearInterval(autoSlideInterval);
+        autoSlideInterval = null;
+    }
+}
+
+function restartAutoSlide() {
+    stopAutoSlide();
+    startAutoSlide();
+}
+
+// Обработка клавиш стрелок
+document.addEventListener('keydown', function(e) {
+    if (document.getElementById('gallerySlider') && totalSlides > 1) {
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            prevSlide();
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            nextSlide();
+        }
+    }
+});
+
+// Обработка свайпов на мобильных устройствах
+let touchStartX = 0;
+let touchEndX = 0;
+
+function handleTouchStart(e) {
+    touchStartX = e.changedTouches[0].screenX;
+}
+
+function handleTouchEnd(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}
+
+function handleSwipe() {
+    const swipeThreshold = 50; // Минимальное расстояние для свайпа
+    
+    if (touchEndX < touchStartX - swipeThreshold) {
+        nextSlide(); // Свайп влево - следующий слайд
+    } else if (touchEndX > touchStartX + swipeThreshold) {
+        prevSlide(); // Свайп вправо - предыдущий слайд
+    }
+}
+
+// Инициализация после загрузки DOM
+document.addEventListener('DOMContentLoaded', function() {
+    initSlider();
+    
+    // Добавляем обработчики свайпов
+    const slider = document.getElementById('gallerySlider');
+    if (slider) {
+        slider.addEventListener('touchstart', handleTouchStart, false);
+        slider.addEventListener('touchend', handleTouchEnd, false);
+    }
+});
 </script>
 {% endblock %}

@@ -32,6 +32,12 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def get_gallery_images(self):
+        """Получить все изображения из связанной галереи"""
+        if self.gallery:
+            return self.gallery.images.all()
+        return []
 
 
 
