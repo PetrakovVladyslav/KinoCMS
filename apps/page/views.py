@@ -492,7 +492,7 @@ def news_view(request):
         'is_create': True,
     }
     return render(request, 'page/admin_news_form.html', context)
-#fdfsadasd
+#fdfsadasd sdsd
 
 '''
 def home_view(request):
