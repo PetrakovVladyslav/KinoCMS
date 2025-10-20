@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.utils.text import slugify
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import  GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from .enums import MovieFormat
 from apps.core.models import Gallery, SeoBlock
 
@@ -40,15 +41,31 @@ class Movie(models.Model):
         return []
 
 
+class Image1(models.Model):
+    image = models.ImageField(upload_to='gallery/%Y/%m/%d', null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.pk}'
+
+class SeoBlock1(models.Model):
+    title = models.CharField(max_length=200, null=True, blank=True, verbose_name='Title')
+    url = models.URLField(null=True, blank=True, verbose_name='URL')
+    keywords = models.CharField(max_length=50, null=True, blank=True, verbose_name='Word')
+    description = models.TextField(null=True, blank=True, verbose_name='Description')
+
+
+    def __str__(self):
+        return self.title or f"SEO block {self.id}"
 
 class Cinema(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='Название кинотеатра')
     description = models.TextField(blank=True, verbose_name='Описание')
     conditions = models.TextField(blank=True, verbose_name='Условия')
-    logo = models.ImageField(upload_to='logos/', null=True, blank=True)
-    banner = models.ImageField(upload_to='banners/', null=True, blank=True)
-    gallery = models.OneToOneField(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
-    seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
+    logo = models.ImageField(upload_to='cinema/logos/', null=True, blank=True)
+    banner = models.ImageField(upload_to='cinema/banners/', null=True, blank=True)
+    gallery1 = models.ManyToManyField(Image1, blank=True)
+    seo_block1 = models.OneToOneField(SeoBlock1, on_delete=models.SET_NULL, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = 'Кинотеатры'

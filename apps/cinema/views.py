@@ -2,15 +2,15 @@ from dateutil.utils import today
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, CreateView
 from more_itertools.recipes import totient
 from django.contrib import messages
-from .forms import ImageFormSet
-from .forms import PageMovieForm, SeoBlockForm
+from .forms import ImageFormSet, CinemaForm, GalleryImageFormSet
+from .forms import PageMovieForm, SeoBlockForm1, SeoBlockForm
 
 from .models import Cinema, Movie, Hall
 from datetime import date
-from .models import Movie
+from .models import Movie, Image1
 from apps.core.models import Gallery, SeoBlock
 
 # Create your views here.
@@ -182,3 +182,45 @@ def movie_update_view(request, movie_id):
     }
     return render(request, 'cinema/admin_movie_form.html', context)
 
+
+
+def cinema_create_view(request):
+
+    if request.method == 'POST':
+        form = CinemaForm(request.POST, request.FILES)
+        seo_form = SeoBlockForm1(request.POST)
+        image_formset = GalleryImageFormSet(request.POST, request.FILES, queryset=Image1.objects.none())
+
+        if form.is_valid() and seo_form.is_valid() and image_formset.is_valid():
+            cinema = form.save(commit=False)
+        if seo_form.has_changed():
+            seo_block1= seo_form.save()
+            cinema.seo_block1 = seo_block1
+
+        cinema.save()
+        form.save_m2m()
+
+        images = image_formset.save(commit=False)
+        for image in images:
+            image.save()
+            cinema.gallery1.add(image)
+
+        for image in image_formset.deleted_objects:
+            image.delete()
+
+        messages.success(request,'Кинотеатр создан')
+        return redirect('cinema:admin_cinema_list')
+
+    else:
+        form = CinemaForm()
+        seo_form = SeoBlockForm1()
+        image_formset = GalleryImageFormSet(queryset=Image1.objects.none())
+
+    context = {
+        'form': form,
+        'seo_form': seo_form,
+        'gallery_formset': image_formset,
+        'title': 'Создать новый кинотеатр',
+        'is_create': True,
+    }
+    return render(request, 'cinema/admin_cinema_form.html', context)

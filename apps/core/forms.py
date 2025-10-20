@@ -65,6 +65,7 @@ LABELS = {
     'NAMES_RU': 'Название акции (русский)',
     'NAMES_UK': 'Название акции (украинский)',
 
+
     # Телефоны
     'PHONE_1': 'Телефон 1',
     'PHONE_2': 'Телефон 2',
@@ -189,14 +190,3 @@ class ImageForm(forms.ModelForm):
         labels = {
             'image': LABELS['IMAGE'],
         }
-
-
-
-ImageFormSet = inlineformset_factory(
-    Gallery,
-    Image,
-    form=ImageForm,
-    extra=5,
-    max_num=10,
-    can_delete=True
-)

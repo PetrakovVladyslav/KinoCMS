@@ -1,14 +1,16 @@
 from django import forms
-from .models import Movie
+from .models import Movie, Cinema, SeoBlock1, Image1
 from .enums import MovieFormat
+from django.forms import modelformset_factory, inlineformset_factory
 
 from apps.core.forms import (
     SeoBlockForm,
     ImageFormSet,
     FORM_CSS_CLASSES,
     PLACEHOLDERS,
-    LABELS
+    LABELS, ImageForm
 )
+from ..core.models import SeoBlock
 
 DATE_INPUT_FORMAT = '%Y-%m-%d'
 
@@ -108,3 +110,107 @@ class PageMovieForm(forms.ModelForm):
         return instance
 
 
+
+class ImageForm1(forms.ModelForm):
+    class Meta:
+        model = Image1
+        fields = ['image']
+
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'class': FORM_CSS_CLASSES['FILE_INPUT'],
+                'accept': 'image/*'
+            })
+        }
+
+        labels = {
+            'image': LABELS['IMAGE'],
+        }
+
+GalleryImageFormSet = modelformset_factory(
+    Image1,
+    form=ImageForm1,
+    extra=5,
+    can_delete=True,
+)
+
+
+class CinemaForm(forms.ModelForm):
+    class Meta:
+        model = Cinema
+        fields = ['name_ru', 'name_uk', 'description_ru', 'description_uk',
+                  'logo', 'banner', 'start_date', 'gallery1', 'seo_block1']
+        widgets = {
+            'name_ru': forms.TextInput(attrs={
+                'class': FORM_CSS_CLASSES['TEXT_INPUT']
+            }),
+            'name_uk': forms.TextInput(attrs={
+                'class': FORM_CSS_CLASSES['TEXT_INPUT']
+            }),
+            'description_ru': forms.Textarea(attrs={
+                'class': FORM_CSS_CLASSES['TEXTAREA'],
+                'rows': 6
+            }),
+            'description_uk': forms.Textarea(attrs={
+                'class': FORM_CSS_CLASSES['TEXTAREA'],
+                'rows': 6
+            }),
+            'logo': forms.FileInput(attrs={
+                'class': FORM_CSS_CLASSES['FILE_INPUT']
+            }),
+            'banner': forms.FileInput(attrs={
+                'class': FORM_CSS_CLASSES['FILE_INPUT']
+            }),
+            'start_date': forms.DateInput(format=DATE_INPUT_FORMAT, attrs={
+                'class': FORM_CSS_CLASSES['DATE_INPUT'],
+                'type': 'date',
+                'style': 'max-width: 200px;'
+            }),
+            'end_date': forms.DateInput(format=DATE_INPUT_FORMAT, attrs={
+                'class': FORM_CSS_CLASSES['DATE_INPUT'],
+                'type': 'date',
+                'style': 'max-width: 200px;'
+            }),
+            'gallery1': forms.SelectMultiple(attrs={
+                'class': FORM_CSS_CLASSES['TEXT_INPUT']
+            }),
+            'seo_block1': forms.Select(attrs={
+                'class': FORM_CSS_CLASSES['TEXT_INPUT']
+            }),
+        }
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+class SeoBlockForm1(forms.ModelForm):
+
+    class Meta:
+        model = SeoBlock1
+        fields = ['title', 'url', 'keywords', 'description']
+
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
+                'placeholder': PLACEHOLDERS['SEO_TITLE']
+            }),
+            'url': forms.URLInput(attrs={
+                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
+                'placeholder': PLACEHOLDERS['SEO_URL']
+            }),
+            'keywords': forms.TextInput(attrs={
+                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
+                'placeholder': PLACEHOLDERS['SEO_KEYWORDS']
+            }),
+            'description': forms.Textarea(attrs={
+                'class': FORM_CSS_CLASSES['TEXTAREA'],
+                'rows': 3,
+                'placeholder': PLACEHOLDERS['SEO_DESCRIPTION']
+            }),
+        }
+
+        labels = {
+            'title': LABELS['META_TITLE'],
+            'url': LABELS['CANONICAL_URL'],
+            'keywords': LABELS['META_KEYWORDS'],
+            'description': LABELS['META_DESCRIPTION'],
+        }
