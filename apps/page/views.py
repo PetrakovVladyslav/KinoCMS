@@ -453,7 +453,7 @@ def news_view(request):
         form = PageNewsSalesForm(request.POST, request.FILES)
         gallery_formset = ImageFormSet(request.POST, request.FILES, instance=None)
         seo_form = SeoBlockForm(request.POST)
-        
+
         if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():
             # Сохраняем новость
             news = form.save(commit=False)
@@ -463,9 +463,9 @@ def news_view(request):
             if seo_form.has_changed():
                 seo_block = seo_form.save()
                 news.seo_block = seo_block
-            
+
             news.save()
-            
+
             # Создаем галерею если есть изображения
             has_images = any(bool(f.cleaned_data.get('image')) for f in gallery_formset.forms if not f.cleaned_data.get('DELETE', False))
             if has_images:
@@ -474,7 +474,7 @@ def news_view(request):
                 news.save()
                 gallery_formset.instance = gallery
                 gallery_formset.save()
-            
+
             messages.success(request, f'Новость "{news.name}" создана')
             return redirect('page:admin_news_list')
         else:
@@ -483,7 +483,7 @@ def news_view(request):
         form = PageNewsSalesForm()
         gallery_formset = ImageFormSet()
         seo_form = SeoBlockForm()
-    
+
     context = {
         'form': form,
         'gallery_formset': gallery_formset,
