@@ -127,27 +127,12 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#" class="nav-link">
-                  <i class="nav-icon fas fa-building"></i>
+                <a href="{% url 'cinema:admin_cinema_list' %}" class="nav-link">
+                  <i class="nav-icon fas fa-film"></i>
                   <p>
                     Кинотеатры
-                    <i class="nav-arrow fas fa-chevron-right"></i>
                   </p>
                 </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="#" class="nav-link">
-                      <i class="nav-icon far fa-circle"></i>
-                      <p>Карточка кинотеатра</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="#" class="nav-link">
-                      <i class="nav-icon far fa-circle"></i>
-                      <p>Карточка зала</p>
-                    </a>
-                  </li>
-                </ul>
               </li>
               <li class="nav-item">
                 <a href="{% url 'page:admin_news_list' %}" class="nav-link">

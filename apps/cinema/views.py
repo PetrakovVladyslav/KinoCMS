@@ -183,7 +183,7 @@ def movie_update_view(request, movie_id):
     return render(request, 'cinema/admin_movie_form.html', context)
 
 
-
+@staff_member_required(login_url='admin:login')
 def cinema_create_view(request):
 
     if request.method == 'POST':
@@ -224,3 +224,94 @@ def cinema_create_view(request):
         'is_create': True,
     }
     return render(request, 'cinema/admin_cinema_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def cinema_update_view(request, pk):
+    cinema = get_object_or_404(Cinema, pk=pk)
+
+    # В GET не создаём seo/gallery автоматически — только если их нет и пользователь сохранит новые данные
+    if request.method == 'POST':
+        form = CinemaForm(request.POST, request.FILES, instance=cinema)
+
+        # Передаём instance в seo_form только если seo_block действительно существует
+        seo_form = SeoBlockForm1(request.POST, instance=cinema.seo_block1 if cinema.seo_block1_id else None)
+
+        image_formset = GalleryImageFormSet(request.POST, request.FILES, queryset=cinema.gallery1.all())
+
+
+        if form.is_valid() and seo_form.is_valid() and image_formset.is_valid():
+            cinema = form.save(commit=False)
+
+            # Сохранение SEO-блока (OneToOne)
+            if seo_form.has_changed():
+                seo_block1 = seo_form.save()
+                cinema.seo_block1 = seo_block1
+
+            cinema.save()
+            form.save_m2m()
+
+            # Сохранение изображений (ManyToMany)
+            images = image_formset.save(commit=False)
+            for image in images:
+                image.save()
+                cinema.gallery1.add(image)
+
+            # Удаление отмеченных изображений
+            for image in image_formset.deleted_objects:
+                cinema.gallery1.remove(image)
+                image.delete()
+
+            messages.success(request, f'Кинотеатр "{cinema.name}" успешно обновлён.')
+            return redirect('cinema:admin_cinema_list')
+
+    else:
+        form = CinemaForm(instance=cinema)
+        seo_form = SeoBlockForm1(instance=cinema.seo_block1 if cinema.seo_block1 else None)
+        image_formset = GalleryImageFormSet(queryset=cinema.gallery1.all())
+
+    context = {
+        'form': form,
+        'seo_form': seo_form,
+        'gallery_formset': image_formset,
+        'cinema': cinema,
+        'title': f'Редактировать кинотеатр "{cinema.name}"',
+        'is_create': False,
+    }
+
+    return render(request, 'cinema/admin_cinema_form.html', context)
+
+@staff_member_required(login_url='admin:login')
+def cinema_delete_view(request, pk):
+    cinema = get_object_or_404(Cinema, pk=pk)
+
+    if request.method == 'POST':
+        # Удаляем связанные изображения (если нужно физически удалять файлы — добавить здесь логику)
+        for image in cinema.gallery1.all():
+            image.delete()
+
+        # Удаляем SEO-блок, если он есть
+        if cinema.seo_block1:
+            cinema.seo_block1.delete()
+
+        # Удаляем сам кинотеатр
+        cinema.delete()
+
+        messages.success(request, f'Кинотеатр "{cinema.name}" и все связанные данные успешно удалены')
+        return redirect('cinema:admin_cinema_list')
+
+    # Если не POST запрос, перенаправляем обратно
+    return redirect('cinema:admin_cinema_list')
+
+@staff_member_required(login_url='admin:login')
+def admin_cinema_list_view(request):
+
+    cinemas = Cinema.objects.all().order_by('-id')
+
+    context = {
+        'cinemas': cinemas,
+        'title': 'Список киноетатров '
+
+    }
+
+    return render(request, 'cinema/admin_cinema_list.html', context)

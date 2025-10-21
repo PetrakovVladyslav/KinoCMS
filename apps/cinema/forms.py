@@ -139,7 +139,7 @@ class CinemaForm(forms.ModelForm):
     class Meta:
         model = Cinema
         fields = ['name_ru', 'name_uk', 'description_ru', 'description_uk',
-                  'logo', 'banner', 'start_date', 'gallery1', 'seo_block1']
+                  'conditions_ru', 'conditions_uk', 'logo', 'banner', 'gallery1', 'seo_block1']
         widgets = {
             'name_ru': forms.TextInput(attrs={
                 'class': FORM_CSS_CLASSES['TEXT_INPUT']
@@ -155,21 +155,19 @@ class CinemaForm(forms.ModelForm):
                 'class': FORM_CSS_CLASSES['TEXTAREA'],
                 'rows': 6
             }),
+            'conditions_ru': forms.Textarea(attrs={
+                'class': FORM_CSS_CLASSES['TEXTAREA'],
+                'rows': 6
+            }),
+            'conditions_uk': forms.Textarea(attrs={
+                'class': FORM_CSS_CLASSES['TEXTAREA'],
+                'rows': 6
+            }),
             'logo': forms.FileInput(attrs={
                 'class': FORM_CSS_CLASSES['FILE_INPUT']
             }),
             'banner': forms.FileInput(attrs={
                 'class': FORM_CSS_CLASSES['FILE_INPUT']
-            }),
-            'start_date': forms.DateInput(format=DATE_INPUT_FORMAT, attrs={
-                'class': FORM_CSS_CLASSES['DATE_INPUT'],
-                'type': 'date',
-                'style': 'max-width: 200px;'
-            }),
-            'end_date': forms.DateInput(format=DATE_INPUT_FORMAT, attrs={
-                'class': FORM_CSS_CLASSES['DATE_INPUT'],
-                'type': 'date',
-                'style': 'max-width: 200px;'
             }),
             'gallery1': forms.SelectMultiple(attrs={
                 'class': FORM_CSS_CLASSES['TEXT_INPUT']
