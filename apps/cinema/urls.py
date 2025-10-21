@@ -18,4 +18,8 @@ urlpatterns = [
     # Public movie detail page
     path('movie/<int:pk>/', views.MovieDetailView.as_view(), name='movie_detail'),
 
+
+    path('cinemas/', views.cinema_view, name='cinema_list'),
+    path('cinema/<int:pk>/', views.CinemaDetailView.as_view(), name='cinema_detail'),
+
 ]

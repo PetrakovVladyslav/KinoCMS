@@ -1,0 +1,229 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}KinoCMS - {% trans "Наши кинотеатры" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Cinema cards grid */
+    .cinema-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin-bottom: 40px;
+        justify-content: center;
+        max-width: 800px;
+        margin: 0 auto 40px;
+    }
+    
+    /* Single cinema centered */
+    .cinema-cards.single-cinema {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        justify-items: center;
+    }
+    
+    .cinema-card {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        text-align: center;
+        padding: 25px;
+        cursor: pointer;
+        width: 100%;
+        max-width: 350px;
+        position: relative;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .cinema-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        border-color: var(--accent-color);
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    /* Cinema logo - horizontal landscape format */
+    .cinema-logo {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        background: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .cinema-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+    
+    /* Placeholder for missing logo */
+    .cinema-logo-placeholder {
+        width: 100%;
+        height: 200px;
+        background: #333;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    
+    .cinema-logo-placeholder i {
+        font-size: 3rem;
+        color: var(--text-muted);
+    }
+    
+    .cinema-card h3 {
+        color: var(--text-color);
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    
+    .cinema-card:hover h3 {
+        color: var(--accent-color);
+    }
+    
+    /* Page title */
+    .page-title {
+        text-align: center;
+        margin-bottom: 50px;
+        color: var(--text-color);
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .cinema-cards {
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 400px;
+        }
+        
+        .cinema-cards.single-cinema {
+            max-width: 350px;
+        }
+        
+        .cinema-card {
+            max-width: 100%;
+            padding: 20px;
+        }
+        
+        .cinema-logo,
+        .cinema-logo-placeholder {
+            height: 180px;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .cinema-card {
+            padding: 15px;
+        }
+        
+        .cinema-logo,
+        .cinema-logo-placeholder {
+            height: 160px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Title -->
+    <h1 class="page-title">{% trans "Наши кинотеатры" %}</h1>
+    
+    <!-- Cinema Cards Grid -->
+    <div class="cinema-cards {% if cinemas|length == 1 %}single-cinema{% endif %}">
+        {% for cinema in cinemas %}
+            <a href="{% url 'cinema:cinema_detail' cinema.id %}" class="cinema-card">
+                <!-- Cinema Logo -->
+                {% if cinema.logo %}
+                    <div class="cinema-logo">
+                        <img src="{{ cinema.logo.url }}" alt="{{ cinema.name }}">
+                    </div>
+                {% else %}
+                    <div class="cinema-logo-placeholder">
+                        <i class="fas fa-building"></i>
+                    </div>
+                {% endif %}
+                
+                <!-- Cinema Name -->
+                <h3>{{ cinema.name }}</h3>
+            </a>
+        {% empty %}
+            <!-- Sample cinemas for demonstration if no cinemas exist -->
+            <a href="#" class="cinema-card">
+                <div class="cinema-logo-placeholder">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3>{% trans "Кинотеатр Премьер" %}</h3>
+            </a>
+            
+            <a href="#" class="cinema-card">
+                <div class="cinema-logo-placeholder">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3>{% trans "Кинотеатр Мультиплекс" %}</h3>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add keyboard navigation support
+        document.querySelectorAll('.cinema-card').forEach(function(card) {
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('role', 'link');
+            
+            card.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        window.location.href = href;
+                    }
+                }
+            });
+        });
+        
+        // Add smooth transition on focus
+        document.querySelectorAll('.cinema-card').forEach(function(card) {
+            card.addEventListener('focus', function() {
+                this.style.outline = '2px solid var(--accent-color)';
+                this.style.outlineOffset = '2px';
+            });
+            
+            card.addEventListener('blur', function() {
+                this.style.outline = 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

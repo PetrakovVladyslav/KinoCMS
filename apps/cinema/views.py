@@ -315,3 +315,22 @@ def admin_cinema_list_view(request):
     }
 
     return render(request, 'cinema/admin_cinema_list.html', context)
+
+
+def cinema_view(request):
+
+    cinemas = Cinema.objects.all().order_by('-id')
+
+    context = {
+        'cinemas': cinemas,
+        'title': 'Список киноетатров '
+
+    }
+
+    return render(request, 'cinema/cinema_list.html', context)
+
+
+class CinemaDetailView(DetailView):
+    model = Cinema
+    template_name = 'cinema/cinema.html'
+    context_object_name = 'cinema'
