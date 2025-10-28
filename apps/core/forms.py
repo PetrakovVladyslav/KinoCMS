@@ -1,6 +1,8 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Gallery, Image, SeoBlock
+from .models import Gallery, GalleryImage, SeoBlock
+from django.forms import BaseInlineFormSet
+from django.utils.safestring import mark_safe
 
 FORM_CSS_CLASSES = {
     'TEXT_INPUT': 'form-control',
@@ -49,7 +51,7 @@ LABELS = {
     'COORDINATES': 'Координаты для карты',
 
     # Фильмы
-    'DESCRIPTION_RU': 'Описание (русский)',
+    'NAME_RU': 'Описание (русский)',
     'DESCRIPTION_UK': 'Описание (украинский)',
     'END_DATE': 'Дата окончания проката',
     'POSTER': 'Постер',
@@ -113,14 +115,15 @@ class SeoBlockForm(forms.ModelForm):
             'description': LABELS['META_DESCRIPTION'],
         }
 
-class ImageForm(forms.ModelForm):
+
+class GalleryImageForm(forms.ModelForm):
 
     class Meta:
-        model = Image
+        model = GalleryImage
         fields = ['image']
 
         widgets = {
-            'image': forms.FileInput(attrs={
+            'image': forms.ClearableFileInput(attrs={
                 'class': FORM_CSS_CLASSES['FILE_INPUT'],
                 'accept': 'image/*'
             })
@@ -130,63 +133,67 @@ class ImageForm(forms.ModelForm):
             'image': LABELS['IMAGE'],
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.image:
+            self.fields['image'].widget.attrs.update({
+                'data-current-image': self.instance.image.url
+            })
+
+            image_url = self.instance.image.url
+            self.fields['image'].help_text = mark_safe(
+                f'<div class="mt-2 current-image-preview">'
+                f'<img src="{image_url}" '
+                f'alt="Текущее изображение" '
+                f'class="img-thumbnail" '
+                f'style="max-width: 150px; max-height: 150px; object-fit: cover;">'
+                f'</div>'
+            )
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+
+        if image and hasattr(image, 'content_type'):  # Проверка что это новый файл
+            if image.size > 5 * 1024 * 1024:
+                raise forms.ValidationError('Размер изображения не должен превышать 5MB')
+
+            allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+            if image.content_type not in allowed_types:
+                raise forms.ValidationError(
+                    'Поддерживаются только форматы: JPEG, PNG, WebP'
+                )
+
+        return image
 
 
-ImageFormSet = inlineformset_factory(
+class BaseGalleryFormSet(BaseInlineFormSet):
+
+    def clean(self):
+        if any(self.errors):
+            return
+
+        images_count = 0
+
+        for form in self.forms:
+            if not form.cleaned_data or form.cleaned_data.get('DELETE', False):
+                continue
+
+            # Считаем существующие и новые изображения
+            if form.cleaned_data.get('image'):
+                images_count += 1
+
+        if images_count == 0:
+            raise forms.ValidationError('Загрузите хотя бы одно изображение')
+
+
+GalleryFormSet = inlineformset_factory(
     Gallery,
-    Image,
-    form=ImageForm,
+    GalleryImage,
+    form=GalleryImageForm,
+    formset=BaseGalleryFormSet,
     extra=5,
     max_num=10,
-    can_delete=True
+    can_delete=True,
+    validate_max=True,
 )
-
-
-class SeoBlockForm(forms.ModelForm):
-
-    class Meta:
-        model = SeoBlock
-        fields = ['title', 'url', 'keywords', 'description']
-
-        widgets = {
-            'title': forms.TextInput(attrs={
-                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
-                'placeholder': PLACEHOLDERS['SEO_TITLE']
-            }),
-            'url': forms.URLInput(attrs={
-                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
-                'placeholder': PLACEHOLDERS['SEO_URL']
-            }),
-            'keywords': forms.TextInput(attrs={
-                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
-                'placeholder': PLACEHOLDERS['SEO_KEYWORDS']
-            }),
-            'description': forms.Textarea(attrs={
-                'class': FORM_CSS_CLASSES['TEXTAREA'],
-                'rows': 3,
-                'placeholder': PLACEHOLDERS['SEO_DESCRIPTION']
-            }),
-        }
-
-        labels = {
-            'title': LABELS['META_TITLE'],
-            'url': LABELS['CANONICAL_URL'],
-            'keywords': LABELS['META_KEYWORDS'],
-            'description': LABELS['META_DESCRIPTION'],
-        }
-class ImageForm(forms.ModelForm):
-
-    class Meta:
-        model = Image
-        fields = ['image']
-
-        widgets = {
-            'image': forms.FileInput(attrs={
-                'class': FORM_CSS_CLASSES['FILE_INPUT'],
-                'accept': 'image/*'
-            })
-        }
-
-        labels = {
-            'image': LABELS['IMAGE'],
-        }

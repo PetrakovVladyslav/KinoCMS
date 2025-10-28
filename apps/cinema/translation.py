@@ -3,7 +3,7 @@ from .models import Movie, Cinema, Hall
 
 @register(Movie)
 class MovieTranslationOptions(TranslationOptions):
-    fields = ('title', 'description')
+    fields = ('name', 'description')
 
 @register(Cinema)
 class CinemaTranslationOptions(TranslationOptions):

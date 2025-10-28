@@ -109,10 +109,8 @@ class PageElseForm(forms.ModelForm):
         }
 
     def save(self, commit=True):
-        #Синхронизация базовых полей с мультиязычными
         instance = super().save(commit=False)
 
-        # Обновляем базовые поля из мультиязычных
         if self.cleaned_data.get('name_ru'):
             instance.name = self.cleaned_data['name_ru']
         elif self.cleaned_data.get('name_uk'):

@@ -13,12 +13,12 @@ class PageContacts(models.Model):
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
     status = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
+    can_delete = models.BooleanField(default=False)
 
     def __str__(self):
         return self.cinema_name
     
-    def is_system_page(self):
-        return True  # Страница контактов всегда системная
+
 
 
 class PageMain(models.Model):
@@ -28,12 +28,12 @@ class PageMain(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     seo_text = models.TextField(blank=True, null=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
+    can_delete = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Главная страница'
     
-    def is_system_page(self):
-        return True  # Главная страница всегда системная
+
 
 class PageNewsSales(models.Model):
     TYPE_CHOICES = [
@@ -41,21 +41,17 @@ class PageNewsSales(models.Model):
         ('sale', 'Акция'),
     ]
     
-    # Основная информация
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, verbose_name='Тип')
     name = models.CharField(max_length=100, verbose_name='Название')
     description = models.TextField(blank=True, verbose_name='Описание')
     
-    # Даты
     date = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     publish_date = models.DateField(null=True, blank=True, verbose_name='Дата публикации')
     
-    # Медиа
     logo = models.ImageField(upload_to='page/logo', null=True, blank=True, verbose_name='Главная картинка')
-    gallery = models.OneToOneField(Gallery, on_delete=models.CASCADE, blank=True, null=True)
+    gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     video_url = models.URLField(blank=True, verbose_name='Ссылка на видео')
     
-    # SEO и статус
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
     status = models.BooleanField(default=False, verbose_name='Активна')
     
@@ -74,10 +70,18 @@ class PageNewsSales(models.Model):
         return self.type == 'sale'
 
 class PageElse(models.Model):
+    SYSTEM_PAGES = {
+        'about': 'О кинотеатре',
+        'cafe': 'Кафе - Бар',
+        'Vip_room': 'Vip-зал',
+        'Kids_room': 'Детская комната',
+    }
+
+    slug = models.SlugField(max_length=100, unique=True)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, verbose_name='Описание')
     logo = models.ImageField(upload_to='page/logo', null=True, blank=True)
-    gallery = models.OneToOneField(Gallery, on_delete=models.CASCADE, blank=True, null=True)
+    gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False)
@@ -85,10 +89,10 @@ class PageElse(models.Model):
 
     def __str__(self):
         return self.name
+
+    def is_system(self):
+        return self.slug in self.SYSTEM_PAGES
     
-    def is_system_page(self):
-        # Системные страницы - это те, которые нельзя удалять
-        return not self.can_delete
 
 
 

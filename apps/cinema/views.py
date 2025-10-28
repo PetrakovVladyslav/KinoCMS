@@ -5,12 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView, ListView, CreateView
 from more_itertools.recipes import totient
 from django.contrib import messages
-from .forms import ImageFormSet, CinemaForm, GalleryImageFormSet
-from .forms import PageMovieForm, SeoBlockForm1, SeoBlockForm
+from .forms import PageMovieForm
 
 from .models import Cinema, Movie, Hall
 from datetime import date
-from .models import Movie, Image1
+from .models import Movie, Gallery
 from apps.core.models import Gallery, SeoBlock
 
 # Create your views here.
@@ -53,25 +52,19 @@ def movie_create_view(request):
     if request.method == 'POST':
         form = PageMovieForm(request.POST, request.FILES)
         seo_form = SeoBlockForm(request.POST)
-        gallery_formset = ImageFormSet(request.POST, request.FILES, instance=None)
+        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=None)
 
         if form.is_valid() and seo_form.is_valid() and gallery_formset.is_valid():
-            # 1) Сначала готовим movie (commit=False — чтобы можно было привязать seo/gallery после)
             movie = form.save(commit=False)
             movie.can_delete = True
-            # ещё не сохраняем movie, т.к. хотим сначала создать seo и/или галерею при необходимости
 
-            # 2) Создаём SEO-блок только если в форме есть данные (has_changed())
             seo_block = None
             if seo_form.has_changed():
                 seo_block = seo_form.save()
                 movie.seo_block = seo_block
 
-            # 3) Сохраняем movie, чтобы получить PK
             movie.save()
 
-            # 4) Если есть изображения в formset — создаём галерею и сохраняем formset
-            # Проверка: есть ли хотя бы одна заполненная форма изображения
             has_images = any(bool(f.cleaned_data.get('image')) for f in gallery_formset.forms if not f.cleaned_data.get('DELETE', False))
             if has_images:
                 gallery = Gallery.objects.create(name=f'Галерея - {movie.title or movie.pk}')
@@ -87,7 +80,7 @@ def movie_create_view(request):
     else:
         form = PageMovieForm()
         seo_form = SeoBlockForm()
-        gallery_formset = ImageFormSet()
+        gallery_formset = GalleryFormSet()
 
     context = {
         'form': form,
@@ -105,52 +98,41 @@ def movie_delete_view(request, movie_id):
     if request.method == 'POST':
         movie_title = movie.title_ru or movie.title
 
-        # Удаляем связанные объекты
         if movie.gallery:
-            # Удаляем все изображения из галереи
             movie.gallery.images.all().delete()
-            # Удаляем саму галерею
             movie.gallery.delete()
 
         if movie.seo_block:
             movie.seo_block.delete()
 
-        # Удаляем фильм (сеансы удалятся автоматически через каскад)
         movie.delete()
 
         messages.success(request, f'Фильм "{movie_title}" и все связанные данные успешно удалены')
         return redirect('cinema:admin_movie_list')
 
-    # Если не POST запрос, перенаправляем обратно
     return redirect('cinema:admin_movie_list')
 
 @staff_member_required(login_url='admin:login')
 def movie_update_view(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
 
-    # В GET не создаём seo/gallery автоматически — только если их нет и пользователь сохранит новые данные
     if request.method == 'POST':
         form = PageMovieForm(request.POST, request.FILES, instance=movie)
 
-        # Передаём instance в seo_form только если seo_block действительно существует
         seo_form = SeoBlockForm(request.POST, instance=movie.seo_block if movie.seo_block_id else None)
 
-        gallery_formset = ImageFormSet(request.POST, request.FILES, instance=movie.gallery if movie.gallery_id else None)
+        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=movie.gallery if movie.gallery_id else None)
 
         if form.is_valid() and seo_form.is_valid() and gallery_formset.is_valid():
-            # Сохраняем movie
             movie = form.save(commit=False)
             movie.save()
 
-            # SEO: если форма содержит изменения — сохраняем и привязываем
             if seo_form.has_changed():
                 seo_block = seo_form.save(commit=False)
-                # если у seo_block есть required FK к movie, установить связь здесь; иначе — просто сохранить
                 seo_block.save()
                 movie.seo_block = seo_block
                 movie.save()
 
-            # Gallery: если есть загруженные изображения и галерея ещё не создана — создаём
             has_images = any(bool(f.cleaned_data.get('image')) for f in gallery_formset.forms if not f.cleaned_data.get('DELETE', False))
             if has_images and not movie.gallery_id:
                 gallery = Gallery.objects.create(name=f'Галерея - {movie.title or movie.pk}')
@@ -158,7 +140,6 @@ def movie_update_view(request, movie_id):
                 movie.save()
                 gallery_formset.instance = gallery
 
-            # Сохраняем formset (если instance определён)
             gallery_formset.save()
 
             messages.success(request, f'Фильм "{movie.title}" успешно обновлён')
@@ -167,10 +148,9 @@ def movie_update_view(request, movie_id):
             messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
 
     else:
-        # GET: инициализация форм — не создаём новые объекты, только используем существующие
         form = PageMovieForm(instance=movie)
         seo_form = SeoBlockForm(instance=movie.seo_block if movie.seo_block_id else None)
-        gallery_formset = ImageFormSet(instance=movie.gallery if movie.gallery_id else None)
+        gallery_formset = GalleryFormSet(instance=movie.gallery if movie.gallery_id else None)
 
     context = {
         'form': form,
@@ -189,7 +169,7 @@ def cinema_create_view(request):
     if request.method == 'POST':
         form = CinemaForm(request.POST, request.FILES)
         seo_form = SeoBlockForm1(request.POST)
-        image_formset = GalleryImageFormSet(request.POST, request.FILES, queryset=Image1.objects.none())
+        image_formset = GalleryGalleryFormSet(request.POST, request.FILES, queryset=Gallery.objects.none())
 
         if form.is_valid() and seo_form.is_valid() and image_formset.is_valid():
             cinema = form.save(commit=False)
@@ -214,7 +194,7 @@ def cinema_create_view(request):
     else:
         form = CinemaForm()
         seo_form = SeoBlockForm1()
-        image_formset = GalleryImageFormSet(queryset=Image1.objects.none())
+        image_formset = GalleryGalleryFormSet(queryset=Gallery.objects.none())
 
     context = {
         'form': form,
@@ -230,20 +210,17 @@ def cinema_create_view(request):
 def cinema_update_view(request, pk):
     cinema = get_object_or_404(Cinema, pk=pk)
 
-    # В GET не создаём seo/gallery автоматически — только если их нет и пользователь сохранит новые данные
     if request.method == 'POST':
         form = CinemaForm(request.POST, request.FILES, instance=cinema)
 
-        # Передаём instance в seo_form только если seo_block действительно существует
         seo_form = SeoBlockForm1(request.POST, instance=cinema.seo_block1 if cinema.seo_block1_id else None)
 
-        image_formset = GalleryImageFormSet(request.POST, request.FILES, queryset=cinema.gallery1.all())
+        image_formset = GalleryGalleryFormSet(request.POST, request.FILES, queryset=cinema.gallery1.all())
 
 
         if form.is_valid() and seo_form.is_valid() and image_formset.is_valid():
             cinema = form.save(commit=False)
 
-            # Сохранение SEO-блока (OneToOne)
             if seo_form.has_changed():
                 seo_block1 = seo_form.save()
                 cinema.seo_block1 = seo_block1
@@ -251,13 +228,11 @@ def cinema_update_view(request, pk):
             cinema.save()
             form.save_m2m()
 
-            # Сохранение изображений (ManyToMany)
             images = image_formset.save(commit=False)
             for image in images:
                 image.save()
                 cinema.gallery1.add(image)
 
-            # Удаление отмеченных изображений
             for image in image_formset.deleted_objects:
                 cinema.gallery1.remove(image)
                 image.delete()
@@ -268,7 +243,7 @@ def cinema_update_view(request, pk):
     else:
         form = CinemaForm(instance=cinema)
         seo_form = SeoBlockForm1(instance=cinema.seo_block1 if cinema.seo_block1 else None)
-        image_formset = GalleryImageFormSet(queryset=cinema.gallery1.all())
+        image_formset = GalleryGalleryFormSet(queryset=cinema.gallery1.all())
 
     context = {
         'form': form,
@@ -286,21 +261,17 @@ def cinema_delete_view(request, pk):
     cinema = get_object_or_404(Cinema, pk=pk)
 
     if request.method == 'POST':
-        # Удаляем связанные изображения (если нужно физически удалять файлы — добавить здесь логику)
         for image in cinema.gallery1.all():
             image.delete()
 
-        # Удаляем SEO-блок, если он есть
         if cinema.seo_block1:
             cinema.seo_block1.delete()
 
-        # Удаляем сам кинотеатр
         cinema.delete()
 
         messages.success(request, f'Кинотеатр "{cinema.name}" и все связанные данные успешно удалены')
         return redirect('cinema:admin_cinema_list')
 
-    # Если не POST запрос, перенаправляем обратно
     return redirect('cinema:admin_cinema_list')
 
 @staff_member_required(login_url='admin:login')
