@@ -170,20 +170,20 @@
             <div class="movie-card">
               <div class="movie-poster">
                 {% if movie.poster %}
-                  <img src="{{ movie.poster.url }}" alt="{{ movie.title_ru|default:movie.title }}">
+                  <img src="{{ movie.poster.url }}" alt="{{ movie.name_ru|default:movie.name }}">
                 {% else %}
                   <div class="movie-poster-placeholder">
                     <i class="fas fa-film"></i>
                   </div>
                 {% endif %}
                 <button type="button" class="movie-delete-btn" title="Удалить фильм"
-                        onclick="confirmMovieDelete({{ movie.id }}, '{{ movie.title_ru|default:movie.title|escapejs }}')">
+                        onclick="confirmMovieDelete({{ movie.id }}, '{{ movie.name_ru|default:movie.name|escapejs }}')">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
               <div class="movie-info">
                 <a href="{% url 'cinema:movie_edit' movie.id %}" class="movie-title" title="Редактировать фильм">
-                  {{ movie.title_ru|default:movie.title }}
+                  {{ movie.name_ru|default:movie.name }}
                 </a>
                 <div class="movie-dates">
                   <i class="fas fa-calendar-alt"></i> 
@@ -216,20 +216,20 @@
             <div class="movie-card">
               <div class="movie-poster">
                 {% if movie.poster %}
-                  <img src="{{ movie.poster.url }}" alt="{{ movie.title_ru|default:movie.title }}">
+                  <img src="{{ movie.poster.url }}" alt="{{ movie.name_ru|default:movie.name }}">
                 {% else %}
                   <div class="movie-poster-placeholder">
                     <i class="fas fa-film"></i>
                   </div>
                 {% endif %}
                 <button type="button" class="movie-delete-btn" title="Удалить фильм"
-                        onclick="confirmMovieDelete({{ movie.id }}, '{{ movie.title_ru|default:movie.title|escapejs }}')">
+                        onclick="confirmMovieDelete({{ movie.id }}, '{{ movie.name_ru|default:movie.name|escapejs }}')">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
               <div class="movie-info">
                 <a href="{% url 'cinema:movie_edit' movie.id %}" class="movie-title" title="Редактировать фильм">
-                  {{ movie.title_ru|default:movie.title }}
+                  {{ movie.name_ru|default:movie.name }}
                 </a>
                 <div class="movie-dates">
                   <i class="fas fa-calendar-alt"></i> 

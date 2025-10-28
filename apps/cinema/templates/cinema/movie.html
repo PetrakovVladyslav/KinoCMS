@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}{{ movie.title }} - KinoCMS{% endblock %}
+{% block title %}{{ movie.name }} - KinoCMS{% endblock %}
 
 {% block main_class %}{% endblock %}
 
@@ -411,7 +411,7 @@
         <div class="col-lg-4 mb-4">
             <div class="movie-info-card text-center">
                 {% if movie.poster %}
-                    <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                    <img src="{{ movie.poster.url }}" alt="{{ movie.name }}" class="img-fluid rounded mb-3" style="max-height: 400px;">
                 {% else %}
                     <div class="bg-secondary rounded mb-3" style="height: 400px; display: flex; align-items: center; justify-content: center;">
                         <i class="bi bi-film" style="font-size: 4rem; color: var(--text-muted);"></i>
@@ -428,7 +428,7 @@
             <!-- Movie Title and Info -->
             <div class="movie-info-card">
                 <div class="movie-header d-flex justify-content-between align-items-start mb-3">
-                    <h1 class="display-5 fw-bold text-white mb-0">{{ movie.title }}</h1>
+                    <h1 class="display-5 fw-bold text-white mb-0">{{ movie.name }}</h1>
                     
                     <!-- Dynamic Format Badges in Top Right -->
                     {% if movie.formats %}
@@ -473,7 +473,7 @@
                         <div class="slides" id="slidesTrack">
                             {% for image in movie.get_gallery_images %}
                             <div class="slide">
-                                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:movie.title }}" class="slide-image">
+                                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:movie.name }}" class="slide-image">
                             </div>
                             {% endfor %}
                         </div>

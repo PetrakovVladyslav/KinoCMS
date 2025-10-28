@@ -123,7 +123,7 @@ class GalleryImageForm(forms.ModelForm):
         fields = ['image']
 
         widgets = {
-            'image': forms.ClearableFileInput(attrs={
+            'image': forms.FileInput(attrs={
                 'class': FORM_CSS_CLASSES['FILE_INPUT'],
                 'accept': 'image/*'
             })
@@ -140,16 +140,6 @@ class GalleryImageForm(forms.ModelForm):
             self.fields['image'].widget.attrs.update({
                 'data-current-image': self.instance.image.url
             })
-
-            image_url = self.instance.image.url
-            self.fields['image'].help_text = mark_safe(
-                f'<div class="mt-2 current-image-preview">'
-                f'<img src="{image_url}" '
-                f'alt="Текущее изображение" '
-                f'class="img-thumbnail" '
-                f'style="max-width: 150px; max-height: 150px; object-fit: cover;">'
-                f'</div>'
-            )
 
     def clean_image(self):
         image = self.cleaned_data.get('image')

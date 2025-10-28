@@ -1,10 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'core/base.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block title %}{{ title }} - KinoCMS{% endblock %}
+
+{% block content %}
+<style>
+    .contacts-page {
+        padding-top: 80px;
+        min-height: 100vh;
+        background: var(--primary-color);
+    }
+
+    .page-header {
+        text-align: center;
+        padding: 40px 0;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-bottom: 2px solid var(--accent-color);
+        margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 0;
+    }
+
+    .cinema-card {
+        background: var(--secondary-color);
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+    }
+
+    .cinema-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .cinema-header {
+        display: flex;
+        align-items: center;
+        padding: 30px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cinema-logo {
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 30px;
+        overflow: hidden;
+    }
+
+    .cinema-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cinema-logo-placeholder {
+        font-size: 2rem;
+        color: var(--text-muted);
+    }
+
+    .cinema-info h2 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin: 0 0 10px 0;
+    }
+
+    .cinema-address {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .cinema-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+    }
+
+    .cinema-image {
+        width: 100%;
+        height: 300px;
+        overflow: hidden;
+    }
+
+    .cinema-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cinema-map {
+        width: 100%;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.05);
+        position: relative;
+    }
+
+    .cinema-map iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    .map-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+        .cinema-body {
+            grid-template-columns: 1fr;
+        }
+
+        .cinema-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .cinema-logo {
+            margin-right: 0;
+            margin-bottom: 20px;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="contacts-page">
+    <div class="page-header">
+        <div class="container">
+            <h1>Контакты</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        {% for contact in contacts %}
+        <div class="cinema-card">
+            <div class="cinema-header">
+                <div class="cinema-logo">
+                    {% if contact.logo %}
+                        <img src="{{ contact.logo.url }}" alt="{{ contact.cinema_name }}">
+                    {% else %}
+                        <div class="cinema-logo-placeholder">
+                            <i class="fa fa-film"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="cinema-info">
+                    <h2>{{ contact.cinema_name }}</h2>
+                    <p class="cinema-address">{{ contact.address }}</p>
+                </div>
+            </div>
+
+            <div class="cinema-body">
+                <div class="cinema-image">
+                    {% if contact.logo %}
+                        <img src="{{ contact.logo.url }}" alt="{{ contact.cinema_name }}">
+                    {% else %}
+                        <img src="{% static 'images/cinema-placeholder.jpg' %}" alt="{{ contact.cinema_name }}">
+                    {% endif %}
+                </div>
+
+                <div class="cinema-map">
+                    {% if contact.coordinates %}
+                        <iframe 
+                            src="https://maps.google.com/maps?q={{ contact.coordinates }}&output=embed"
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    {% else %}
+                        <div class="map-placeholder">
+                            <i class="fa fa-map-marker"></i> Карта недоступна
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center" style="padding: 60px 0; color: var(--text-muted);">
+            <i class="fa fa-inbox" style="font-size: 4rem; margin-bottom: 20px;"></i>
+            <p style="font-size: 1.2rem;">Контакты кинотеатров не найдены</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -391,14 +391,14 @@ input:checked + .switch-slider:before {
             <div class="multilang-field">
               <div class="field-group active" data-lang="ru">
                 <div class="form-group">
-                  {{ form.title_ru }}
+                  {{ form.name_ru }}
                   <small class="form-text text-muted">Название фильма на русском языке</small>
                 </div>
               </div>
 
               <div class="field-group" data-lang="uk">
                 <div class="form-group">
-                  {{ form.title_uk }}
+                  {{ form.name_uk }}
                   <small class="form-text text-muted">Назва фільма українською мовою</small>
                 </div>
               </div>
@@ -429,38 +429,32 @@ input:checked + .switch-slider:before {
           <div class="form-section">
             <h5><i class="fas fa-image"></i> Постер</h5>
             <div class="form-group">
+              {% if movie.poster %}
+                <div class="current-logo-preview mb-3">
+                  <div class="logo-preview-wrapper">
+                    <img src="{{ movie.poster.url }}" alt="Постер" class="logo-preview">
+                  </div>
+                </div>
+              {% endif %}
               <div class="logo-upload-container">
                 {{ form.poster }}
-                {% if movie.poster %}
-                  <div class="current-logo-preview mt-3">
-                    <label class="form-label">Текущий постер:</label>
-                    <div class="logo-preview-wrapper">
-                      <img src="{{ movie.poster.url }}" alt="Текущий постер" class="logo-preview">
-                      <div class="logo-overlay">
-                        <small class="text-white">{{ movie.poster.name }}</small>
-                      </div>
-                    </div>
-                  </div>
-                {% endif %}
               </div>
-              {% if form.poster.help_text %}
-                <small class="form-text text-muted">{{ form.poster.help_text }}</small>
-              {% endif %}
             </div>
           </div>
 
             {% if gallery_formset %}
           <div class="form-section">
             <h5><i class="fas fa-images"></i> Галерея изображений</h5>
-            <!-- DEBUG: Gallery formset forms count: {{ gallery_formset.forms|length }}, initial: {{ gallery_formset.initial_forms|length }} -->
             <div class="gallery-container">
               {{ gallery_formset.management_form }}
               <div class="gallery-forms">
                 {% for form in gallery_formset %}
                   <div class="gallery-item" data-form-index="{{ forloop.counter0 }}">
-                    {{ form.id }}
-                    {{ form.gallery }}
-                    {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                    <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                    <input type="hidden" name="{{ form.gallery.html_name }}" value="{{ form.gallery.value|default:'' }}" id="{{ form.gallery.id_for_label }}">
+                    {% if form.instance.pk %}
+                      <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="display: none;">
+                    {% endif %}
 
                     <div class="gallery-item-content">
                       {% if form.instance.image %}

@@ -448,8 +448,8 @@ def contacts_admin_edit_view(request):
     PageContactsFormSet = modelformset_factory(
         PageContacts,
         form=PageContactsForm,
-        extra=1,
-        can_delete=False,
+        extra=0,  # Не создаём пустые формы автоматически
+        can_delete=True,
     )
     
     if request.method == 'POST':
@@ -458,26 +458,40 @@ def contacts_admin_edit_view(request):
         seo_form = SeoBlockForm(request.POST, instance=main_contact.seo_block if main_contact and main_contact.seo_block else None, prefix='seo')
 
         if main_form.is_valid() and formset.is_valid() and seo_form.is_valid():
-            # Сохраняем всё
-            main_contact = main_form.save()
+            # Сохраняем главный контакт
+            main_contact = main_form.save(commit=False)
+            main_contact.is_main = True
+            main_contact.save()
 
-            instances = formset.save(commit=False)
-            for instance in instances:
-                instance.is_main = False
-                instance.save()
+            # Сохраняем дополнительные контакты и обрабатываем удаление
+            for form in formset:
+                if form.cleaned_data:
+                    if form.cleaned_data.get('DELETE'):
+                        # Удаляем объект, если он помечен для удаления
+                        if form.instance.pk:
+                            form.instance.delete()
+                    else:
+                        # Сохраняем объект
+                        instance = form.save(commit=False)
+                        instance.is_main = False
+                        instance.save()
 
+            # Сохраняем SEO блок
             if seo_form.has_changed():
                 seo_block = seo_form.save()
                 main_contact.seo_block = seo_block
                 main_contact.save()
 
             messages.success(request, 'Все изменения сохранены!')
-            return redirect('page:contacts_admin_edit')
-
-    # Формы для GET запроса
-    main_form = PageContactsForm(instance=main_contact, prefix='main')
-    formset = PageContactsFormSet(queryset=additional_contacts, prefix='additional')
-    seo_form = SeoBlockForm(instance=main_contact.seo_block if main_contact and main_contact.seo_block else None, prefix='seo')
+            return redirect('page:contacts')
+        else:
+            # Если есть ошибки, показываем их
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
+    else:
+        # Формы для GET запроса
+        main_form = PageContactsForm(instance=main_contact, prefix='main')
+        formset = PageContactsFormSet(queryset=additional_contacts, prefix='additional')
+        seo_form = SeoBlockForm(instance=main_contact.seo_block if main_contact and main_contact.seo_block else None, prefix='seo')
 
     context = {
         'main_form': main_form,

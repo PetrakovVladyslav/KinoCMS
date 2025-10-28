@@ -23,6 +23,11 @@
           <div class="mb-4">
             <div class="card">
               <div class="card-body">
+                <!-- Hidden fields -->
+                {% for hidden in main_form.hidden_fields %}
+                  {{ hidden }}
+                {% endfor %}
+                
                 <div class="row">
                   <div class="col-md-6">
                     <!-- Cinema Name -->
@@ -77,48 +82,52 @@
                       <label for="{{ main_form.logo.id_for_label }}" class="form-label">
                         {{ main_form.logo.label }}
                       </label>
-                      <div class="d-flex align-items-start gap-3">
-                        <div class="logo-preview">
-                          <img id="logoPreview_main" 
-                               src="{% if main_form.logo.value %}{{ main_form.logo.value.url }}{% endif %}" 
-                               style="max-width: 100px; max-height: 100px; {% if not main_form.logo.value %}display: none;{% endif %}" 
-                               class="img-thumbnail" alt="Предпросмотр логотипа">
-                          <div id="logoPlaceholder_main" 
-                               style="width: 100px; height: 100px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; {% if main_form.logo.value %}display: none;{% endif %}" 
-                               class="text-muted">
-                            <i class="fas fa-image fa-2x"></i>
+                      <div class="logo-preview mb-3">
+                        <img id="logoPreview_main" 
+                             src="{% if main_form.logo.value %}{{ main_form.logo.value.url }}{% endif %}" 
+                             style="max-width: 150px; max-height: 150px; {% if not main_form.logo.value %}display: none;{% endif %}" 
+                             class="img-thumbnail" alt="Логотип">
+                        <div id="logoPlaceholder_main" 
+                             style="width: 150px; height: 150px; border: 2px dashed #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; {% if main_form.logo.value %}display: none;{% endif %}" 
+                             class="text-muted bg-light">
+                          <i class="fas fa-image fa-3x"></i>
+                        </div>
+                      </div>
+                      <div>
+                        {{ main_form.logo }}
+                        {% if main_form.logo.errors %}
+                          <div class="invalid-feedback d-block">
+                            {% for error in main_form.logo.errors %}
+                              {{ error }}
+                            {% endfor %}
                           </div>
-                        </div>
-                        <div class="flex-grow-1">
-                          {{ main_form.logo }}
-                          {% if main_form.logo.errors %}
-                            <div class="invalid-feedback d-block">
-                              {% for error in main_form.logo.errors %}
-                                {{ error }}
-                              {% endfor %}
-                            </div>
-                          {% endif %}
-                        </div>
+                        {% endif %}
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                <!-- Hidden status field (always active for main contact) -->
-                <input type="hidden" name="{{ main_form.status.name }}" value="on">
+                <!-- Hidden fields for main contact -->
+                <input type="hidden" name="main-status" value="on">
+                <input type="hidden" name="main-order" value="0">
               </div>
             </div>
           </div>
           
           <!-- Дополнительные кинотеатры -->
           <div class="mb-4">
-            {{ additional_formset.management_form }}
+            {{ formset.management_form }}
             
             <div id="additional-formset">
-              {% for form in additional_formset %}
+              {% for form in formset %}
                 <div class="additional-contact-block mb-3" data-contact-index="{{ forloop.counter0 }}">
                   <div class="card">
                     <div class="card-body position-relative">
+                      <!-- Hidden fields (id, order, etc.) -->
+                      {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                      {% endfor %}
+                      
                       <!-- Delete Button -->
                       <button type="button" class="btn btn-sm btn-danger position-absolute" 
                               style="top: 10px; right: 10px; z-index: 10;"
@@ -126,9 +135,10 @@
                               title="Удалить кинотеатр">
                         <i class="fas fa-trash"></i>
                       </button>
-                      <!-- Hidden DELETE field -->
+                      
+                      <!-- DELETE field -->
                       {% if form.DELETE %}
-                        <input type="hidden" name="{{ form.DELETE.name }}" value="{{ form.DELETE.value|default:'0' }}">
+                        {{ form.DELETE }}
                       {% endif %}
                       
                       <div class="row">
@@ -185,28 +195,26 @@
                             <label for="{{ form.logo.id_for_label }}" class="form-label">
                               {{ form.logo.label }}
                             </label>
-                            <div class="d-flex align-items-start gap-3">
-                              <div class="logo-preview">
-                                <img id="logoPreview_additional_{{ forloop.counter0 }}" 
-                                     src="{% if form.logo.value %}{{ form.logo.value.url }}{% endif %}" 
-                                     style="max-width: 100px; max-height: 100px; {% if not form.logo.value %}display: none;{% endif %}" 
-                                     class="img-thumbnail" alt="Предпросмотр логотипа">
-                                <div id="logoPlaceholder_additional_{{ forloop.counter0 }}" 
-                                     style="width: 100px; height: 100px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; {% if form.logo.value %}display: none;{% endif %}" 
-                                     class="text-muted">
-                                  <i class="fas fa-image fa-2x"></i>
+                            <div class="logo-preview mb-3">
+                              <img id="logoPreview_additional_{{ forloop.counter0 }}" 
+                                   src="{% if form.logo.value %}{{ form.logo.value.url }}{% endif %}" 
+                                   style="max-width: 150px; max-height: 150px; {% if not form.logo.value %}display: none;{% endif %}" 
+                                   class="img-thumbnail" alt="Логотип">
+                              <div id="logoPlaceholder_additional_{{ forloop.counter0 }}" 
+                                   style="width: 150px; height: 150px; border: 2px dashed #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; {% if form.logo.value %}display: none;{% endif %}" 
+                                   class="text-muted bg-light">
+                                <i class="fas fa-image fa-3x"></i>
+                              </div>
+                            </div>
+                            <div>
+                              {{ form.logo }}
+                              {% if form.logo.errors %}
+                                <div class="invalid-feedback d-block">
+                                  {% for error in form.logo.errors %}
+                                    {{ error }}
+                                  {% endfor %}
                                 </div>
-                              </div>
-                              <div class="flex-grow-1">
-                                {{ form.logo }}
-                                {% if form.logo.errors %}
-                                  <div class="invalid-feedback d-block">
-                                    {% for error in form.logo.errors %}
-                                      {{ error }}
-                                    {% endfor %}
-                                  </div>
-                                {% endif %}
-                              </div>
+                              {% endif %}
                             </div>
                           </div>
                         </div>
@@ -218,7 +226,7 @@
             </div>
             
             <!-- Add Cinema Button -->
-            <button type="button" id="add-additional-contact" class="btn btn-outline-primary">
+            <button type="button" id="add-additional-contact" class="btn btn-outline-primary" onclick="addAdditionalContact();">
               <i class="fas fa-plus"></i> Добавить еще кинотеатр
             </button>
           </div>
@@ -295,14 +303,27 @@ input[type="checkbox"][name$="-DELETE"] {
 function removeAdditionalContact(index) {
     const contactBlock = document.querySelector(`[data-contact-index="${index}"]`);
     if (contactBlock) {
-        // Отмечаем форму как удаленную
-        const deleteInput = contactBlock.querySelector('input[name*="DELETE"]');
-        if (deleteInput) {
-            deleteInput.value = 'on';
-        }
+        // Проверяем, есть ли у формы ID (значит она из БД)
+        const idInput = contactBlock.querySelector(`input[name="additional-${index}-id"]`);
+        const hasId = idInput && idInput.value;
         
-        // Скрываем блок
-        contactBlock.style.display = 'none';
+        if (hasId) {
+            // Это существующая запись - помечаем для удаления
+            const deleteInput = contactBlock.querySelector('input[name*="DELETE"]');
+            if (deleteInput) {
+                deleteInput.value = 'on';
+            }
+            // Скрываем блок
+            contactBlock.style.display = 'none';
+        } else {
+            // Это новая форма - просто удаляем из DOM
+            contactBlock.remove();
+            // Обновляем счётчик форм
+            const totalFormsInput = document.querySelector('input[name="additional-TOTAL_FORMS"]');
+            if (totalFormsInput) {
+                totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
+            }
+        }
     }
 }
 
@@ -311,11 +332,18 @@ function addAdditionalContact() {
     const formset = document.getElementById('additional-formset');
     const totalFormsInput = document.querySelector('input[name="additional-TOTAL_FORMS"]');
     
-    if (!formset || !totalFormsInput) return;
+    if (!formset) {
+        console.error('Formset container not found');
+        return;
+    }
+    
+    if (!totalFormsInput) {
+        console.error('TOTAL_FORMS input not found');
+        return;
+    }
     
     const totalForms = parseInt(totalFormsInput.value);
     const newContactHtml = createAdditionalContactForm(totalForms);
-    
     formset.insertAdjacentHTML('beforeend', newContactHtml);
     totalFormsInput.value = totalForms + 1;
     
@@ -336,7 +364,10 @@ function createAdditionalContactForm(index) {
                             title="Удалить кинотеатр">
                         <i class="fas fa-trash"></i>
                     </button>
-                    <input type="hidden" name="additional-${index}-DELETE" value="0">
+                    <input type="hidden" name="additional-${index}-id" id="id_additional-${index}-id" value="">
+                    <input type="hidden" name="additional-${index}-DELETE" id="id_additional-${index}-DELETE" value="">
+                    <input type="hidden" name="additional-${index}-order" id="id_additional-${index}-order" value="${index}">
+                    <input type="hidden" name="additional-${index}-status" id="id_additional-${index}-status" value="on">
                     
                     <div class="row">
                         <div class="col-md-6">
@@ -381,23 +412,21 @@ function createAdditionalContactForm(index) {
                                 <label for="id_additional-${index}-logo" class="form-label">
                                     Логотип
                                 </label>
-                                <div class="d-flex align-items-start gap-3">
-                                    <div class="logo-preview">
-                                        <img id="logoPreview_additional_${index}" 
-                                             style="max-width: 100px; max-height: 100px; display: none;" 
-                                             class="img-thumbnail" 
-                                             alt="Предпросмотр логотипа">
-                                        <div id="logoPlaceholder_additional_${index}" 
-                                             style="width: 100px; height: 100px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center;" 
-                                             class="text-muted">
-                                            <i class="fas fa-image fa-2x"></i>
-                                        </div>
+                                <div class="logo-preview mb-3">
+                                    <img id="logoPreview_additional_${index}" 
+                                         style="max-width: 150px; max-height: 150px; display: none;" 
+                                         class="img-thumbnail" 
+                                         alt="Логотип">
+                                    <div id="logoPlaceholder_additional_${index}" 
+                                         style="width: 150px; height: 150px; border: 2px dashed #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center;" 
+                                         class="text-muted bg-light">
+                                        <i class="fas fa-image fa-3x"></i>
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <input type="file" class="form-control-file" 
-                                               name="additional-${index}-logo" 
-                                               id="id_additional-${index}-logo">
-                                    </div>
+                                </div>
+                                <div>
+                                    <input type="file" class="form-control-file" 
+                                           name="additional-${index}-logo" 
+                                           id="id_additional-${index}-logo">
                                 </div>
                             </div>
                         </div>
@@ -457,13 +486,6 @@ function handleLogoPreview(e, previewId) {
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Настраиваем кнопку добавления контакта
-    const addBtn = document.getElementById('add-additional-contact');
-    if (addBtn) {
-        addBtn.addEventListener('click', addAdditionalContact);
-    }
-    
-    // Настраиваем просмотр логотипов
     setupLogoPreviews();
 });
 </script>

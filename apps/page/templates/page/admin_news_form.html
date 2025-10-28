@@ -428,24 +428,16 @@ input:checked + .switch-slider:before {
           <div class="form-section">
             <h5><i class="fas fa-image"></i> Логотип</h5>
             <div class="form-group">
-              {{ form.logo.label_tag }}
+              {% if form.logo.value %}
+                <div class="current-logo-preview mb-3">
+                  <div class="logo-preview-wrapper">
+                    <img src="{{ form.logo.value.url }}" alt="Логотип" class="logo-preview">
+                  </div>
+                </div>
+              {% endif %}
               <div class="logo-upload-container">
                 {{ form.logo }}
-                {% if form.logo.value %}
-                  <div class="current-logo-preview mt-3">
-                    <label class="form-label">Текущий логотип:</label>
-                    <div class="logo-preview-wrapper">
-                      <img src="{{ form.logo.value.url }}" alt="Текущий логотип" class="logo-preview">
-                      <div class="logo-overlay">
-                        <small class="text-white">{{ form.logo.value.name }}</small>
-                      </div>
-                    </div>
-                  </div>
-                {% endif %}
               </div>
-              {% if form.logo.help_text %}
-                <small class="form-text text-muted">{{ form.logo.help_text }}</small>
-              {% endif %}
             </div>
           </div>
           
@@ -458,9 +450,11 @@ input:checked + .switch-slider:before {
               <div class="gallery-forms">
                 {% for form in gallery_formset %}
                   <div class="gallery-item" data-form-index="{{ forloop.counter0 }}">
-                    {{ form.id }}
-                    {{ form.gallery }}
-                    {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                    <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                    <input type="hidden" name="{{ form.gallery.html_name }}" value="{{ form.gallery.value|default:'' }}" id="{{ form.gallery.id_for_label }}">
+                    {% if form.instance.pk %}
+                      <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="display: none;">
+                    {% endif %}
                     
                     <div class="gallery-item-content">
                       {% if form.instance.image %}

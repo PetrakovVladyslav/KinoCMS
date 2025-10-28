@@ -73,7 +73,7 @@ class PageElseForm(forms.ModelForm):
 
     class Meta:
         model = PageElse
-        exclude = ['date', 'name', 'description', 'gallery', 'seo_block']
+        exclude = ['date', 'name', 'description', 'gallery', 'seo_block', 'slug', 'is_system']
 
         widgets = {
             'name_ru': forms.TextInput(attrs={

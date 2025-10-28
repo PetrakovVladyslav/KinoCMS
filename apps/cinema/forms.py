@@ -42,7 +42,7 @@ class PageMovieForm(forms.ModelForm):
                 'class': FORM_CSS_CLASSES['TEXTAREA'],
                 'rows': 6
             }),
-            'poster': forms.ClearableFileInput(attrs={
+            'poster': forms.FileInput(attrs={
                 'class': FORM_CSS_CLASSES['FILE_INPUT']
             }),
             'trailer_url': forms.URLInput(attrs={
@@ -80,17 +80,6 @@ class PageMovieForm(forms.ModelForm):
 
         if self.instance and self.instance.pk and self.instance.formats:
             self.initial['formats'] = self.instance.formats
-
-        if self.instance and self.instance.poster:
-            from django.utils.safestring import mark_safe
-            self.fields['poster'].help_text = mark_safe(
-                f'<div class="mt-2">'
-                f'<img src="{self.instance.poster.url}" '
-                f'alt="Текущий постер" '
-                f'class="img-thumbnail" '
-                f'style="max-width: 200px; max-height: 300px; object-fit: cover;">'
-                f'</div>'
-            )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -133,7 +122,7 @@ class CinemaForm(forms.ModelForm):
 
     class Meta:
         model = Cinema
-        exclude = ['name', 'description', 'gallery', 'seo_block', 'created_at']
+        exclude = ['name', 'description', 'conditions', 'gallery', 'seo_block', 'created_at']
 
         widgets = {
             'name_ru': forms.TextInput(attrs={
@@ -158,10 +147,10 @@ class CinemaForm(forms.ModelForm):
                 'class': FORM_CSS_CLASSES['TEXTAREA'],
                 'rows': 4
             }),
-            'logo': forms.ClearableFileInput(attrs={
+            'logo': forms.FileInput(attrs={
                 'class': FORM_CSS_CLASSES['FILE_INPUT']
             }),
-            'banner': forms.ClearableFileInput(attrs={
+            'banner': forms.FileInput(attrs={
                 'class': FORM_CSS_CLASSES['FILE_INPUT']
             }),
         }
@@ -179,44 +168,3 @@ class CinemaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        if self.instance and self.instance.logo:
-            from django.utils.safestring import mark_safe
-            self.fields['logo'].help_text = mark_safe(
-                f'<div class="mt-2">'
-                f'<img src="{self.instance.logo.url}" '
-                f'alt="Текущий логотип" '
-                f'class="img-thumbnail" '
-                f'style="max-width: 150px; max-height: 150px; object-fit: cover;">'
-                f'</div>'
-            )
-
-        if self.instance and self.instance.banner:
-            from django.utils.safestring import mark_safe
-            self.fields['banner'].help_text = mark_safe(
-                f'<div class="mt-2">'
-                f'<img src="{self.instance.banner.url}" '
-                f'alt="Текущий баннер" '
-                f'class="img-thumbnail" '
-                f'style="max-width: 300px; max-height: 150px; object-fit: cover;">'
-                f'</div>'
-            )
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-
-        # Синхронизация базовых полей с мультиязычными
-        if self.cleaned_data.get('name_ru'):
-            instance.name = self.cleaned_data['name_ru']
-        elif self.cleaned_data.get('name_uk'):
-            instance.name = self.cleaned_data['name_uk']
-
-        if self.cleaned_data.get('description_ru'):
-            instance.description = self.cleaned_data['description_ru']
-        elif self.cleaned_data.get('description_uk'):
-            instance.description = self.cleaned_data['description_uk']
-
-        if commit:
-            instance.save()
-
-        return instance
