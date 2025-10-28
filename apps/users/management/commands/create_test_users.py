@@ -1,105 +1,103 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth import get_user_model
-from django.utils import timezone
-from datetime import datetime, timedelta
-import random
-
-User = get_user_model()
+from apps.page.models import PageElse, PageMain, PageContacts
 
 class Command(BaseCommand):
-    help = 'Создает тестовых пользователей для админ-панели'
-    
-    def add_arguments(self, parser):
-        parser.add_argument(
-            '--count',
-            type=int,
-            default=20,
-            help='Количество пользователей для создания (по умолчанию: 20)'
-        )
-    
+    help = 'Create all system pages and records'
+
     def handle(self, *args, **options):
-        count = options['count']
-        
-        # Данные для генерации тестовых пользователей
-        first_names = [
-            'Александр', 'Дмитрий', 'Максим', 'Сергей', 'Андрей', 
-            'Алексей', 'Артем', 'Илья', 'Кирилл', 'Михаил',
-            'Анна', 'Елена', 'Ольга', 'Татьяна', 'Ирина',
-            'Мария', 'Наталья', 'Юлия', 'Светлана', 'Екатерина'
+        # Обычные системные страницы
+        system_pages_data = [
+            {
+                'slug': 'about',
+                'name': 'О кинотеатре',
+                'name_ru': 'О кинотеатре',
+                'name_uk': 'Про кінотеатр',
+                'description': '<p>Информация о нашем кинотеатре</p>',
+                'description_ru': '<p>Информация о нашем кинотеатре</p>',
+                'description_uk': '<p>Інформація про наш кінотеатр</p>',
+            },
+            {
+                'slug': 'cafe',
+                'name': 'Кафе-Бар',
+                'name_ru': 'Кафе-Бар',
+                'name_uk': 'Кафе-Бар',
+                'description': '<p>Наше кафе и бар</p>',
+                'description_ru': '<p>Наше кафе и бар</p>',
+                'description_uk': '<p>Наше кафе та бар</p>',
+            },
+            {
+                'slug': 'vip',
+                'name': 'Vip-зал',
+                'name_ru': 'Vip-зал',
+                'name_uk': 'Vip-зал',
+                'description': '<p>Наш vip-зал</p>',
+                'description_ru': '<p>Наш vip-зал</p>',
+                'description_uk': '<p>Наш vip-зал</p>',
+            },
+            {
+                'slug': 'promo',
+                'name': 'Реклама',
+                'name_ru': 'Реклама',
+                'name_uk': 'Реклама',
+                'description': '<p>Рекламные возможности</p>',
+                'description_ru': '<p>Рекламные возможности</p>',
+                'description_uk': '<p>Рекламні можливості</p>',
+            },
+            {
+                'slug': 'kids_room',
+                'name': 'Детская комната',
+                'name_ru': 'Детская комната',
+                'name_uk': 'Дитяча кімната',
+                'description': '<p>Детская комната</p>',
+                'description_ru': '<p>Детская комната</p>',
+                'description_uk': '<p>Дитяча кімната</p>',
+            },
         ]
-        
-        last_names = [
-            'Иванов', 'Петров', 'Сидоров', 'Смирнов', 'Кузнецов',
-            'Попов', 'Васильев', 'Соколов', 'Михайлов', 'Новиков',
-            'Федоров', 'Морозов', 'Волков', 'Алексеев', 'Лебедев',
-            'Семенов', 'Егоров', 'Павлов', 'Козлов', 'Степанов'
-        ]
-        
-        cities = ['kyiv', 'dnipro', 'lviv', 'odessa', 'kharkiv']
-        genders = ['male', 'female']
-        languages = ['ru', 'uk']
-        
-        created_users = 0
-        
-        for i in range(count):
-            first_name = random.choice(first_names)
-            last_name = random.choice(last_names)
-            
-            # Генерация email
-            email = f"{first_name.lower()}.{last_name.lower()}{random.randint(1, 999)}@test.com"
-            
-            # Проверяем, что email уникальный
-            if User.objects.filter(email=email).exists():
-                email = f"user{random.randint(1000, 9999)}@test.com"
-            
-            # Генерация телефона
-            phone = f"0{random.randint(90, 99)}{random.randint(1000000, 9999999)}"
-            
-            # Генерация даты рождения
-            start_date = datetime(1970, 1, 1)
-            end_date = datetime(2005, 12, 31)
-            random_date = start_date + timedelta(
-                seconds=random.randint(0, int((end_date - start_date).total_seconds()))
+
+        for data in system_pages_data:
+            page, created = PageElse.objects.get_or_create(
+                slug=data['slug'],
+                defaults={
+                    'name': data['name'],
+                    'name_ru': data['name_ru'],
+                    'name_uk': data['name_uk'],
+                    'description': data['description'],
+                    'description_ru': data['description_ru'],
+                    'description_uk': data['description_uk'],
+                    'status': True,
+                    'is_system': True,
+                }
             )
-            
-            # Генерация адреса
-            streets = ['ул. Крещатик', 'ул. Грушевского', 'пр. Независимости', 'ул. Саксаганского', 'пер. Шевченко']
-            address = f"{random.choice(streets)}, {random.randint(1, 200)}"
-            
-            # Генерация номера карты
-            card_number = f"{random.randint(1000, 9999)}{random.randint(1000, 9999)}{random.randint(1000, 9999)}{random.randint(1000, 9999)}"
-            
-            try:
-                user = User.objects.create_user(
-                    email=email,
-                    first_name=first_name,
-                    last_name=last_name,
-                    password='testpass123',
-                    phone_number=phone,
-                    date_of_birth=random_date.date(),
-                    city=random.choice(cities),
-                    gender=random.choice(genders),
-                    language=random.choice(languages),
-                    address=address,
-                    card_number=card_number,
-                )
-                
-                # Случайно устанавливаем дату регистрации в прошлом
-                days_ago = random.randint(1, 365)
-                user.date_joined = timezone.now() - timedelta(days=days_ago)
-                user.save()
-                
-                created_users += 1
-                
-                self.stdout.write(
-                    self.style.SUCCESS(f'Создан пользователь: {user.get_full_name()} ({user.email})')
-                )
-                
-            except Exception as e:
-                self.stdout.write(
-                    self.style.ERROR(f'Ошибка при создании пользователя {email}: {str(e)}')
-                )
-        
-        self.stdout.write(
-            self.style.SUCCESS(f'Успешно создано {created_users} из {count} пользователей')
-        )
+            if created:
+                self.stdout.write(f'✓ Создана страница: {data["name"]}')
+            else:
+                self.stdout.write(f'→ Страница уже существует: {data["name"]}')
+
+        # Главная страница (синглтон)
+        if not PageMain.objects.exists():
+            PageMain.objects.create(
+                phone_number1='+380000000000',
+                phone_number2='+380000000001',
+                status=True,
+                seo_text='Текст для SEO главной страницы...',
+                can_delete=False
+            )
+            self.stdout.write('✓ Создана главная страница')
+        else:
+            self.stdout.write('→ Главная страница уже существует')
+
+        # Контакты - главный блок (обязательный)
+        if not PageContacts.objects.filter(is_main=True).exists():
+            PageContacts.objects.create(
+                cinema_name='Главный кинотеатр',
+                address='г. Киев, ул. Примерная, 1',
+                coordinates='50.4504,30.5245',
+                status=True,
+                is_main=True,
+                order=0,
+            )
+            self.stdout.write('✓ Создан главный блок контактов')
+        else:
+            self.stdout.write('→ Главный блок контактов уже существует')
+
+        self.stdout.write(self.style.SUCCESS('Все системные страницы созданы!'))

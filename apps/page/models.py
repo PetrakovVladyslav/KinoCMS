@@ -11,13 +11,31 @@ class PageContacts(models.Model):
     coordinates = models.CharField(max_length=100)
     logo = models.ImageField(upload_to='page/logo', null=True, blank=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
-    status = models.BooleanField(default=False)
+    is_main = models.BooleanField(default=False, verbose_name="Главный блок")
+    order = models.IntegerField(default=0, verbose_name="Порядок")
+    status = models.BooleanField(default=True, verbose_name="Активен")
     date = models.DateTimeField(auto_now_add=True)
-    can_delete = models.BooleanField(default=False)
+
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = "Блок контактов"
+        verbose_name_plural = "Блоки контактов"
 
     def __str__(self):
-        return self.cinema_name
-    
+        prefix = "[Главный] " if self.is_main else ""
+        return f"{prefix}{self.cinema_name}"
+
+    @property
+    def can_delete(self):
+        """Главный блок нельзя удалить"""
+        return not self.is_main
+
+    def save(self, *args, **kwargs):
+        if self.is_main:
+            # Снимаем флаг is_main с других блоков
+            PageContacts.objects.filter(is_main=True).exclude(pk=self.pk).update(is_main=False)
+        super().save(*args, **kwargs)
 
 
 
@@ -70,12 +88,6 @@ class PageNewsSales(models.Model):
         return self.type == 'sale'
 
 class PageElse(models.Model):
-    SYSTEM_PAGES = {
-        'about': 'О кинотеатре',
-        'cafe': 'Кафе - Бар',
-        'Vip_room': 'Vip-зал',
-        'Kids_room': 'Детская комната',
-    }
 
     slug = models.SlugField(max_length=100, unique=True)
     name = models.CharField(max_length=100)
@@ -85,14 +97,12 @@ class PageElse(models.Model):
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False)
+    is_system = models.BooleanField(default=False)
     can_delete = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
 
-    def is_system(self):
-        return self.slug in self.SYSTEM_PAGES
-    
 
 
 

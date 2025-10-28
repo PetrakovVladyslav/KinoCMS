@@ -86,31 +86,9 @@
                 {% endif %}
               </td>
               <td class="text-center page-actions">
-                {% if page.name == 'О кинотеатре' %}
-                  <a href="{% url 'page:about_cinema' %}" class="btn btn-sm btn-warning" title="Редактировать">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                {% elif page.name == 'Кафе-бар' %}
-                  <a href="{% url 'page:coffee_bar' %}" class="btn btn-sm btn-warning" title="Редактировать">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                {% elif page.name == 'VIP-зал' %}
-                  <a href="{% url 'page:vip_hall' %}" class="btn btn-sm btn-warning" title="Редактировать">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                {% elif page.name == 'Реклама' %}
-                  <a href="{% url 'page:advertising' %}" class="btn btn-sm btn-warning" title="Редактировать">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                {% elif page.name == 'Детская комната' %}
-                  <a href="{% url 'page:children_room' %}" class="btn btn-sm btn-warning" title="Редактировать">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                {% else %}
-                  <a href="{% url 'page:page_edit' page.id %}" class="btn btn-sm btn-warning" title="Редактировать">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                {% endif %}
+                <a href="{% url 'page:page_edit' page.id %}" class="btn btn-sm btn-warning" title="Редактировать">
+                  <i class="fas fa-edit"></i>
+                </a>
               </td>
             </tr>
             {% endfor %}

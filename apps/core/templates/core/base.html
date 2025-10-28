@@ -551,10 +551,22 @@
                                 <i class="fas fa-percent"></i> {% trans "Акции" %}
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-phone"></i> {% trans "Контакты" %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="aboutCinemaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-info-circle"></i> {% trans "О кинотеатре" %}
                             </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="aboutCinemaDropdown">
+                                {% for page in system_pages %}
+                                    <li><a class="dropdown-item" href="{% url 'page:page_detail' page.slug %}">{{ page.name }}</a></li>
+                                {% endfor %}
+                                {% for page in custom_pages %}
+                                    <li><a class="dropdown-item" href="{% url 'page:page_detail' page.slug %}">{{ page.name }}</a></li>
+                                {% endfor %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'page:contacts_public' %}">
+                                    <i class="fas fa-phone"></i> {% trans "Контакты" %}
+                                </a></li>
+                            </ul>
                         </li>
                     </ul>
                     

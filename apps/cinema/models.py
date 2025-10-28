@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.postgres.fields import ArrayField
@@ -60,8 +60,8 @@ class Hall(models.Model):
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE)
     name = models.CharField(max_length=20, unique=True)
     description = models.TextField(blank=True,)
-    rows = models.PositiveIntegerField()
-    seats_per_row = models.PositiveIntegerField()
+    rows = models.PositiveIntegerField(default=10)
+    seats_per_row = models.PositiveIntegerField(default=10)
     banner = models.ImageField(upload_to='banners/', null=True, blank=True)
     gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
@@ -78,8 +78,8 @@ class Hall(models.Model):
 class Session(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, verbose_name='Фильм')
     hall = models.ForeignKey(Hall, on_delete=models.CASCADE, verbose_name='Зал')
-    start_time = models.DateTimeField(verbose_name='Начало сеанса')
-    end_time = models.DateTimeField(verbose_name='Окончание сеанса')
+    start_time = models.DateTimeField(verbose_name='Начало сеанса', default=timezone.now)
+    end_time = models.DateTimeField(verbose_name='Окончание сеанса', default=timezone.now)
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
 
     def __str__(self):
@@ -104,7 +104,7 @@ class Seat(models.Model):
         return f'Ряд {self.row},  место {self.number}'
 
 class Booking(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE, verbose_name='Пользователь')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
     session = models.ForeignKey(Session, on_delete=models.CASCADE, verbose_name='Сеанс')
     seats = models.ManyToManyField(Seat)
     ticket_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена билета')

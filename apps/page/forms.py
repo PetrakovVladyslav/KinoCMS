@@ -2,7 +2,7 @@ from django import forms
 from .models import PageMain, PageElse, PageContacts, PageNewsSales
 from apps.core.forms import (
     SeoBlockForm,
-    ImageFormSet,
+    GalleryFormSet,
     FORM_CSS_CLASSES,
     PLACEHOLDERS,
     LABELS
@@ -126,46 +126,6 @@ class PageElseForm(forms.ModelForm):
         return instance
 
 
-
-
-
-class PageContactsForm(forms.ModelForm):
-
-    class Meta:
-        model = PageContacts
-        exclude = ['date', 'seo_block']
-
-        widgets = {
-            'cinema_name': forms.TextInput(attrs={
-                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
-                'placeholder': PLACEHOLDERS['CINEMA_NAME']
-            }),
-            'address': forms.Textarea(attrs={
-                'class': FORM_CSS_CLASSES['TEXTAREA'],
-                'rows': 4,
-                'placeholder': PLACEHOLDERS['ADDRESS']
-            }),
-            'coordinates': forms.TextInput(attrs={
-                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
-                'placeholder': PLACEHOLDERS['COORDINATES']
-            }),
-            'logo': forms.FileInput(attrs={
-                'class': FORM_CSS_CLASSES['FILE_INPUT']
-            }),
-            'status': forms.CheckboxInput(attrs={
-                'class': FORM_CSS_CLASSES['CHECKBOX']
-            }),
-        }
-
-        labels = {
-            'cinema_name': LABELS['CINEMA_NAME'],
-            'address': LABELS['ADDRESS'],
-            'coordinates': LABELS['COORDINATES'],
-            'logo': LABELS['LOGO'],
-            'status': LABELS['ACTIVE'],
-        }
-
-
 class PageNewsSalesForm(forms.ModelForm):
     
     class Meta:
@@ -226,3 +186,26 @@ class PageNewsSalesForm(forms.ModelForm):
         instance = super().save(commit=commit)
         return instance
 
+class PageContactsForm(forms.ModelForm):
+    class Meta:
+        model = PageContacts
+        fields = ['cinema_name', 'address', 'coordinates', 'logo', 'status', 'order']
+        widgets = {
+            'cinema_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'coordinates': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '50.4501, 30.5234'
+            }),
+            'logo': forms.FileInput(attrs={'class': 'form-control'}),
+            'status': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'order': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'cinema_name': 'Название кинотеатра',
+            'address': 'Адрес',
+            'coordinates': 'Координаты',
+            'logo': 'Логотип',
+            'status': 'Активен',
+            'order': 'Порядок сортировки',
+        }

@@ -7,7 +7,7 @@
 
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'core:admin_dashboard' %}">Главная</a></li>
-<li class="breadcrumb-item"><a href="{% url 'page:admin_list' %}">Страницы</a></li>
+<li class="breadcrumb-item"><a href="{% url 'page:admin_page_list' %}">Страницы</a></li>
 <li class="breadcrumb-item active">{{ title }}</li>
 {% endblock %}
 
@@ -289,7 +289,7 @@ input:checked + .switch-slider:before {
           <button type="submit" class="btn btn-primary">
             <i class="fas fa-save"></i> Сохранить изменения
           </button>
-          <a href="{% url 'page:admin_list' %}" class="btn btn-secondary ml-2">
+          <a href="{% url 'page:admin_page_list' %}" class="btn btn-secondary ml-2">
             <i class="fas fa-arrow-left"></i> Назад к списку
           </a>
         </div>

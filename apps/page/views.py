@@ -9,15 +9,20 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.db import models
 from apps.core.models import Gallery
-from .models import PageElse, PageContacts, PageNewsSales
+from .models import PageElse, PageContacts, PageNewsSales, PageMain
 from .forms import PageMainForm, PageElseForm, PageContactsForm, SeoBlockForm, PageNewsSalesForm
 from apps.core.forms import GalleryFormSet
+from django.forms import modelformset_factory
 
 
+def page_detail_view(request, slug):
+    page = get_object_or_404(PageElse, slug=slug, status=True)
 
-
-
-
+    context = {
+        'page': page,
+        'title': page.name
+    }
+    return render(request, 'page/page_detail.html', context)
 
 
 def home_view(request):
@@ -67,6 +72,161 @@ def soon_view(request):
     return render(request, 'page/soon.html', context)
 
 
+def contacts_view(request):
+    # Только активные контакты, главный первый, затем по порядку
+    contacts = PageContacts.objects.filter(status=True).order_by('-is_main', 'order', 'cinema_name')
+
+    context = {
+        'contacts': contacts,
+        'title': 'Кинотеатры'
+    }
+    return render(request, 'page/contacts.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def main_page_view(request):
+    """Редактирование главной страницы"""
+    main_page = PageMain.objects.first()
+    
+    if not main_page:
+        main_page = PageMain.objects.create(
+            phone_number1='',
+            phone_number2='',
+            status=True
+        )
+    
+    if request.method == 'POST':
+        form = PageMainForm(request.POST, request.FILES, instance=main_page)
+        seo_form = SeoBlockForm(request.POST, instance=main_page.seo_block if main_page.seo_block else None)
+        
+        if form.is_valid() and seo_form.is_valid():
+            main_page = form.save(commit=False)
+            
+            if seo_form.has_changed():
+                seo_block = seo_form.save()
+                main_page.seo_block = seo_block
+            
+            main_page.save()
+            messages.success(request, 'Главная страница обновлена')
+            return redirect('page:admin_page_list')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки')
+    else:
+        form = PageMainForm(instance=main_page)
+        seo_form = SeoBlockForm(instance=main_page.seo_block if main_page.seo_block else None)
+    
+    context = {
+        'form': form,
+        'seo_form': seo_form,
+        'title': 'Главная страница',
+    }
+    return render(request, 'page/admin_main_page_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def news_view(request):
+    """Создание новости"""
+    if request.method == 'POST':
+        form = PageNewsSalesForm(request.POST, request.FILES)
+        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=None)
+        seo_form = SeoBlockForm(request.POST)
+        
+        if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():
+            news = form.save(commit=False)
+            news.type = 'news'
+            
+            if seo_form.has_changed():
+                seo_block = seo_form.save()
+                news.seo_block = seo_block
+            
+            news.save()
+            
+            # Галерея
+            has_images = any(
+                bool(f.cleaned_data.get('image'))
+                for f in gallery_formset.forms
+                if not f.cleaned_data.get('DELETE', False)
+            )
+            
+            if has_images:
+                gallery = Gallery.objects.create(
+                    name=f'Галерея - {news.name}'
+                )
+                news.gallery = gallery
+                news.save()
+                gallery_formset.instance = gallery
+                gallery_formset.save()
+            
+            messages.success(request, f'Новость "{news.name}" создана')
+            return redirect('page:admin_news_list')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки')
+    else:
+        form = PageNewsSalesForm()
+        gallery_formset = GalleryFormSet()
+        seo_form = SeoBlockForm()
+    
+    context = {
+        'form': form,
+        'gallery_formset': gallery_formset,
+        'seo_form': seo_form,
+        'title': 'Создать новость',
+        'is_create': True,
+    }
+    return render(request, 'page/admin_news_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def sales_view(request):
+    """Создание акции"""
+    if request.method == 'POST':
+        form = PageNewsSalesForm(request.POST, request.FILES)
+        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=None)
+        seo_form = SeoBlockForm(request.POST)
+        
+        if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():
+            sales = form.save(commit=False)
+            sales.type = 'sale'
+            
+            if seo_form.has_changed():
+                seo_block = seo_form.save()
+                sales.seo_block = seo_block
+            
+            sales.save()
+            
+            # Галерея
+            has_images = any(
+                bool(f.cleaned_data.get('image'))
+                for f in gallery_formset.forms
+                if not f.cleaned_data.get('DELETE', False)
+            )
+            
+            if has_images:
+                gallery = Gallery.objects.create(
+                    name=f'Галерея - {sales.name}'
+                )
+                sales.gallery = gallery
+                sales.save()
+                gallery_formset.instance = gallery
+                gallery_formset.save()
+            
+            messages.success(request, f'Акция "{sales.name}" создана')
+            return redirect('page:admin_sales_list')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки')
+    else:
+        form = PageNewsSalesForm()
+        gallery_formset = GalleryFormSet()
+        seo_form = SeoBlockForm()
+    
+    context = {
+        'form': form,
+        'gallery_formset': gallery_formset,
+        'seo_form': seo_form,
+        'title': 'Создать акцию',
+        'is_create': True,
+    }
+    return render(request, 'page/admin_sales_form.html', context)
 
 
 @staff_member_required(login_url='admin:login')
@@ -77,52 +237,6 @@ def admin_news_list_view(request):
         'news_list': news_list,
     }
     return render(request, 'page/admin_news_list.html', context)
-
-
-@staff_member_required(login_url='admin:login')
-def news_view(request):
-    if request.method == 'POST':
-        form = PageNewsSalesForm(request.POST, request.FILES)
-        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=None)
-        seo_form = SeoBlockForm(request.POST)
-
-        if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():
-            page = form.save(commit=False)
-            page.type = 'news'  # Устанавливаем тип
-
-            if seo_form.has_changed():
-                seo_block = seo_form.save()
-                page.seo_block = seo_block
-
-            page.save()
-
-            has_images = any(bool(f.cleaned_data.get('image')) for f in gallery_formset.forms if
-                             not f.cleaned_data.get('DELETE', False))
-            if has_images:
-                from apps.core.models import Gallery
-                gallery = Gallery.objects.create(name=f'Галерея - {page.name}')
-                page.gallery = gallery
-                page.save()
-                gallery_formset.instance = gallery
-                gallery_formset.save()
-
-            messages.success(request, f'Новость "{page.name}" создана')
-            return redirect('page:admin_news_list')
-        else:
-            messages.error(request, 'Пожалуйста, исправьте ошибки')
-    else:
-        form = PageNewsSalesForm()
-        gallery_formset = GalleryFormSet()
-        seo_form = SeoBlockForm()
-
-    context = {
-        'form': form,
-        'gallery_formset': gallery_formset,
-        'seo_form': seo_form,
-        'title': 'Создать новость',
-        'is_create': True,
-    }
-    return render(request, 'page/admin_news_form.html', context)
 
 
 @staff_member_required(login_url='admin:login')
@@ -145,10 +259,25 @@ def news_update_view(request, news_id):
                 seo_block = seo_form.save()
                 news.seo_block = seo_block
 
+            # Галерея - создаем, если нужно
+            has_images = any(
+                bool(f.cleaned_data.get('image'))
+                for f in gallery_formset.forms
+                if not f.cleaned_data.get('DELETE', False)
+            )
+
+            if has_images and not news.gallery:
+                gallery = Gallery.objects.create(
+                    name=f'Галерея - {news.name}'
+                )
+                news.gallery = gallery
+                gallery_formset.instance = gallery
+
             news.save()
 
             # Обновляем галерею
-            gallery_formset.save()
+            if news.gallery:
+                gallery_formset.save()
 
             messages.success(request, f'Новость "{news.name}" обновлена')
             return redirect('page:admin_news_list')
@@ -203,52 +332,6 @@ def admin_sales_list_view(request):
 
 
 @staff_member_required(login_url='admin:login')
-def sales_view(request):
-    if request.method == 'POST':
-        form = PageNewsSalesForm(request.POST, request.FILES)
-        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=None)
-        seo_form = SeoBlockForm(request.POST)
-
-        if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():
-            page = form.save(commit=False)
-            page.type = 'sale'  # Устанавливаем тип
-
-            if seo_form.has_changed():
-                seo_block = seo_form.save()
-                page.seo_block = seo_block
-
-            page.save()
-
-            has_images = any(bool(f.cleaned_data.get('image')) for f in gallery_formset.forms if
-                             not f.cleaned_data.get('DELETE', False))
-            if has_images:
-                from apps.core.models import Gallery
-                gallery = Gallery.objects.create(name=f'Галерея - {page.name}')
-                page.gallery = gallery
-                page.save()
-                gallery_formset.instance = gallery
-                gallery_formset.save()
-
-            messages.success(request, f'Акция "{page.name}" создана')
-            return redirect('page:admin_sales_list')
-        else:
-            messages.error(request, 'Пожалуйста, исправьте ошибки')
-    else:
-        form = PageNewsSalesForm()
-        gallery_formset = GalleryFormSet()
-        seo_form = SeoBlockForm()
-
-    context = {
-        'form': form,
-        'gallery_formset': gallery_formset,
-        'seo_form': seo_form,
-        'title': 'Создать акцию',
-        'is_create': True,
-    }
-    return render(request, 'page/admin_sales_form.html', context)
-
-
-@staff_member_required(login_url='admin:login')
 def sales_update_view(request, sales_id):
     sales = get_object_or_404(PageNewsSales, pk=sales_id, type='sale')
 
@@ -265,9 +348,24 @@ def sales_update_view(request, sales_id):
                 seo_block = seo_form.save()
                 sales.seo_block = seo_block
 
+            # Галерея - создаем, если нужно
+            has_images = any(
+                bool(f.cleaned_data.get('image'))
+                for f in gallery_formset.forms
+                if not f.cleaned_data.get('DELETE', False)
+            )
+
+            if has_images and not sales.gallery:
+                gallery = Gallery.objects.create(
+                    name=f'Галерея - {sales.name}'
+                )
+                sales.gallery = gallery
+                gallery_formset.instance = gallery
+
             sales.save()
 
-            gallery_formset.save()
+            if sales.gallery:
+                gallery_formset.save()
 
             messages.success(request, f'Акция "{sales.name}" обновлена')
             return redirect('page:admin_sales_list')
@@ -289,11 +387,9 @@ def sales_update_view(request, sales_id):
     return render(request, 'page/admin_sales_form.html', context)
 
 
-
-
 @staff_member_required(login_url='admin:login')
 def sales_delete_view(request, sales_id):
-    sales = get_object_or_404(PageNewsSales, id=news_id, type='sales')  # добавить фильтр по типу
+    sales = get_object_or_404(PageNewsSales, id=sales_id, type='sale')
     if request.method == 'POST':
         sales_name = sales.name or sales.name_ru
 
@@ -340,3 +436,213 @@ def sale_news_list_view(request):
         'title': 'Акции и скидки',
     }
     return render(request, 'page/sale_news_list.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def contacts_admin_edit_view(request):
+    """Упрощенный вариант - все в одной форме БЕЗ toggle"""
+
+    main_contact = PageContacts.objects.filter(is_main=True).first()
+    additional_contacts = PageContacts.objects.filter(is_main=False).order_by('order', 'id')
+
+    PageContactsFormSet = modelformset_factory(
+        PageContacts,
+        form=PageContactsForm,
+        extra=1,
+        can_delete=False,
+    )
+    
+    if request.method == 'POST':
+        main_form = PageContactsForm(request.POST, request.FILES, instance=main_contact, prefix='main')
+        formset = PageContactsFormSet(request.POST, request.FILES, queryset=additional_contacts, prefix='additional')
+        seo_form = SeoBlockForm(request.POST, instance=main_contact.seo_block if main_contact and main_contact.seo_block else None, prefix='seo')
+
+        if main_form.is_valid() and formset.is_valid() and seo_form.is_valid():
+            # Сохраняем всё
+            main_contact = main_form.save()
+
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.is_main = False
+                instance.save()
+
+            if seo_form.has_changed():
+                seo_block = seo_form.save()
+                main_contact.seo_block = seo_block
+                main_contact.save()
+
+            messages.success(request, 'Все изменения сохранены!')
+            return redirect('page:contacts_admin_edit')
+
+    # Формы для GET запроса
+    main_form = PageContactsForm(instance=main_contact, prefix='main')
+    formset = PageContactsFormSet(queryset=additional_contacts, prefix='additional')
+    seo_form = SeoBlockForm(instance=main_contact.seo_block if main_contact and main_contact.seo_block else None, prefix='seo')
+
+    context = {
+        'main_form': main_form,
+        'formset': formset,
+        'seo_form': seo_form,
+        'title': 'Контакты кинотеатров',
+    }
+
+    return render(request, 'page/admin_contacts_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def admin_page_list_view(request):
+    """Просто показываем существующие страницы"""
+    system_pages = PageElse.objects.filter(is_system=True).order_by('slug')
+    user_pages = PageElse.objects.filter(is_system=False).order_by('-date')
+
+    main_page = PageMain.objects.first()
+    contacts = PageContacts.objects.filter(status=True).order_by('-is_main', 'order')
+
+    context = {
+        'system_pages': system_pages,
+        'user_pages': user_pages,
+        'main_page': main_page,
+        'contacts': contacts,
+        'title': 'Управление страницами'
+    }
+    return render(request, 'page/admin_list.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def page_create_view(request):
+    """Создание новой пользовательской страницы"""
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES)
+        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=None)
+        seo_form = SeoBlockForm(request.POST)
+
+        if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():
+            page = form.save(commit=False)
+            page.is_system = False  # ✅ Это пользовательская страница
+
+            # SEO блок
+            if seo_form.has_changed():
+                seo_block = seo_form.save()
+                page.seo_block = seo_block
+
+            page.save()
+
+            # Галерея
+            has_images = any(
+                bool(f.cleaned_data.get('image'))
+                for f in gallery_formset.forms
+                if not f.cleaned_data.get('DELETE', False)
+            )
+
+            if has_images:
+                gallery = Gallery.objects.create(
+                    name=f'Галерея - {page.name}'
+                )
+                page.gallery = gallery
+                page.save()
+                gallery_formset.instance = gallery
+                gallery_formset.save()
+
+            messages.success(request, f'Страница "{page.name}" создана')
+            return redirect('page:admin_page_list')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки')
+    else:
+        form = PageElseForm()
+        gallery_formset = GalleryFormSet()
+        seo_form = SeoBlockForm()
+
+    context = {
+        'form': form,
+        'gallery_formset': gallery_formset,
+        'seo_form': seo_form,
+        'title': 'Создать страницу',
+        'is_create': True,
+    }
+    return render(request, 'page/admin_system_page_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def page_update_view(request, pk):
+    """Редактирование любой страницы"""
+    page = get_object_or_404(PageElse, pk=pk)
+
+    if request.method == 'POST':
+        form = PageElseForm(request.POST, request.FILES, instance=page)
+        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=page.gallery)
+        seo_form = SeoBlockForm(request.POST, instance=page.seo_block)
+
+        if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():
+            page = form.save(commit=False)
+
+            # SEO блок
+            if seo_form.has_changed():
+                seo_block = seo_form.save()
+                page.seo_block = seo_block
+
+            # Галерея - создаем, если нужно
+            has_images = any(
+                bool(f.cleaned_data.get('image'))
+                for f in gallery_formset.forms
+                if not f.cleaned_data.get('DELETE', False)
+            )
+
+            if has_images and not page.gallery:
+                gallery = Gallery.objects.create(
+                    name=f'Галерея - {page.name}'
+                )
+                page.gallery = gallery
+                gallery_formset.instance = gallery
+
+            page.save()
+
+            # Сохраняем галерею
+            if page.gallery:
+                gallery_formset.save()
+
+            messages.success(request, f'Страница "{page.name}" обновлена')
+            return redirect('page:admin_page_list')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки')
+    else:
+        form = PageElseForm(instance=page)
+        gallery_formset = GalleryFormSet(instance=page.gallery)
+        seo_form = SeoBlockForm(instance=page.seo_block)
+
+    context = {
+        'form': form,
+        'gallery_formset': gallery_formset,
+        'seo_form': seo_form,
+        'page': page,
+        'title': f'Редактировать {page.name}',
+        'is_system': page.is_system,
+    }
+    return render(request, 'page/admin_system_page_form.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def page_delete_view(request, pk):
+    """Удаление страницы (только пользовательских)"""
+    page = get_object_or_404(PageElse, pk=pk)
+
+    # Запрещаем удаление системных страниц
+    if page.is_system:
+        messages.error(request, 'Нельзя удалять системные страницы')
+        return redirect('page:admin_page_list')
+
+    if request.method == 'POST':
+        page_name = page.name
+
+        if page.gallery:
+            page.gallery.images.all().delete()
+            page.gallery.delete()
+
+        if page.seo_block:
+            page.seo_block.delete()
+
+        page.delete()
+        messages.success(request, f'Страница "{page_name}" успешно удалена')
+        return redirect('page:admin_page_list')
+    else:
+        messages.warning(request, 'Некорректная попытка удаления страницы')
+        return redirect('page:admin_page_list')
