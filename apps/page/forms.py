@@ -108,23 +108,6 @@ class PageElseForm(forms.ModelForm):
             'can_delete': LABELS['CAN_DELETE'],
         }
 
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-
-        if self.cleaned_data.get('name_ru'):
-            instance.name = self.cleaned_data['name_ru']
-        elif self.cleaned_data.get('name_uk'):
-            instance.name = self.cleaned_data['name_uk']
-
-        if self.cleaned_data.get('description_ru'):
-            instance.description = self.cleaned_data['description_ru']
-        elif self.cleaned_data.get('description_uk'):
-            instance.description = self.cleaned_data['description_uk']
-
-        if commit:
-            instance.save()
-        return instance
-
 
 class PageNewsSalesForm(forms.ModelForm):
     

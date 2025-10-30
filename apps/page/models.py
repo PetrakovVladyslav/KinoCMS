@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils.text import slugify
+from transliterate import translit
 
 from apps.core.models import SeoBlock, Gallery
 
@@ -89,7 +91,7 @@ class PageNewsSales(models.Model):
 
 class PageElse(models.Model):
 
-    slug = models.SlugField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, verbose_name='Описание')
     logo = models.ImageField(upload_to='page/logo', null=True, blank=True)
@@ -102,6 +104,29 @@ class PageElse(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            # Генерируем slug из названия
+            try:
+                # Пробуем транслитерировать с русского/украинского на латиницу
+                base_slug = translit(self.name, 'ru', reversed=True)
+            except:
+                # Если не получилось, используем название как есть
+                base_slug = self.name
+            
+            base_slug = slugify(base_slug)
+            slug = base_slug
+            counter = 1
+            
+            # Проверяем уникальность slug
+            while PageElse.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            
+            self.slug = slug
+        
+        super().save(*args, **kwargs)
 
 
 
