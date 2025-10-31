@@ -58,6 +58,12 @@ class Cinema(models.Model):
         verbose_name_plural = 'Кинотеатры'
         verbose_name = 'Кинотеатр'
 
+    def get_gallery_images(self):
+        """Возвращает все изображения из галереи кинотеатра"""
+        if self.gallery:
+            return self.gallery.images.all()
+        return []
+
     def __str__(self):
         return self.name
 
@@ -66,8 +72,6 @@ class Hall(models.Model):
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='halls')
     name = models.CharField(max_length=20, unique=True)
     description = models.TextField(blank=True,)
-    rows = models.PositiveIntegerField(default=10)
-    seats_per_row = models.PositiveIntegerField(default=10)
     banner = models.ImageField(upload_to='banners/', null=True, blank=True)
     scheme_data = models.JSONField(null=True, blank=True, verbose_name='Схема зала')
     gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)

@@ -1,9 +1,6 @@
 from django.core.management.base import BaseCommand
 from apps.page.models import PageElse, PageMain, PageContacts, SeoBlock
 
-from django.core.management.base import BaseCommand
-from apps.page.models import PageElse, PageMain, PageContacts, SeoBlock
-
 
 class Command(BaseCommand):
     help = 'Create all system pages and records'
@@ -31,7 +28,7 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(f'✓ Создана страница: {data["name"]}')
 
-        # Главная страница (синглтон)
+        # Главная страница
         if not PageMain.objects.exists():
             PageMain.objects.create(
                 phone_number1='+380000000000',
@@ -42,7 +39,7 @@ class Command(BaseCommand):
             )
             self.stdout.write('✓ Создана главная страница')
 
-        # Контакты - главный блок (обязательный)
+        # Контакты - главный блок
         if not PageContacts.objects.filter(is_main=True).exists():
             PageContacts.objects.create(
                 cinema_name='Главный кинотеатр',

@@ -20,8 +20,14 @@ class MovieDetailView(DetailView):
 
 class CinemaDetailView(DetailView):
     model = Cinema
-    template_name = 'cinema/cinema_detail.html'
+    template_name = 'cinema/cinema.html'
     context_object_name = 'cinema'
+
+
+class HallDetailView(DetailView):
+    model = Hall
+    template_name = 'cinema/hall.html'
+    context_object_name = 'hall'
 
 
 @staff_member_required(login_url='admin:login')
