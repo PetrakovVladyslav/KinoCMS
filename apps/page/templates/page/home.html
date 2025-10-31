@@ -6,6 +6,102 @@
 
 {% block extra_css %}
 <style>
+    /* Top Banner Slider */
+    .top-banner-container {
+        width: 100%;
+        overflow: hidden;
+        margin-bottom: 40px;
+        border-radius: 15px;
+    }
+    
+    .top-banner-slider {
+        position: relative;
+        width: 100%;
+        height: 400px;
+    }
+    
+    .top-banner-slide {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    
+    .top-banner-slide.active {
+        display: block;
+    }
+    
+    .top-banner-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .top-banner-slide .slide-text {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        max-width: 80%;
+        text-align: center;
+    }
+    
+    /* Bottom Banner Slider */
+    .bottom-banner-container {
+        width: 100%;
+        margin: 40px 0;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .bottom-banner-slider {
+        position: relative;
+        width: 100%;
+        height: 300px;
+    }
+    
+    .bottom-banner-slide {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    
+    .bottom-banner-slide.active {
+        display: block;
+    }
+    
+    .bottom-banner-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 15px;
+    }
+    
+    .bottom-banner-slide .slide-text {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        max-width: 80%;
+        text-align: center;
+    }
+    
+    /* Background Banner */
+    body.with-background-banner {
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+    
     /* Movie cards */
     .movie-cards {
         display: grid;
@@ -132,7 +228,29 @@
 {% endblock %}
 
 {% block hero %}
-<!-- Hero block is now empty since top bar moved to base.html -->
+<!-- Top Banner Slider -->
+{% if top_banner and top_banner.is_active %}
+<div class="top-banner-container">
+    <div class="top-banner-slider" id="topBannerSlider" data-rotation-time="{{ top_banner.rotation_time }}">
+        {% for item in top_banner.banneritem_set.all %}
+            <div class="top-banner-slide {% if forloop.first %}active{% endif %}">
+                {% if item.url %}
+                    <a href="{{ item.url }}" target="_blank">
+                {% endif %}
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="Banner">
+                {% endif %}
+                {% if item.url %}
+                    </a>
+                {% endif %}
+                {% if item.text %}
+                    <div class="slide-text">{{ item.text }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -252,6 +370,31 @@
         </div>
     </section>
     
+    <!-- Bottom Banner Slider -->
+    {% if bottom_banner and bottom_banner.is_active %}
+    <section class="py-5">
+        <div class="container">
+            <div class="bottom-banner-container">
+                <div class="bottom-banner-slider" id="bottomBannerSlider" data-rotation-time="{{ bottom_banner.rotation_time }}">
+                    {% for item in bottom_banner.bottombanneritem_set.all %}
+                        <div class="bottom-banner-slide {% if forloop.first %}active{% endif %}">
+                            {% if item.url %}
+                                <a href="{{ item.url }}" target="_blank">
+                            {% endif %}
+                            {% if item.image %}
+                                <img src="{{ item.image.url }}" alt="Banner">
+                            {% endif %}
+                            {% if item.url %}
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    
     <!-- SEO text section -->
     {% get_current_language as LANGUAGE_CODE %}
     {% if page_main %}
@@ -286,6 +429,58 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Background Banner
+        {% if background and background.use_image and background.image %}
+        document.body.style.backgroundImage = 'url({{ background.image.url }})';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+        {% endif %}
+        
+        // Top Banner Slider
+        const topSlider = document.getElementById('topBannerSlider');
+        if (topSlider) {
+            const topSlides = topSlider.querySelectorAll('.top-banner-slide');
+            const rotationTime = parseInt(topSlider.dataset.rotationTime) * 1000 || 5000;
+            let currentTopSlide = 0;
+            
+            function showTopSlide(n) {
+                topSlides.forEach(slide => slide.classList.remove('active'));
+                currentTopSlide = (n + topSlides.length) % topSlides.length;
+                topSlides[currentTopSlide].classList.add('active');
+            }
+            
+            function nextTopSlide() {
+                showTopSlide(currentTopSlide + 1);
+            }
+            
+            if (topSlides.length > 1) {
+                setInterval(nextTopSlide, rotationTime);
+            }
+        }
+        
+        // Bottom Banner Slider
+        const bottomSlider = document.getElementById('bottomBannerSlider');
+        if (bottomSlider) {
+            const bottomSlides = bottomSlider.querySelectorAll('.bottom-banner-slide');
+            const rotationTime = parseInt(bottomSlider.dataset.rotationTime) * 1000 || 5000;
+            let currentBottomSlide = 0;
+            
+            function showBottomSlide(n) {
+                bottomSlides.forEach(slide => slide.classList.remove('active'));
+                currentBottomSlide = (n + bottomSlides.length) % bottomSlides.length;
+                bottomSlides[currentBottomSlide].classList.add('active');
+            }
+            
+            function nextBottomSlide() {
+                showBottomSlide(currentBottomSlide + 1);
+            }
+            
+            if (bottomSlides.length > 1) {
+                setInterval(nextBottomSlide, rotationTime);
+            }
+        }
+        
         // Переход по клику на карточку и клавишам Enter/Space
         document.querySelectorAll('.movie-card').forEach(function(card){
             const url = card.getAttribute('data-url');

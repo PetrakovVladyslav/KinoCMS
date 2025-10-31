@@ -18,6 +18,12 @@ class MovieDetailView(DetailView):
     context_object_name = 'movie'
 
 
+class CinemaDetailView(DetailView):
+    model = Cinema
+    template_name = 'cinema/cinema_detail.html'
+    context_object_name = 'cinema'
+
+
 @staff_member_required(login_url='admin:login')
 def admin_movie_list_view(request):
     today = date.today()

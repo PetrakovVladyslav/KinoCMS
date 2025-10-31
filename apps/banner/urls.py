@@ -4,6 +4,5 @@ from . import views
 app_name = 'banner'
 
 urlpatterns = [
-    path('admin-pannel/banners/', views.BannerManagementView.as_view(), name='banner_management'),
-
+    path('admin-panel/banners/', views.BannerManagementView.as_view(), name='banner_management'),
 ]

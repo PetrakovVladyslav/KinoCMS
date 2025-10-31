@@ -2,6 +2,7 @@ from django.db import transaction
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.views.generic import TemplateView
+from django.views.decorators.cache import never_cache
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
 from .models import BannerSlider, BannerBackground, BottomBannerSlider
@@ -24,9 +25,9 @@ from .forms import (
 )
 
 
-@method_decorator(staff_member_required, name='dispatch')
+@method_decorator([staff_member_required, never_cache], name='dispatch')
 class BannerManagementView(TemplateView):
-    template_name = 'banner/templates/admin_banner_management.html'
+    template_name = 'banner/admin_banner_management.html'
 
     def get(self, request, *args, **kwargs):
         # Для GET запроса просто показываем формы
@@ -41,14 +42,14 @@ class BannerManagementView(TemplateView):
         elif 'save_bottom' in request.POST:
             return self.save_bottom_banner(request)
 
-        return redirect('banner_management')
+        return redirect('banner:banner_management')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Получаем объекты
-        top_slider = BannerSlider.objects.filter(is_active=True).first()
-        bottom_slider = BottomBannerSlider.objects.filter(is_active=True).first()
+        # Получаем объекты (берем первый объект, независимо от is_active)
+        top_slider = BannerSlider.objects.first()
+        bottom_slider = BottomBannerSlider.objects.first()
         background = BannerBackground.objects.first()
 
         # Инициализируем формы
@@ -63,10 +64,13 @@ class BannerManagementView(TemplateView):
         return context
 
     def save_top_banner(self, request):
-        top_slider = BannerSlider.objects.filter(is_active=True).first()
+        top_slider = BannerSlider.objects.first()
         if not top_slider:
-            top_slider = BannerSlider.objects.create(title="Верхний слайдер", is_active=True)
+            top_slider = BannerSlider.objects.create(title="На главной верх", is_active=False)
 
+        # Обработка чекбокса активации
+        is_active = 'top-is_active' in request.POST
+        
         top_slider_form = BannerSliderForm(request.POST, instance=top_slider, prefix='top')
         top_items_formset = BannerItemFormset(
             request.POST, request.FILES,
@@ -75,14 +79,21 @@ class BannerManagementView(TemplateView):
 
         if top_slider_form.is_valid() and top_items_formset.is_valid():
             with transaction.atomic():
-                slider = top_slider_form.save()
+                slider = top_slider_form.save(commit=False)
+                slider.is_active = is_active
+                slider.save()
                 top_items_formset.instance = slider
                 top_items_formset.save()
             messages.success(request, 'Верхний баннер-слайдер успешно сохранён')
         else:
+            # Выводим ошибки для отладки
+            if not top_slider_form.is_valid():
+                messages.error(request, f'Ошибки формы слайдера: {top_slider_form.errors}')
+            if not top_items_formset.is_valid():
+                messages.error(request, f'Ошибки formset: {top_items_formset.errors}')
             messages.error(request, 'Ошибка сохранения верхнего баннера')
 
-        return redirect('banner_management')
+        return redirect('banner:banner_management')
 
     def save_background(self, request):
         background = BannerBackground.objects.first()
@@ -100,13 +111,16 @@ class BannerManagementView(TemplateView):
         else:
             messages.error(request, 'Ошибка сохранения фона')
 
-        return redirect('banner_management')
+        return redirect('banner:banner_management')
 
     def save_bottom_banner(self, request):
-        bottom_slider = BottomBannerSlider.objects.filter(is_active=True).first()
+        bottom_slider = BottomBannerSlider.objects.first()
         if not bottom_slider:
-            bottom_slider = BottomBannerSlider.objects.create(title="Нижний слайдер", is_active=True)
+            bottom_slider = BottomBannerSlider.objects.create(title="На главной Новости Акции внизу", is_active=False)
 
+        # Обработка чекбокса активации
+        is_active = 'bottom-is_active' in request.POST
+        
         bottom_slider_form = BottomBannerSliderForm(
             request.POST, instance=bottom_slider, prefix='bottom'
         )
@@ -117,11 +131,13 @@ class BannerManagementView(TemplateView):
 
         if bottom_slider_form.is_valid() and bottom_items_formset.is_valid():
             with transaction.atomic():
-                slider = bottom_slider_form.save()
+                slider = bottom_slider_form.save(commit=False)
+                slider.is_active = is_active
+                slider.save()
                 bottom_items_formset.instance = slider
                 bottom_items_formset.save()
             messages.success(request, 'Нижний баннер-слайдер успешно сохранён')
         else:
             messages.error(request, 'Ошибка сохранения нижнего баннера')
 
-        return redirect('banner_management')
+        return redirect('banner:banner_management')

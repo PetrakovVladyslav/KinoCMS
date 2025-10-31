@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator
 from apps.cinema.models import Movie
+from apps.banner.models import BannerSlider, BannerBackground, BottomBannerSlider
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
@@ -34,11 +35,20 @@ def home_view(request):
     )
 
     coming_soon_movies = Movie.objects.filter(start_date__gt=today)
+    
+    # Получаем данные о баннерах
+    top_banner = BannerSlider.objects.filter(is_active=True).first()
+    bottom_banner = BottomBannerSlider.objects.filter(is_active=True).first()
+    background = BannerBackground.objects.first()
 
     context = {
         'today_movies' : today_movies,
         'coming_soon_movies' : coming_soon_movies,
         'today_date' : today.strftime('%d.%B'),
+        'top_banner': top_banner,
+        'bottom_banner': bottom_banner,
+        'background': background,
+        'page_main': PageMain.objects.first(),
     }
 
     return render(request, 'page/home.html', context)

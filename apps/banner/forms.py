@@ -18,7 +18,7 @@ BannerItemFormset = inlineformset_factory(
     BannerSlider,
     BannerItem,
     form=BannerItemForm,
-    extra=5,
+    extra=1,
     can_delete=True,
 )
 
@@ -44,6 +44,6 @@ BottomBannerItemFormset= inlineformset_factory(
     BottomBannerSlider,
     BottomBannerItem,
     form=BottomBannerItemForm,
-    extra=5,
+    extra=1,
     can_delete=True,
 )
