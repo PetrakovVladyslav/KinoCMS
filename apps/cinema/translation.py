@@ -9,3 +9,7 @@ class MovieTranslationOptions(TranslationOptions):
 class CinemaTranslationOptions(TranslationOptions):
     fields = ('name', 'description', 'conditions')
 
+@register(Hall)
+class HallTranslationOptions(TranslationOptions):
+    fields = ('name', 'description')
+

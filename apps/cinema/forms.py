@@ -1,5 +1,5 @@
 from django import forms
-from .models import Movie, Cinema
+from .models import Movie, Cinema, Hall
 from apps.core.models import Gallery, SeoBlock
 from .enums import MovieFormat
 from django.forms import modelformset_factory, inlineformset_factory
@@ -168,3 +168,66 @@ class CinemaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+
+class HallForm(forms.ModelForm):
+
+    class Meta:
+        model = Hall
+        exclude = ['name', 'description', 'gallery', 'seo_block', 'created_at', 'cinema', 'rows', 'seats_per_row']
+
+        widgets = {
+            'name_ru': forms.TextInput(attrs={
+                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
+                'placeholder': 'Название зала на русском'
+            }),
+            'name_uk': forms.TextInput(attrs={
+                'class': FORM_CSS_CLASSES['TEXT_INPUT'],
+                'placeholder': 'Назва залу українською'
+            }),
+            'description_ru': forms.Textarea(attrs={
+                'class': FORM_CSS_CLASSES['TEXTAREA'],
+                'rows': 4,
+                'placeholder': 'Описание зала на русском'
+            }),
+            'description_uk': forms.Textarea(attrs={
+                'class': FORM_CSS_CLASSES['TEXTAREA'],
+                'rows': 4,
+                'placeholder': 'Опис залу українською'
+            }),
+            'banner': forms.FileInput(attrs={
+                'class': FORM_CSS_CLASSES['FILE_INPUT']
+            }),
+            'scheme_data': forms.HiddenInput(),
+        }
+
+        labels = {
+            'name_ru': 'Название зала (русский)',
+            'name_uk': 'Название зала (украинский)',
+            'description_ru': 'Описание (русский)',
+            'description_uk': 'Описание (украинский)',
+            'banner': 'Верхний баннер',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        # Синхронизация базовых полей с мультиязычными
+        if self.cleaned_data.get('name_ru'):
+            instance.name = self.cleaned_data['name_ru']
+        elif self.cleaned_data.get('name_uk'):
+            instance.name = self.cleaned_data['name_uk']
+
+        if self.cleaned_data.get('description_ru'):
+            instance.description = self.cleaned_data['description_ru']
+        elif self.cleaned_data.get('description_uk'):
+            instance.description = self.cleaned_data['description_uk']
+
+        if commit:
+            instance.save()
+            self.save_m2m()
+
+        return instance

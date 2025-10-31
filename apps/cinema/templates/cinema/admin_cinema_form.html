@@ -7,7 +7,7 @@
 
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'core:admin_dashboard' %}">Главная</a></li>
-<li class="breadcrumb-item"><a href="#">Кинотеатры</a></li>
+<li class="breadcrumb-item"><a href="{% url 'cinema:admin_cinema_list' %}">Кинотеатры</a></li>
 <li class="breadcrumb-item active">{{ title }}</li>
 {% endblock %}
 

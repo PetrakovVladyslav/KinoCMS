@@ -34,6 +34,12 @@ class Movie(models.Model):
         verbose_name_plural = 'Фильмы'
         verbose_name = 'Фильм'
 
+    def get_gallery_images(self):
+        """Возвращает все изображения из галереи фильма"""
+        if self.gallery:
+            return self.gallery.images.all()
+        return []
+    
     def __str__(self):
         return self.name
 
@@ -63,6 +69,7 @@ class Hall(models.Model):
     rows = models.PositiveIntegerField(default=10)
     seats_per_row = models.PositiveIntegerField(default=10)
     banner = models.ImageField(upload_to='banners/', null=True, blank=True)
+    scheme_data = models.JSONField(null=True, blank=True, verbose_name='Схема зала')
     gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)

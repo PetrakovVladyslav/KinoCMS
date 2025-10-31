@@ -5,7 +5,7 @@ from django.contrib import messages
 from datetime import date
 
 from .models import Cinema, Movie, Hall
-from .forms import PageMovieForm, CinemaForm
+from .forms import PageMovieForm, CinemaForm, HallForm
 from apps.core.models import Gallery, SeoBlock
 from apps.core.forms import SeoBlockForm, GalleryFormSet
 
@@ -331,18 +331,116 @@ def cinema_view(request):
 @staff_member_required(login_url='admin:login')
 def hall_create_view(request, cinema_id):
     cinema = get_object_or_404(Cinema, pk=cinema_id)
-    # Placeholder - redirect back to cinema edit
-    messages.info(request, 'Функция создания зала будет реализована позже')
-    return redirect('cinema:cinema_edit', pk=cinema_id)
+    
+    if request.method == 'POST':
+        form = HallForm(request.POST, request.FILES)
+        seo_form = SeoBlockForm(request.POST)
+        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=None)
+        
+        if form.is_valid() and seo_form.is_valid() and gallery_formset.is_valid():
+            hall = form.save(commit=False)
+            hall.cinema = cinema
+            
+            # SEO блок
+            if seo_form.has_changed():
+                seo_block = seo_form.save()
+                hall.seo_block = seo_block
+            
+            hall.save()
+            
+            # Галерея
+            has_images = any(
+                bool(f.cleaned_data.get('image'))
+                for f in gallery_formset.forms
+                if not f.cleaned_data.get('DELETE', False)
+            )
+            
+            if has_images:
+                gallery = Gallery.objects.create(
+                    name=f'Галерея - {hall.name}'
+                )
+                hall.gallery = gallery
+                hall.save()
+                gallery_formset.instance = gallery
+                gallery_formset.save()
+            
+            messages.success(request, f'Зал "{hall.name}" создан')
+            return redirect('cinema:cinema_edit', pk=cinema_id)
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки')
+    else:
+        form = HallForm()
+        seo_form = SeoBlockForm()
+        gallery_formset = GalleryFormSet()
+    
+    context = {
+        'form': form,
+        'seo_form': seo_form,
+        'gallery_formset': gallery_formset,
+        'cinema': cinema,
+        'title': f'Создать зал для {cinema.name}',
+        'is_create': True,
+    }
+    return render(request, 'cinema/admin_hall_form.html', context)
 
 
 @staff_member_required(login_url='admin:login')
 def hall_update_view(request, pk):
     hall = get_object_or_404(Hall, pk=pk)
-    # Placeholder - redirect back to cinema edit
-    messages.info(request, 'Функция редактирования зала будет реализована позже')
-    return redirect('cinema:cinema_edit', pk=hall.cinema.pk)
-
+    cinema = hall.cinema
+    
+    if request.method == 'POST':
+        form = HallForm(request.POST, request.FILES, instance=hall)
+        seo_form = SeoBlockForm(request.POST, instance=hall.seo_block if hall.seo_block_id else None)
+        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=hall.gallery if hall.gallery_id else None)
+        
+        if form.is_valid() and seo_form.is_valid() and gallery_formset.is_valid():
+            hall = form.save(commit=False)
+            
+            # SEO блок
+            if seo_form.has_changed():
+                seo_block = seo_form.save()
+                hall.seo_block = seo_block
+            
+            # Галерея - создаем, если нужно
+            has_images = any(
+                bool(f.cleaned_data.get('image'))
+                for f in gallery_formset.forms
+                if not f.cleaned_data.get('DELETE', False)
+            )
+            
+            if has_images and not hall.gallery:
+                gallery = Gallery.objects.create(
+                    name=f'Галерея - {hall.name}'
+                )
+                hall.gallery = gallery
+                gallery_formset.instance = gallery
+            
+            hall.save()
+            
+            # Галерея
+            if hall.gallery:
+                gallery_formset.save()
+            
+            messages.success(request, f'Зал "{hall.name}" обновлен')
+            return redirect('cinema:cinema_edit', pk=cinema.id)
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки')
+    else:
+        form = HallForm(instance=hall)
+        seo_form = SeoBlockForm(instance=hall.seo_block if hall.seo_block_id else None)
+        gallery_formset = GalleryFormSet(instance=hall.gallery if hall.gallery_id else None)
+    
+    context = {
+        'form': form,
+        'seo_form': seo_form,
+        'gallery_formset': gallery_formset,
+        'cinema': cinema,
+        'hall': hall,
+        'title': f'Редактировать зал "{hall.name}"',
+        'is_create': False,
+    }
+    return render(request, 'cinema/admin_hall_form.html', context)
 
 @staff_member_required(login_url='admin:login')
 def hall_delete_view(request, pk):
