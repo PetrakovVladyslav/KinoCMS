@@ -44,6 +44,7 @@ urlpatterns = [
     path('admin-dashboard/', admin_dashboard_demo, name='admin_dashboard_demo'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('apps.core.urls')),
+    path('', include('apps.banner.urls')),
     path('', include('apps.cinema.urls')),
     path('', include('apps.users.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
