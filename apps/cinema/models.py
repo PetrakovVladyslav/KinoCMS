@@ -57,7 +57,7 @@ class Cinema(models.Model):
 
 
 class Hall(models.Model):
-    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE)
+    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='halls')
     name = models.CharField(max_length=20, unique=True)
     description = models.TextField(blank=True,)
     rows = models.PositiveIntegerField(default=10)
@@ -65,6 +65,7 @@ class Hall(models.Model):
     banner = models.ImageField(upload_to='banners/', null=True, blank=True)
     gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Залы'

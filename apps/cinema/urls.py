@@ -15,6 +15,11 @@ urlpatterns = [
     path('admin-panel/cinemas/<int:pk>/edit/', views.cinema_update_view, name='cinema_edit'),
     path('admin-panel/cinemas/<int:pk>/delete/', views.cinema_delete_view, name='cinema_delete'),
     
+    # Halls
+    path('admin-panel/cinemas/<int:cinema_id>/halls/create/', views.hall_create_view, name='admin_hall_create'),
+    path('admin-panel/halls/<int:pk>/edit/', views.hall_update_view, name='admin_hall_edit'),
+    path('admin-panel/halls/<int:pk>/delete/', views.hall_delete_view, name='admin_hall_delete'),
+    
     # Public pages
     path('movie/<int:pk>/', views.MovieDetailView.as_view(), name='movie_detail'),
     path('cinemas/', views.cinema_view, name='cinema_list'),

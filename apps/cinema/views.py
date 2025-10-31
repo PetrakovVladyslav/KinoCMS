@@ -267,11 +267,14 @@ def cinema_update_view(request, pk):
         seo_form = SeoBlockForm(instance=cinema.seo_block if cinema.seo_block_id else None)
         gallery_formset = GalleryFormSet(instance=cinema.gallery if cinema.gallery_id else None)
 
+    halls = cinema.halls.all().order_by('created_at')
+    
     context = {
         'form': form,
         'seo_form': seo_form,
         'gallery_formset': gallery_formset,
         'cinema': cinema,
+        'halls': halls,
         'title': f'Редактировать кинотеатр "{cinema.name}"',
         'is_create': False,
     }
@@ -323,4 +326,43 @@ def cinema_view(request):
     }
 
     return render(request, 'cinema/cinema_list.html', context)
+
+
+@staff_member_required(login_url='admin:login')
+def hall_create_view(request, cinema_id):
+    cinema = get_object_or_404(Cinema, pk=cinema_id)
+    # Placeholder - redirect back to cinema edit
+    messages.info(request, 'Функция создания зала будет реализована позже')
+    return redirect('cinema:cinema_edit', pk=cinema_id)
+
+
+@staff_member_required(login_url='admin:login')
+def hall_update_view(request, pk):
+    hall = get_object_or_404(Hall, pk=pk)
+    # Placeholder - redirect back to cinema edit
+    messages.info(request, 'Функция редактирования зала будет реализована позже')
+    return redirect('cinema:cinema_edit', pk=hall.cinema.pk)
+
+
+@staff_member_required(login_url='admin:login')
+def hall_delete_view(request, pk):
+    hall = get_object_or_404(Hall, pk=pk)
+    cinema_id = hall.cinema.pk
+    
+    if request.method == 'POST':
+        hall_name = hall.name
+        
+        if hall.gallery:
+            hall.gallery.images.all().delete()
+            hall.gallery.delete()
+        
+        if hall.seo_block:
+            hall.seo_block.delete()
+        
+        hall.delete()
+        messages.success(request, f'Зал "{hall_name}" успешно удален')
+    else:
+        messages.warning(request, 'Некорректная попытка удаления')
+    
+    return redirect('cinema:cinema_edit', pk=cinema_id)
 
