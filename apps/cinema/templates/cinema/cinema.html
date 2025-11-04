@@ -36,8 +36,21 @@
     }
     
     .hall-table {
-        background: transparent;
+        background: var(--secondary-color);
         margin-bottom: 1rem;
+        --bs-table-bg: var(--secondary-color);
+    }
+    
+    .hall-table thead {
+        background: rgba(233, 69, 96, 0.2);
+    }
+    
+    .hall-table th {
+        border-color: rgba(255, 255, 255, 0.1);
+        color: var(--accent-color);
+        padding: 0.75rem;
+        font-weight: 600;
+        background: transparent;
     }
     
     .hall-table td {
@@ -50,10 +63,11 @@
     .hall-table tbody tr {
         transition: all 0.3s;
         cursor: pointer;
+        background: var(--secondary-color);
     }
     
     .hall-table tbody tr:hover {
-        background: rgba(233, 69, 96, 0.05);
+        background: rgba(233, 69, 96, 0.15) !important;
     }
     
     .hall-link {
@@ -196,6 +210,56 @@
         z-index: 10;
     }
 
+    /* Format buttons matching session page style */
+    .format-button {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid;
+        display: inline-block;
+        text-decoration: none;
+    }
+    
+    .format-button-2D {
+        color: #4CAF50;
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+    
+    .format-button-3D {
+        color: #2196F3;
+        border-color: #2196F3;
+        background: rgba(33, 150, 243, 0.1);
+    }
+    
+    .format-button-IMAX {
+        color: #FF9800;
+        border-color: #FF9800;
+        background: rgba(255, 152, 0, 0.1);
+    }
+    
+    .format-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .format-button-2D:hover {
+        background: #4CAF50;
+        color: white;
+    }
+    
+    .format-button-3D:hover {
+        background: #2196F3;
+        color: white;
+    }
+    
+    .format-button-IMAX:hover {
+        background: #FF9800;
+        color: white;
+    }
+    
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .slider {
@@ -241,7 +305,7 @@
                 
                 {% if cinema.halls.exists %}
                 <h6 class="text-white mb-3">Список залов:</h6>
-                <table class="table table-sm hall-table">
+                <table class="table table-dark table-sm hall-table">
                     <tbody>
                         {% for hall in cinema.halls.all %}
                         <tr onclick="window.location.href='{% url 'cinema:hall_detail' hall.pk %}'">
@@ -259,24 +323,43 @@
 
             <!-- Today's Movies Card -->
             <div class="cinema-info-card">
-                <h6 class="text-white mb-3">Смотрите сегодня:</h6>
-                <table class="table table-sm hall-table">
-                    <thead>
-                        <tr>
-                            <th>Фильм</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Пока пустая таблица -->
-                        <tr>
-                            <td class="text-muted small">Нет сеансов</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h6 class="text-white mb-3">
+                    <i class="fas fa-film me-2"></i>{% trans "Смотрите сегодня" %}
+                </h6>
                 
-                <button class="btn btn-outline-custom w-100" disabled>
-                    <i class="bi bi-calendar-event me-2"></i>Расписание всех сеансов
-                </button>
+                {% if today_sessions %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-sm hall-table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Время" %}</th>
+                                <th>{% trans "Фильм" %}</th>
+                                <th>{% trans "Зал" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in today_sessions %}
+                            <tr onclick="window.location.href='#'" title="{% trans 'Забронировать билет' %}">
+                                <td>{{ session.start_time|date:"H:i" }}</td>
+                                <td>{{ session.movie.name }}</td>
+                                <td>{{ session.hall.name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-3">
+                    <i class="fas fa-calendar-times me-2"></i>{% trans "Нет сеансов сегодня" %}
+                </p>
+                {% endif %}
+                
+                <!-- Button to view all sessions for this cinema -->
+                <div class="text-center mt-3">
+                    <a href="{% url 'cinema:session_list' %}?cinema={{ cinema.id }}" class="btn btn-sm w-100" style="background: var(--accent-color); color: white; border: none; padding: 10px;">
+                        <i class="fas fa-calendar-alt me-2"></i>{% trans "Расписание всех сеансов" %}
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -285,18 +368,37 @@
             <!-- Cinema Title and Logo -->
             <div class="cinema-info-card">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h1 class="display-5 fw-bold text-white mb-0">{{ cinema.name }}</h1>
+                    <div>
+                        <h1 class="display-5 fw-bold text-white mb-2">{{ cinema.name }}</h1>
+                        
+                        <!-- Schedule Section -->
+                        <div class="mb-0">
+                            <div class="mb-2">
+                                <span class="text-muted" style="font-size: 0.9rem;">
+                                    <i class="fas fa-calendar-alt me-1"></i>{% trans "Расписание сеансов" %}
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{% url 'cinema:session_list' %}?cinema={{ cinema.id }}&format=2D" class="format-button format-button-2D">
+                                    2D
+                                </a>
+                                <a href="{% url 'cinema:session_list' %}?cinema={{ cinema.id }}&format=3D" class="format-button format-button-3D">
+                                    3D
+                                </a>
+                                <a href="{% url 'cinema:session_list' %}?cinema={{ cinema.id }}&format=IMAX" class="format-button format-button-IMAX">
+                                    IMAX
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
                     {% if cinema.logo %}
                         <img src="{{ cinema.logo.url }}" alt="{{ cinema.name }} logo" class="cinema-logo">
                     {% endif %}
                 </div>
 
-                <button class="btn btn-primary-custom mb-3" disabled>
-                    <i class="bi bi-calendar-week me-2"></i>Расписание сеансов
-                </button>
-
                 {% if cinema.description %}
-                    <div class="mb-4">
+                    <div class="mt-4">
                         <p class="text-light-muted">{{ cinema.description }}</p>
                     </div>
                 {% endif %}

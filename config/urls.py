@@ -45,7 +45,6 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('apps.core.urls')),
     path('', include('apps.banner.urls')),
-    path('', include('apps.cinema.urls')),
     path('', include('apps.users.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
     path('i18n/setlang/', set_language, name='set_language')
@@ -54,7 +53,8 @@ urlpatterns = [
 # Добавляем поддержку интернационализации
 urlpatterns += i18n_patterns(
     #path('', home_view, name='home_i18n')
-    path('', include('apps.page.urls'))
+    path('', include('apps.page.urls')),
+    path('', include('apps.cinema.urls')),
 )
 
 # Serve media files during development

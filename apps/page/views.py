@@ -40,6 +40,10 @@ def home_view(request):
     top_banner = BannerSlider.objects.filter(is_active=True).first()
     bottom_banner = BottomBannerSlider.objects.filter(is_active=True).first()
     background = BannerBackground.objects.first()
+    
+    # Получаем новости и акции
+    news = PageNewsSales.objects.filter(type='news', status=True).order_by('-publish_date')[:3]
+    sales = PageNewsSales.objects.filter(type='sale', status=True).order_by('-publish_date')[:3]
 
     context = {
         'today_movies' : today_movies,
@@ -49,6 +53,8 @@ def home_view(request):
         'bottom_banner': bottom_banner,
         'background': background,
         'page_main': PageMain.objects.first(),
+        'news': news,
+        'sales': sales,
     }
 
     return render(request, 'page/home.html', context)

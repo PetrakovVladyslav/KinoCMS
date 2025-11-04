@@ -1,11 +1,13 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.contrib import messages
-from datetime import date
+from datetime import date, timedelta
+from itertools import groupby
 
-from .models import Cinema, Movie, Hall
+from .models import Cinema, Movie, Hall, Session
 from .forms import PageMovieForm, CinemaForm, HallForm
+from .enums import MovieFormat
 from apps.core.models import Gallery, SeoBlock
 from apps.core.forms import SeoBlockForm, GalleryFormSet
 
@@ -16,18 +18,91 @@ class MovieDetailView(DetailView):
     model = Movie
     template_name = 'cinema/movie.html'
     context_object_name = 'movie'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        movie = self.get_object()
+        
+        # Get sessions for this movie (today and tomorrow)
+        today = date.today()
+        tomorrow = today + timedelta(days=1)
+        
+        sessions = Session.objects.filter(
+            movie=movie,
+            start_time__date__in=[today, tomorrow]
+        ).select_related('hall', 'hall__cinema').order_by('start_time')
+        
+        # Get unique cinemas that have sessions for this movie
+        cinemas = Cinema.objects.filter(
+            halls__session__movie=movie,
+            halls__session__start_time__date__in=[today, tomorrow]
+        ).distinct()
+        
+        # Group sessions by date
+        sessions_by_date = {}
+        for session_date, group in groupby(sessions, key=lambda s: s.start_time.date()):
+            sessions_by_date[session_date] = list(group)
+        
+        # Group sessions by cinema
+        from collections import defaultdict
+        sessions_by_cinema = defaultdict(list)
+        for session in sessions:
+            sessions_by_cinema[session.hall.cinema.id].append(session)
+        
+        # Convert to list of tuples (cinema, sessions_list)
+        cinema_sessions = []
+        for cinema in cinemas:
+            if cinema.id in sessions_by_cinema:
+                cinema_sessions.append((cinema, sessions_by_cinema[cinema.id]))
+        
+        context['sessions'] = sessions
+        context['cinemas'] = cinemas
+        context['sessions_by_date'] = sessions_by_date
+        context['cinema_sessions'] = cinema_sessions
+        context['today'] = today
+        context['tomorrow'] = tomorrow
+        
+        return context
 
 
 class CinemaDetailView(DetailView):
     model = Cinema
     template_name = 'cinema/cinema.html'
     context_object_name = 'cinema'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cinema = self.get_object()
+        
+        # Get today's sessions for all halls in this cinema
+        today = date.today()
+        today_sessions = Session.objects.filter(
+            hall__cinema=cinema,
+            start_time__date=today
+        ).select_related('movie', 'hall').order_by('start_time')
+        
+        context['today_sessions'] = today_sessions
+        return context
 
 
 class HallDetailView(DetailView):
     model = Hall
     template_name = 'cinema/hall.html'
     context_object_name = 'hall'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        hall = self.get_object()
+        
+        # Get today's sessions for this hall
+        from datetime import date
+        today = date.today()
+        today_sessions = hall.session_set.filter(
+            start_time__date=today
+        ).select_related('movie').order_by('start_time')
+        
+        context['today_sessions'] = today_sessions
+        return context
 
 
 @staff_member_required(login_url='admin:login')
@@ -36,11 +111,15 @@ def admin_movie_list_view(request):
 
     current_movies = Movie.objects.filter(start_date__lte=today, end_date__gte=today)
     upcoming_movies = Movie.objects.filter(start_date__gt=today)
+    past_movies = Movie.objects.filter(end_date__lt=today)
+    movies_without_dates = Movie.objects.filter(start_date__isnull=True) | Movie.objects.filter(end_date__isnull=True)
 
     context = {
         'today': today,
         'current_movies': current_movies,
         'upcoming_movies': upcoming_movies,
+        'past_movies': past_movies,
+        'movies_without_dates': movies_without_dates,
 
     }
 
@@ -469,4 +548,75 @@ def hall_delete_view(request, pk):
         messages.warning(request, 'Некорректная попытка удаления')
     
     return redirect('cinema:cinema_edit', pk=cinema_id)
+
+
+class SessionListView(ListView):
+    model = Session
+    template_name = 'cinema/session.html'
+    context_object_name = 'sessions'
+    
+    def get_queryset(self):
+        queryset = Session.objects.select_related(
+            'movie', 'hall', 'hall__cinema'
+        ).order_by('start_time')
+        
+        # Filter by format (multiple selection)
+        format_filters = self.request.GET.getlist('format')
+        if format_filters:
+            queryset = queryset.filter(format__in=format_filters)
+        
+        # Filter by cinema
+        cinema_id = self.request.GET.get('cinema')
+        if cinema_id:
+            queryset = queryset.filter(hall__cinema_id=cinema_id)
+        
+        # Filter by date
+        date_filter = self.request.GET.get('date')
+        if date_filter:
+            queryset = queryset.filter(start_time__date=date_filter)
+        
+        # Filter by movie
+        movie_id = self.request.GET.get('movie')
+        if movie_id:
+            queryset = queryset.filter(movie_id=movie_id)
+        
+        # Filter by hall
+        hall_id = self.request.GET.get('hall')
+        if hall_id:
+            queryset = queryset.filter(hall_id=hall_id)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Add filter choices
+        context['formats'] = MovieFormat.choices
+        context['cinemas'] = Cinema.objects.all()
+        context['movies'] = Movie.objects.filter(
+            start_date__lte=date.today()
+        ).order_by('name')
+        context['halls'] = Hall.objects.select_related('cinema').all()
+        
+        # Preserve current filters
+        context['current_formats'] = self.request.GET.getlist('format')
+        context['current_cinema'] = self.request.GET.get('cinema', '')
+        context['current_date'] = self.request.GET.get('date', '')
+        context['current_movie'] = self.request.GET.get('movie', '')
+        context['current_hall'] = self.request.GET.get('hall', '')
+        
+        # Group sessions by date
+        sessions = context['sessions']
+        sessions_by_date = {}
+        for session_date, group in groupby(sessions, key=lambda s: s.start_time.date()):
+            sessions_by_date[session_date] = list(group)
+        
+        context['sessions_by_date'] = sessions_by_date
+        
+        # Add today and tomorrow for booking validation
+        today = date.today()
+        context['today'] = today
+        context['tomorrow'] = today + timedelta(days=1)
+        
+        return context
 

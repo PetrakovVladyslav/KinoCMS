@@ -70,7 +70,7 @@ class Cinema(models.Model):
 
 class Hall(models.Model):
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='halls')
-    name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=20)
     description = models.TextField(blank=True,)
     banner = models.ImageField(upload_to='banners/', null=True, blank=True)
     scheme_data = models.JSONField(null=True, blank=True, verbose_name='Схема зала')
@@ -82,6 +82,12 @@ class Hall(models.Model):
         verbose_name_plural = 'Залы'
         verbose_name = 'Зал'
         unique_together = ['cinema', 'name']
+    
+    def get_gallery_images(self):
+        """Возвращает все изображения из галереи зала"""
+        if self.gallery:
+            return self.gallery.images.all()
+        return []
 
     def __str__(self):
         return f"{self.cinema.name} - Зал {self.name}"
@@ -93,6 +99,12 @@ class Session(models.Model):
     start_time = models.DateTimeField(verbose_name='Начало сеанса', default=timezone.now)
     end_time = models.DateTimeField(verbose_name='Окончание сеанса', default=timezone.now)
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
+    format = models.CharField(
+        max_length=10, 
+        choices=MovieFormat.choices,
+        default=MovieFormat.TWO_D,
+        verbose_name='Формат'
+    )
 
     def __str__(self):
         return f'{self.movie.name} - {self.start_time.strftime("%Y/%m/%d")}'

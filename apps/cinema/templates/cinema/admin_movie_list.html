@@ -248,6 +248,84 @@
       {% endif %}
     </div>
   </div>
+
+  <!-- Past Movies Section -->
+  {% if past_movies %}
+  <div class="row">
+    <div class="col-12, text-center">
+      <h3 class="section-title">
+        <i class="fas fa-history"></i> Завершенные фильмы
+      </h3>
+      <div class="movies-grid">
+        {% for movie in past_movies %}
+          <div class="movie-card">
+            <div class="movie-poster">
+              {% if movie.poster %}
+                <img src="{{ movie.poster.url }}" alt="{{ movie.name_ru|default:movie.name }}">
+              {% else %}
+                <div class="movie-poster-placeholder">
+                  <i class="fas fa-film"></i>
+                </div>
+              {% endif %}
+              <button type="button" class="movie-delete-btn" title="Удалить фильм"
+                      onclick="confirmMovieDelete({{ movie.id }}, '{{ movie.name_ru|default:movie.name|escapejs }}')">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="movie-info">
+              <a href="{% url 'cinema:movie_edit' movie.id %}" class="movie-title" title="Редактировать фильм">
+                {{ movie.name_ru|default:movie.name }}
+              </a>
+              <div class="movie-dates">
+                <i class="fas fa-calendar-alt"></i> 
+                {{ movie.start_date|date:"d.m.Y" }} - {{ movie.end_date|date:"d.m.Y" }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Movies Without Dates Section -->
+  {% if movies_without_dates %}
+  <div class="row">
+    <div class="col-12, text-center">
+      <h3 class="section-title">
+        <i class="fas fa-exclamation-triangle"></i> Фильмы без дат проката
+      </h3>
+      <div class="movies-grid">
+        {% for movie in movies_without_dates %}
+          <div class="movie-card">
+            <div class="movie-poster">
+              {% if movie.poster %}
+                <img src="{{ movie.poster.url }}" alt="{{ movie.name_ru|default:movie.name }}">
+              {% else %}
+                <div class="movie-poster-placeholder">
+                  <i class="fas fa-film"></i>
+                </div>
+              {% endif %}
+              <button type="button" class="movie-delete-btn" title="Удалить фильм"
+                      onclick="confirmMovieDelete({{ movie.id }}, '{{ movie.name_ru|default:movie.name|escapejs }}')">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="movie-info">
+              <a href="{% url 'cinema:movie_edit' movie.id %}" class="movie-title" title="Редактировать фильм">
+                {{ movie.name_ru|default:movie.name }}
+              </a>
+              <div class="movie-dates text-warning">
+                <i class="fas fa-exclamation-circle"></i> 
+                Даты не заданы
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 <!-- Модальное окно для подтверждения удаления фильма -->

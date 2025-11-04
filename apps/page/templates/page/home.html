@@ -310,6 +310,7 @@
     </section>
     
     <!-- Coming soon section -->
+    {% if coming_soon_movies %}
     <section class="coming-soon py-5" style="background: rgba(15, 52, 96, 0.5);">
         <div class="container">
             <h2 class="text-center mb-5">{% trans "Смотрите скоро" %}</h2>
@@ -346,29 +347,102 @@
                                 {{ movie.name }}
                             {% endif %}
                         </h3>
-                        <div class="release-date">{% trans "В прокате с" %}: {{ movie.release_date|default:"1 августа 2024" }}</div>
-                    </article>
-                {% empty %}
-                    <!-- Sample movies for demonstration -->
-                    <article class="movie-card" data-url="#" role="link" tabindex="0">
-                        <div style="width: 100%; height: 300px; background: #333; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-film" style="font-size: 3rem; color: var(--text-muted);"></i>
-                        </div>
-                        <h3>{% trans "Скоро в кино" %}</h3>
-                        <div class="release-date">{% trans "В прокате с" %}: 15 августа 2024</div>
+                        <div class="release-date">{% trans "В прокате с" %}: {{ movie.start_date|date:"d F Y"|default:"1 августа 2024" }}</div>
                     </article>
                 {% endfor %}
             </div>
         </div>
     </section>
+    {% endif %}
     
     <!-- News and promotions section -->
+    {% if news or sales %}
     <section class="news-promotions py-5">
         <div class="container">
             <h2 class="text-center mb-5">{% trans "Новости и акции" %}</h2>
-            <!-- Content will be added later -->
+            <div class="row">
+                {% for item in news %}
+                <div class="col-md-4 mb-4">
+                    <a href="{% url 'page:sale_detail' item.id %}" class="card" style="text-decoration: none; color: inherit; display: block; height: 100%; background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; transition: all 0.3s ease;">
+                        {% if item.logo %}
+                        <img src="{{ item.logo.url }}" alt="{{ item.name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-newspaper" style="font-size: 3rem; color: rgba(255, 255, 255, 0.7);"></i>
+                        </div>
+                        {% endif %}
+                        <div style="padding: 20px;">
+                            <div style="background: linear-gradient(45deg, rgba(23, 162, 184, 0.9), rgba(32, 201, 151, 0.9)); color: white; display: inline-block; padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 10px;">
+                                <i class="fas fa-newspaper"></i> {% trans "Новость" %}
+                            </div>
+                            <h5 style="color: var(--text-color); margin-bottom: 10px;">
+                                {% get_current_language as LANGUAGE_CODE %}
+                                {% if LANGUAGE_CODE == 'uk' and item.name_uk %}
+                                    {{ item.name_uk }}
+                                {% else %}
+                                    {{ item.name|default:item.name_ru }}
+                                {% endif %}
+                            </h5>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px;">
+                                {% get_current_language as LANGUAGE_CODE %}
+                                {% if LANGUAGE_CODE == 'uk' and item.description_uk %}
+                                    {{ item.description_uk|truncatewords:15 }}
+                                {% else %}
+                                    {{ item.description|default:item.description_ru|truncatewords:15 }}
+                                {% endif %}
+                            </p>
+                            {% if item.publish_date %}
+                            <small style="color: var(--text-muted);">
+                                <i class="fas fa-calendar-alt"></i> {{ item.publish_date|date:"d.m.Y" }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+                {% for item in sales %}
+                <div class="col-md-4 mb-4">
+                    <a href="{% url 'page:sale_detail' item.id %}" class="card" style="text-decoration: none; color: inherit; display: block; height: 100%; background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; transition: all 0.3s ease;">
+                        {% if item.logo %}
+                        <img src="{{ item.logo.url }}" alt="{{ item.name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-percent" style="font-size: 3rem; color: rgba(255, 255, 255, 0.7);"></i>
+                        </div>
+                        {% endif %}
+                        <div style="padding: 20px;">
+                            <div style="background: linear-gradient(45deg, rgba(40, 167, 69, 0.9), rgba(32, 201, 151, 0.9)); color: white; display: inline-block; padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 10px;">
+                                <i class="fas fa-percent"></i> {% trans "Акция" %}
+                            </div>
+                            <h5 style="color: var(--text-color); margin-bottom: 10px;">
+                                {% get_current_language as LANGUAGE_CODE %}
+                                {% if LANGUAGE_CODE == 'uk' and item.name_uk %}
+                                    {{ item.name_uk }}
+                                {% else %}
+                                    {{ item.name|default:item.name_ru }}
+                                {% endif %}
+                            </h5>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px;">
+                                {% get_current_language as LANGUAGE_CODE %}
+                                {% if LANGUAGE_CODE == 'uk' and item.description_uk %}
+                                    {{ item.description_uk|truncatewords:15 }}
+                                {% else %}
+                                    {{ item.description|default:item.description_ru|truncatewords:15 }}
+                                {% endif %}
+                            </p>
+                            {% if item.publish_date %}
+                            <small style="color: var(--text-muted);">
+                                <i class="fas fa-calendar-alt"></i> {{ item.publish_date|date:"d.m.Y" }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </section>
+    {% endif %}
     
     <!-- Bottom Banner Slider -->
     {% if bottom_banner and bottom_banner.is_active %}

@@ -99,17 +99,79 @@
         display: inline-block;
         background: var(--card-bg);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 8px 15px;
-        border-radius: 20px;
-        margin: 3px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin: 5px;
         cursor: pointer;
         transition: all 0.3s;
         font-size: 0.9rem;
+        text-decoration: none;
+        color: var(--text-color);
+        min-width: 200px;
     }
     
     .session-time:hover {
         border-color: var(--accent-color);
+        background: rgba(233, 69, 96, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Inline format badges */
+    .format-badge-inline {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+    
+    .format-badge-inline.format-2D {
+        background: #4CAF50;
+        color: white;
+    }
+    
+    .format-badge-inline.format-3D {
+        background: #2196F3;
+        color: white;
+    }
+    
+    .format-badge-inline.format-IMAX {
+        background: #FF9800;
+        color: white;
+    }
+    
+    /* Compact session time display */
+    .session-time-compact {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        color: var(--text-color);
+        font-size: 0.9rem;
+    }
+    
+    .session-time-compact:hover {
+        border-color: var(--accent-color);
+        background: rgba(233, 69, 96, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .session-time-compact .time {
         color: var(--accent-color);
+        font-size: 1rem;
+    }
+    
+    .session-time-compact .session-info {
+        color: var(--text-muted);
+        font-size: 0.85rem;
     }
     
     .movie-info-card {
@@ -144,18 +206,66 @@
     
     .format-tab {
         background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: 2px solid;
         color: white;
-        padding: 8px 15px;
+        padding: 8px 16px;
         border-radius: 20px;
         cursor: pointer;
         transition: all 0.3s;
+        font-weight: 600;
     }
     
-    .format-tab:hover,
-    .format-tab.active {
+    .format-tab[data-format=""] {
+        border-color: rgba(255, 255, 255, 0.3);
+        color: var(--text-color);
+    }
+    
+    .format-tab[data-format="2D"] {
+        border-color: #4CAF50;
+        color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+    
+    .format-tab[data-format="3D"] {
+        border-color: #2196F3;
+        color: #2196F3;
+        background: rgba(33, 150, 243, 0.1);
+    }
+    
+    .format-tab[data-format="IMAX"] {
+        border-color: #FF9800;
+        color: #FF9800;
+        background: rgba(255, 152, 0, 0.1);
+    }
+    
+    .format-tab:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .format-tab.active[data-format=""],
+    .format-tab[data-format=""]:hover {
         background: var(--accent-color);
         border-color: var(--accent-color);
+        color: white;
+    }
+    
+    .format-tab.active[data-format="2D"],
+    .format-tab[data-format="2D"]:hover {
+        background: #4CAF50;
+        color: white;
+    }
+    
+    .format-tab.active[data-format="3D"],
+    .format-tab[data-format="3D"]:hover {
+        background: #2196F3;
+        color: white;
+    }
+    
+    .format-tab.active[data-format="IMAX"],
+    .format-tab[data-format="IMAX"]:hover {
+        background: #FF9800;
+        color: white;
     }
 
     /* СТИЛИ ДЛЯ ДИНАМИЧЕСКИХ ФОРМАТОВ */
@@ -339,15 +449,18 @@
     <div class="container">
         <div class="row align-items-center mb-3">
             <div class="col-md-6">
-                <h5 class="mb-0 text-white">Расписание сеансов кинотеатра:</h5>
+                <h5 class="mb-0 text-white">
+                    <i class="fas fa-calendar-alt me-2"></i>Расписание сеансов:
+                </h5>
             </div>
             <div class="col-md-6 text-end">
-                <select class="cinema-select">
-                    <option>Cinema Park</option>
-                    <option>Multiplex</option>
+                <select class="cinema-select" id="cinemaSelect">
+                    {% for cinema in cinemas %}
+                        <option value="{{ cinema.id }}" {% if forloop.first %}selected{% endif %}>{{ cinema.name }}</option>
+                    {% endfor %}
                 </select>
                 <div class="format-tabs d-inline-flex">
-                    <button class="format-tab active">Все</button>
+                    <button class="format-tab active" data-format="">Все</button>
                     {% if movie.formats %}
                         {% for format in movie.formats %}
                             <button class="format-tab" data-format="{{ format }}">{{ format }}</button>
@@ -359,48 +472,50 @@
 
         <!-- Schedule Days -->
         <div class="schedule-grid">
-            <div class="schedule-day active">
-                <div class="fw-bold">18 Чт</div>
-                <small>Августа</small>
+            {% for date, date_sessions in sessions_by_date.items %}
+            <div class="schedule-day {% if date == today %}active{% endif %}" data-date="{{ date|date:'Y-m-d' }}">
+                <div class="fw-bold">{{ date|date:"d D" }}</div>
+                <small>{{ date|date:"F" }}</small>
             </div>
-            <div class="schedule-day">
-                <div class="fw-bold">19 Пт</div>
-                <small>Августа</small>
+            {% endfor %}
+            {% if not sessions_by_date %}
+            <div class="text-muted">
+                <i class="fas fa-info-circle me-2"></i>Нет сеансов на сегодня и завтра
             </div>
-            <div class="schedule-day">
-                <div class="fw-bold">20 Сб</div>
-                <small>Августа</small>
-            </div>
-            <div class="schedule-day">
-                <div class="fw-bold">21 Вс</div>
-                <small>Августа</small>
-            </div>
-            <div class="schedule-day">
-                <div class="fw-bold">22 Пн</div>
-                <small>Августа</small>
-            </div>
-            <div class="schedule-day">
-                <div class="fw-bold">23 Вт</div>
-                <small>Августа</small>
-            </div>
-            <div class="schedule-day">
-                <div class="fw-bold">24 Ср</div>
-                <small>Августа</small>
-            </div>
+            {% endif %}
         </div>
 
         <!-- Session Times -->
-        <div class="mt-3">
-            <div class="mb-2">
-                <strong class="text-white">Cinema Park:</strong>
+        <div class="mt-4" id="sessionsContainer">
+            {% if cinema_sessions %}
+                {% for cinema, sessions_list in cinema_sessions %}
+                <div class="cinema-sessions mb-4" data-cinema-id="{{ cinema.id }}">
+                    <div class="d-flex align-items-start mb-2">
+                        <strong class="text-white me-3" style="font-size: 1.1rem; min-width: 150px;">
+                            <i class="fas fa-building me-2"></i>{{ cinema.name }}:
+                        </strong>
+                        <div class="session-times d-flex flex-wrap gap-2">
+                            {% for session in sessions_list %}
+                            <a href="#" class="session-time-compact" 
+                               data-cinema-id="{{ cinema.id }}"
+                               data-format="{{ session.format }}"
+                               data-date="{{ session.start_time|date:'Y-m-d' }}"
+                               onclick="bookSession({{ session.id }}); return false;">
+                                <strong class="time">{{ session.start_time|date:"H:i" }}</strong>
+                                <span class="format-badge-inline format-{{ session.format }}">{{ session.get_format_display }}</span>
+                                <span class="session-info">{{ session.hall.name }} | {{ session.price }}₴</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-calendar-times" style="font-size: 3rem;"></i>
+                <p class="mt-2">Сеансы не найдены</p>
             </div>
-            <div class="session-times">
-                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
-                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
-                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
-                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
-                <span class="session-time">16:40 3D <small class="d-block text-muted">Зал | 2D/3G/DD</small></span>
-            </div>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -418,9 +533,12 @@
                         <i class="bi bi-film" style="font-size: 4rem; color: var(--text-muted);"></i>
                     </div>
                 {% endif %}
-                <a href="#" class="btn btn-primary-custom w-100">
-                    <i class="bi bi-ticket me-2"></i>Купить билет
-                </a>
+                
+                {% if movie.trailer_url %}
+                    <a href="{{ movie.trailer_url }}" target="_blank" class="btn btn-outline-custom w-100">
+                        <i class="bi bi-play me-2"></i>Смотреть трейлер
+                    </a>
+                {% endif %}
             </div>
         </div>
 
@@ -450,19 +568,6 @@
                 {% if movie.description %}
                     <p class="text-light-muted mb-4">{{ movie.description }}</p>
                 {% endif %}
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <!-- Место для дополнительной информации -->
-                    </div>
-                    <div class="col-md-6 text-end">
-                        {% if movie.trailer_url %}
-                            <a href="{{ movie.trailer_url }}" target="_blank" class="btn btn-outline-custom">
-                                <i class="bi bi-play me-2"></i>Смотреть трейлер
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
             </div>
 
             <!-- Gallery Slider Section -->
@@ -511,11 +616,74 @@ function playTrailer() {
     {% endif %}
 }
 
+// Global variables for filtering
+let selectedCinema = '';
+let selectedFormat = '';
+let selectedDate = '{{ today|date:"Y-m-d" }}';
+
+// Initialize with first cinema selected
+document.addEventListener('DOMContentLoaded', function() {
+    const cinemaSelect = document.getElementById('cinemaSelect');
+    if (cinemaSelect && cinemaSelect.value) {
+        selectedCinema = cinemaSelect.value;
+        filterSessions();
+    }
+});
+
+// Filter sessions
+function filterSessions() {
+    const sessions = document.querySelectorAll('.session-time-compact');
+    const cinemaGroups = document.querySelectorAll('.cinema-sessions');
+    
+    sessions.forEach(session => {
+        const sessionCinema = session.getAttribute('data-cinema-id');
+        const sessionFormat = session.getAttribute('data-format');
+        const sessionDate = session.getAttribute('data-date');
+        
+        let show = true;
+        
+        // Filter by cinema
+        if (selectedCinema && sessionCinema !== selectedCinema) {
+            show = false;
+        }
+        
+        // Filter by format
+        if (selectedFormat && sessionFormat !== selectedFormat) {
+            show = false;
+        }
+        
+        // Filter by date
+        if (selectedDate && sessionDate !== selectedDate) {
+            show = false;
+        }
+        
+        session.style.display = show ? 'inline-flex' : 'none';
+    });
+    
+    // Hide cinema groups with no visible sessions
+    cinemaGroups.forEach(group => {
+        const visibleSessions = Array.from(group.querySelectorAll('.session-time-compact'))
+            .filter(s => s.style.display !== 'none');
+        group.style.display = visibleSessions.length > 0 ? 'block' : 'none';
+    });
+}
+
+// Cinema selection
+const cinemaSelect = document.getElementById('cinemaSelect');
+if (cinemaSelect) {
+    cinemaSelect.addEventListener('change', function() {
+        selectedCinema = this.value;
+        filterSessions();
+    });
+}
+
 // Schedule day selection
 document.querySelectorAll('.schedule-day').forEach(day => {
     day.addEventListener('click', function() {
         document.querySelectorAll('.schedule-day').forEach(d => d.classList.remove('active'));
         this.classList.add('active');
+        selectedDate = this.getAttribute('data-date');
+        filterSessions();
     });
 });
 
@@ -524,8 +692,18 @@ document.querySelectorAll('.format-tab').forEach(tab => {
     tab.addEventListener('click', function() {
         document.querySelectorAll('.format-tab').forEach(t => t.classList.remove('active'));
         this.classList.add('active');
+        selectedFormat = this.getAttribute('data-format');
+        filterSessions();
     });
 });
+
+// Booking function (placeholder)
+function bookSession(sessionId) {
+    // TODO: Redirect to booking page when implemented
+    alert('Бронирование сеанса #' + sessionId + '\n\nФункционал бронирования будет добавлен позже.');
+    // Uncomment when booking page is ready:
+    // window.location.href = '/booking/' + sessionId + '/';
+}
 
 // СЛАЙДЕР ГАЛЕРЕИ
 let currentSlideIndex = 0;

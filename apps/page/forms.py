@@ -16,7 +16,6 @@ class PageMainForm(forms.ModelForm):
     class Meta:
         model = PageMain
         exclude = ['date', 'seo_block']
-
         widgets = {
             'phone_number1': forms.TextInput(attrs={
                 'class': FORM_CSS_CLASSES['TEXT_INPUT'],
