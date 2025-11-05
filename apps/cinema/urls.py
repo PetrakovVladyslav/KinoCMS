@@ -26,5 +26,9 @@ urlpatterns = [
     path('cinema/<int:pk>/', views.CinemaDetailView.as_view(), name='cinema_detail'),
     path('hall/<int:pk>/', views.HallDetailView.as_view(), name='hall_detail'),
     path('sessions/', views.SessionListView.as_view(), name='session_list'),
+    path('booking/<int:pk>/', views.BookingView.as_view(), name='booking'),
+    
+    # API endpoints
+    path('api/booking/<int:session_id>/process/', views.process_booking, name='process_booking'),
 ]
 

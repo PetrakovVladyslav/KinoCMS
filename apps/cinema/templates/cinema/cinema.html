@@ -339,7 +339,7 @@
                         </thead>
                         <tbody>
                             {% for session in today_sessions %}
-                            <tr onclick="window.location.href='#'" title="{% trans 'Забронировать билет' %}">
+                            <tr onclick="window.location.href='{% url 'cinema:booking' session.pk %}'" title="{% trans 'Забронировать билет' %}" style="cursor: pointer;">
                                 <td>{{ session.start_time|date:"H:i" }}</td>
                                 <td>{{ session.movie.name }}</td>
                                 <td>{{ session.hall.name }}</td>

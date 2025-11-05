@@ -5,7 +5,7 @@ from django.contrib import messages
 from datetime import date, timedelta
 from itertools import groupby
 
-from .models import Cinema, Movie, Hall, Session
+from .models import Cinema, Movie, Hall, Session, Booking
 from .forms import PageMovieForm, CinemaForm, HallForm
 from .enums import MovieFormat
 from apps.core.models import Gallery, SeoBlock
@@ -619,4 +619,143 @@ class SessionListView(ListView):
         context['tomorrow'] = today + timedelta(days=1)
         
         return context
+
+
+class BookingView(DetailView):
+    model = Session
+    template_name = 'cinema/booking.html'
+    context_object_name = 'session'
+    
+    def get_context_data(self, **kwargs):
+        import json
+        from django.utils.safestring import mark_safe
+        context = super().get_context_data(**kwargs)
+        session = self.get_object()
+        
+        # Get hall scheme data and serialize to JSON for JavaScript
+        hall = session.hall
+        if hall.scheme_data:
+            # Serialize to JSON string and mark as safe for template
+            context['hall_scheme'] = mark_safe(json.dumps(hall.scheme_data))
+        else:
+            context['hall_scheme'] = mark_safe('null')
+        
+        # Get booked seats from database
+        # Find all bookings for this session that are either paid or not expired
+        from django.utils import timezone
+        from django.db.models import Q
+        
+        active_bookings = Booking.objects.filter(
+            session=session
+        ).filter(
+            Q(is_paid=True) | Q(expires_at__gte=timezone.now())
+        ).prefetch_related('seats')
+        
+        # Create list of booked seat IDs in format "row-seat" (e.g. "1-5")
+        booked_seats = []
+        for booking in active_bookings:
+            for seat in booking.seats.all():
+                seat_id = f"{seat.row}-{seat.number}"
+                if seat_id not in booked_seats:
+                    booked_seats.append(seat_id)
+        
+        # Serialize booked seats to JSON
+        context['booked_seats'] = mark_safe(json.dumps(booked_seats))
+        
+        # Count of already booked seats
+        context['booked_count'] = len(booked_seats)
+        
+        return context
+
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def process_booking(request, session_id):
+    """Process booking/purchase request via AJAX."""
+    from django.http import JsonResponse
+    from django.utils import timezone
+    from django.db import transaction
+    from .models import Seat
+    import json
+    
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Требуется авторизация'}, status=401)
+    
+    try:
+        session = Session.objects.select_related('hall').get(pk=session_id)
+    except Session.DoesNotExist:
+        return JsonResponse({'error': 'Сеанс не найден'}, status=404)
+    
+    try:
+        data = json.loads(request.body)
+        seats_data = data.get('seats', [])
+        action = data.get('action', 'book')  # 'book' or 'buy'
+        
+        if not seats_data:
+            return JsonResponse({'error': 'Не выбраны места'}, status=400)
+        
+        with transaction.atomic():
+            # Get or create seats in database
+            seat_objects = []
+            for seat_info in seats_data:
+                row = int(seat_info['row'])
+                number = int(seat_info['seat'])
+                
+                # Get or create seat
+                seat, created = Seat.objects.get_or_create(
+                    hall=session.hall,
+                    row=row,
+                    number=number
+                )
+                seat_objects.append(seat)
+            
+            # Check if any seats are already booked
+            from django.db.models import Q
+            existing_bookings = Booking.objects.filter(
+                session=session,
+                seats__in=seat_objects
+            ).filter(
+                Q(is_paid=True) | Q(expires_at__gte=timezone.now())
+            ).exists()
+            
+            if existing_bookings:
+                return JsonResponse({
+                    'error': 'Некоторые из выбранных мест уже забронированы'
+                }, status=400)
+            
+            # Create booking
+            booking_fee = 3  # грн за место
+            ticket_count = len(seat_objects)
+            total_tickets = session.price * ticket_count
+            total_amount = total_tickets + (booking_fee * ticket_count)
+            
+            # Create booking instance (must save before adding many-to-many)
+            booking = Booking(
+                user=request.user,
+                session=session,
+                ticket_price=session.price,
+                total_amount=total_amount,
+                is_paid=(action == 'buy'),  # Если "купить" - сразу оплачено
+                expires_at=timezone.now() + timedelta(minutes=30) if action == 'book' else None
+            )
+            booking.save()  # Save first to get ID
+            
+            # Now we can add seats (many-to-many relationship)
+            booking.seats.set(seat_objects)
+            
+            return JsonResponse({
+                'success': True,
+                'booking_id': booking.id,
+                'message': 'Бронирование успешно создано' if action == 'book' else 'Билеты успешно куплены'
+            })
+            
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Неверный формат данных'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 

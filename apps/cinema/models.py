@@ -145,11 +145,12 @@ class Booking(models.Model):
 
     def save(self, *args, **kwargs):
         # если не указано время истечения — ставим 15 минут
-        if not self.expires_at:
+        if not self.expires_at and not self.is_paid:
             self.expires_at = timezone.now() + timedelta(minutes=15)
 
-        if self.ticket_price and self.seats.exists():
-            self.total_price = self.ticket_price * self.seats.count()
+        # Обновляем total_amount только если объект уже сохранен (есть ID) и места добавлены
+        if self.pk and self.ticket_price and self.seats.exists():
+            self.total_amount = self.ticket_price * self.seats.count()
 
         super().save(*args, **kwargs)
 
