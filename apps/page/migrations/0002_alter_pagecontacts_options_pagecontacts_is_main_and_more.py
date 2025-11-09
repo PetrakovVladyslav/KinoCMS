@@ -5,123 +5,199 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0003_rename_image_galleryimage_alter_gallery_options_and_more'),
-        ('page', '0001_initial'),
+        ("core", "0003_rename_image_galleryimage_alter_gallery_options_and_more"),
+        ("page", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='pagecontacts',
-            options={'ordering': ['order', 'id'], 'verbose_name': 'Блок контактов', 'verbose_name_plural': 'Блоки контактов'},
+            name="pagecontacts",
+            options={
+                "ordering": ["order", "id"],
+                "verbose_name": "Блок контактов",
+                "verbose_name_plural": "Блоки контактов",
+            },
         ),
         migrations.AddField(
-            model_name='pagecontacts',
-            name='is_main',
-            field=models.BooleanField(default=False, verbose_name='Главный блок'),
+            model_name="pagecontacts",
+            name="is_main",
+            field=models.BooleanField(default=False, verbose_name="Главный блок"),
         ),
         migrations.AddField(
-            model_name='pagecontacts',
-            name='order',
-            field=models.IntegerField(default=0, verbose_name='Порядок'),
+            model_name="pagecontacts",
+            name="order",
+            field=models.IntegerField(default=0, verbose_name="Порядок"),
         ),
         migrations.AddField(
-            model_name='pageelse',
-            name='description_ru',
-            field=models.TextField(blank=True, null=True, verbose_name='Описание'),
+            model_name="pageelse",
+            name="description_ru",
+            field=models.TextField(blank=True, null=True, verbose_name="Описание"),
         ),
         migrations.AddField(
-            model_name='pageelse',
-            name='description_uk',
-            field=models.TextField(blank=True, null=True, verbose_name='Описание'),
+            model_name="pageelse",
+            name="description_uk",
+            field=models.TextField(blank=True, null=True, verbose_name="Описание"),
         ),
         migrations.AddField(
-            model_name='pageelse',
-            name='is_system',
+            model_name="pageelse",
+            name="is_system",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='pageelse',
-            name='name_ru',
+            model_name="pageelse",
+            name="name_ru",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='pageelse',
-            name='name_uk',
+            model_name="pageelse",
+            name="name_uk",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='pageelse',
-            name='slug',
-            field=models.SlugField(default='page', max_length=100, unique=True),
+            model_name="pageelse",
+            name="slug",
+            field=models.SlugField(default="page", max_length=100, unique=True),
         ),
         migrations.AddField(
-            model_name='pagemain',
-            name='can_delete',
+            model_name="pagemain",
+            name="can_delete",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='pagemain',
-            name='seo_text_ru',
+            model_name="pagemain",
+            name="seo_text_ru",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='pagemain',
-            name='seo_text_uk',
+            model_name="pagemain",
+            name="seo_text_uk",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='pagecontacts',
-            name='status',
-            field=models.BooleanField(default=True, verbose_name='Активен'),
+            model_name="pagecontacts",
+            name="status",
+            field=models.BooleanField(default=True, verbose_name="Активен"),
         ),
         migrations.AlterField(
-            model_name='pageelse',
-            name='gallery',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.gallery'),
+            model_name="pageelse",
+            name="gallery",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.gallery",
+            ),
         ),
         migrations.AlterField(
-            model_name='pagemain',
-            name='phone_number1',
+            model_name="pagemain",
+            name="phone_number1",
             field=models.CharField(max_length=20),
         ),
         migrations.AlterField(
-            model_name='pagemain',
-            name='phone_number2',
+            model_name="pagemain",
+            name="phone_number2",
             field=models.CharField(max_length=20),
         ),
         migrations.AlterField(
-            model_name='pagemain',
-            name='seo_text',
+            model_name="pagemain",
+            name="seo_text",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.CreateModel(
-            name='PageNewsSales',
+            name="PageNewsSales",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('news', 'Новость'), ('sale', 'Акция')], max_length=10, verbose_name='Тип')),
-                ('name', models.CharField(max_length=100, verbose_name='Название')),
-                ('name_ru', models.CharField(max_length=100, null=True, verbose_name='Название')),
-                ('name_uk', models.CharField(max_length=100, null=True, verbose_name='Название')),
-                ('description', models.TextField(blank=True, verbose_name='Описание')),
-                ('description_ru', models.TextField(blank=True, null=True, verbose_name='Описание')),
-                ('description_uk', models.TextField(blank=True, null=True, verbose_name='Описание')),
-                ('date', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
-                ('publish_date', models.DateField(blank=True, null=True, verbose_name='Дата публикации')),
-                ('logo', models.ImageField(blank=True, null=True, upload_to='page/logo', verbose_name='Главная картинка')),
-                ('video_url', models.URLField(blank=True, verbose_name='Ссылка на видео')),
-                ('status', models.BooleanField(default=False, verbose_name='Активна')),
-                ('gallery', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.gallery')),
-                ('seo_block', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='core.seoblock')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("news", "Новость"), ("sale", "Акция")],
+                        max_length=10,
+                        verbose_name="Тип",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, verbose_name="Название")),
+                (
+                    "name_ru",
+                    models.CharField(
+                        max_length=100, null=True, verbose_name="Название"
+                    ),
+                ),
+                (
+                    "name_uk",
+                    models.CharField(
+                        max_length=100, null=True, verbose_name="Название"
+                    ),
+                ),
+                ("description", models.TextField(blank=True, verbose_name="Описание")),
+                (
+                    "description_ru",
+                    models.TextField(blank=True, null=True, verbose_name="Описание"),
+                ),
+                (
+                    "description_uk",
+                    models.TextField(blank=True, null=True, verbose_name="Описание"),
+                ),
+                (
+                    "date",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата создания"
+                    ),
+                ),
+                (
+                    "publish_date",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Дата публикации"
+                    ),
+                ),
+                (
+                    "logo",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="page/logo",
+                        verbose_name="Главная картинка",
+                    ),
+                ),
+                (
+                    "video_url",
+                    models.URLField(blank=True, verbose_name="Ссылка на видео"),
+                ),
+                ("status", models.BooleanField(default=False, verbose_name="Активна")),
+                (
+                    "gallery",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="core.gallery",
+                    ),
+                ),
+                (
+                    "seo_block",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="core.seoblock",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Новость/Акция',
-                'verbose_name_plural': 'Новости и Акции',
-                'ordering': ['-publish_date', '-date'],
+                "verbose_name": "Новость/Акция",
+                "verbose_name_plural": "Новости и Акции",
+                "ordering": ["-publish_date", "-date"],
             },
         ),
         migrations.DeleteModel(
-            name='PageNewsPromos',
+            name="PageNewsPromos",
         ),
     ]

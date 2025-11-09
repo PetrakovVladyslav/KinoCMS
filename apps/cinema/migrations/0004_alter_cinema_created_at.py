@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cinema', '0003_alter_session_options_and_more'),
+        ("cinema", "0003_alter_session_options_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='cinema',
-            name='created_at',
+            model_name="cinema",
+            name="created_at",
             field=models.DateTimeField(auto_now_add=True),
         ),
     ]

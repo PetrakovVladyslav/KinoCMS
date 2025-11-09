@@ -5,66 +5,105 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('cinema', '0001_initial'),
-        ('core', '0001_initial'),
+        ("cinema", "0001_initial"),
+        ("core", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cinema',
-            name='gallery',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.gallery'),
+            model_name="cinema",
+            name="gallery",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.gallery",
+            ),
         ),
         migrations.AddField(
-            model_name='cinema',
-            name='seo_block',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.seoblock'),
+            model_name="cinema",
+            name="seo_block",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.seoblock",
+            ),
         ),
         migrations.AddField(
-            model_name='hall',
-            name='cinema',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cinema.cinema'),
+            model_name="hall",
+            name="cinema",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="cinema.cinema"
+            ),
         ),
         migrations.AddField(
-            model_name='hall',
-            name='gallery',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.gallery'),
+            model_name="hall",
+            name="gallery",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.gallery",
+            ),
         ),
         migrations.AddField(
-            model_name='hall',
-            name='seo_block',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.seoblock'),
+            model_name="hall",
+            name="seo_block",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.seoblock",
+            ),
         ),
         migrations.AddField(
-            model_name='movie',
-            name='gallery',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.gallery'),
+            model_name="movie",
+            name="gallery",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.gallery",
+            ),
         ),
         migrations.AddField(
-            model_name='movie',
-            name='seo_block',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.seoblock'),
+            model_name="movie",
+            name="seo_block",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.seoblock",
+            ),
         ),
         migrations.AddField(
-            model_name='session',
-            name='hall',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cinema.hall', verbose_name='Зал'),
+            model_name="session",
+            name="hall",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="cinema.hall",
+                verbose_name="Зал",
+            ),
         ),
         migrations.AddField(
-            model_name='session',
-            name='movie',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cinema.movie', verbose_name='Фильм'),
+            model_name="session",
+            name="movie",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="cinema.movie",
+                verbose_name="Фильм",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='hall',
-            unique_together={('cinema', 'number')},
+            name="hall",
+            unique_together={("cinema", "number")},
         ),
         migrations.AlterUniqueTogether(
-            name='session',
-            unique_together={('hall', 'date', 'time')},
+            name="session",
+            unique_together={("hall", "date", "time")},
         ),
     ]

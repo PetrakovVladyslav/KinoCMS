@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('page', '0002_alter_pagecontacts_options_pagecontacts_is_main_and_more'),
+        ("page", "0002_alter_pagecontacts_options_pagecontacts_is_main_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='pageelse',
-            name='slug',
+            model_name="pageelse",
+            name="slug",
             field=models.SlugField(max_length=100, unique=True),
         ),
     ]

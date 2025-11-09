@@ -4,29 +4,28 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0002_initial'),
+        ("core", "0002_initial"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Image',
-            new_name='GalleryImage',
+            old_name="Image",
+            new_name="GalleryImage",
         ),
         migrations.AlterModelOptions(
-            name='gallery',
+            name="gallery",
             options={},
         ),
         migrations.AlterModelOptions(
-            name='galleryimage',
+            name="galleryimage",
             options={},
         ),
         migrations.AlterModelOptions(
-            name='seoblock',
+            name="seoblock",
             options={},
         ),
         migrations.DeleteModel(
-            name='Booking',
+            name="Booking",
         ),
     ]

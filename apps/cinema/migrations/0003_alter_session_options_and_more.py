@@ -8,193 +8,277 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cinema', '0002_initial'),
-        ('core', '0003_rename_image_galleryimage_alter_gallery_options_and_more'),
+        ("cinema", "0002_initial"),
+        ("core", "0003_rename_image_galleryimage_alter_gallery_options_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='session',
-            options={'verbose_name': 'Сеанс', 'verbose_name_plural': 'Сеансы'},
+            name="session",
+            options={"verbose_name": "Сеанс", "verbose_name_plural": "Сеансы"},
         ),
         migrations.RenameField(
-            model_name='cinema',
-            old_name='conditions_en',
-            new_name='conditions_uk',
+            model_name="cinema",
+            old_name="conditions_en",
+            new_name="conditions_uk",
         ),
         migrations.RenameField(
-            model_name='cinema',
-            old_name='description_en',
-            new_name='description_uk',
+            model_name="cinema",
+            old_name="description_en",
+            new_name="description_uk",
         ),
         migrations.RenameField(
-            model_name='cinema',
-            old_name='name_en',
-            new_name='name_uk',
+            model_name="cinema",
+            old_name="name_en",
+            new_name="name_uk",
         ),
         migrations.RenameField(
-            model_name='hall',
-            old_name='number',
-            new_name='name',
+            model_name="hall",
+            old_name="number",
+            new_name="name",
         ),
         migrations.RenameField(
-            model_name='movie',
-            old_name='description_en',
-            new_name='description_uk',
+            model_name="movie",
+            old_name="description_en",
+            new_name="description_uk",
         ),
         migrations.RenameField(
-            model_name='movie',
-            old_name='title',
-            new_name='name',
+            model_name="movie",
+            old_name="title",
+            new_name="name",
         ),
         migrations.RenameField(
-            model_name='movie',
-            old_name='title_en',
-            new_name='name_ru',
+            model_name="movie",
+            old_name="title_en",
+            new_name="name_ru",
         ),
         migrations.RenameField(
-            model_name='movie',
-            old_name='title_ru',
-            new_name='name_uk',
+            model_name="movie",
+            old_name="title_ru",
+            new_name="name_uk",
         ),
         migrations.AlterUniqueTogether(
-            name='session',
+            name="session",
             unique_together=set(),
         ),
         migrations.AlterUniqueTogether(
-            name='hall',
-            unique_together={('cinema', 'name')},
+            name="hall",
+            unique_together={("cinema", "name")},
         ),
         migrations.RemoveField(
-            model_name='movie',
-            name='type2d',
+            model_name="movie",
+            name="type2d",
         ),
         migrations.RemoveField(
-            model_name='movie',
-            name='type3d',
+            model_name="movie",
+            name="type3d",
         ),
         migrations.RemoveField(
-            model_name='movie',
-            name='typeimax',
+            model_name="movie",
+            name="typeimax",
         ),
         migrations.AddField(
-            model_name='cinema',
-            name='created_at',
+            model_name="cinema",
+            name="created_at",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AddField(
-            model_name='hall',
-            name='rows',
+            model_name="hall",
+            name="rows",
             field=models.PositiveIntegerField(default=10),
         ),
         migrations.AddField(
-            model_name='hall',
-            name='seats_per_row',
+            model_name="hall",
+            name="seats_per_row",
             field=models.PositiveIntegerField(default=10),
         ),
         migrations.AddField(
-            model_name='movie',
-            name='end_date',
-            field=models.DateField(blank=True, null=True, verbose_name='Дата окончания проката'),
+            model_name="movie",
+            name="end_date",
+            field=models.DateField(
+                blank=True, null=True, verbose_name="Дата окончания проката"
+            ),
         ),
         migrations.AddField(
-            model_name='movie',
-            name='formats',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(choices=[('2D', '2D'), ('3D', '3D'), ('IMAX', 'IMAX')], max_length=10), blank=True, default=list, size=None, verbose_name='Форматы показа'),
+            model_name="movie",
+            name="formats",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(
+                    choices=[("2D", "2D"), ("3D", "3D"), ("IMAX", "IMAX")],
+                    max_length=10,
+                ),
+                blank=True,
+                default=list,
+                size=None,
+                verbose_name="Форматы показа",
+            ),
         ),
         migrations.AddField(
-            model_name='movie',
-            name='start_date',
-            field=models.DateField(blank=True, null=True, verbose_name='Дата начала проката'),
+            model_name="movie",
+            name="start_date",
+            field=models.DateField(
+                blank=True, null=True, verbose_name="Дата начала проката"
+            ),
         ),
         migrations.AddField(
-            model_name='session',
-            name='end_time',
-            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='Окончание сеанса'),
+            model_name="session",
+            name="end_time",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now, verbose_name="Окончание сеанса"
+            ),
         ),
         migrations.AddField(
-            model_name='session',
-            name='start_time',
-            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='Начало сеанса'),
+            model_name="session",
+            name="start_time",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now, verbose_name="Начало сеанса"
+            ),
         ),
         migrations.AlterField(
-            model_name='cinema',
-            name='banner',
-            field=models.ImageField(blank=True, null=True, upload_to='cinema/banners/'),
+            model_name="cinema",
+            name="banner",
+            field=models.ImageField(blank=True, null=True, upload_to="cinema/banners/"),
         ),
         migrations.AlterField(
-            model_name='cinema',
-            name='gallery',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.gallery'),
+            model_name="cinema",
+            name="gallery",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.gallery",
+            ),
         ),
         migrations.AlterField(
-            model_name='cinema',
-            name='logo',
-            field=models.ImageField(blank=True, null=True, upload_to='cinema/logos/'),
+            model_name="cinema",
+            name="logo",
+            field=models.ImageField(blank=True, null=True, upload_to="cinema/logos/"),
         ),
         migrations.AlterField(
-            model_name='hall',
-            name='gallery',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.gallery'),
+            model_name="hall",
+            name="gallery",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.gallery",
+            ),
         ),
         migrations.AlterField(
-            model_name='movie',
-            name='gallery',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.gallery'),
+            model_name="movie",
+            name="gallery",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="core.gallery",
+            ),
         ),
         migrations.CreateModel(
-            name='Seat',
+            name="Seat",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('row', models.PositiveIntegerField()),
-                ('number', models.PositiveIntegerField()),
-                ('is_available', models.BooleanField(default=True)),
-                ('hall', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cinema.hall')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("row", models.PositiveIntegerField()),
+                ("number", models.PositiveIntegerField()),
+                ("is_available", models.BooleanField(default=True)),
+                (
+                    "hall",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cinema.hall"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['number', 'row'],
-                'unique_together': {('hall', 'number', 'row')},
+                "ordering": ["number", "row"],
+                "unique_together": {("hall", "number", "row")},
             },
         ),
         migrations.CreateModel(
-            name='Booking',
+            name="Booking",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ticket_price', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Цена билета')),
-                ('total_amount', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Общая сумма')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Создано')),
-                ('expires_at', models.DateTimeField(blank=True, null=True, verbose_name='Действительна до')),
-                ('is_paid', models.BooleanField(default=False)),
-                ('session', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cinema.session', verbose_name='Сеанс')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
-                ('seats', models.ManyToManyField(to='cinema.seat')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "ticket_price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Цена билета"
+                    ),
+                ),
+                (
+                    "total_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Общая сумма"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Создано"),
+                ),
+                (
+                    "expires_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Действительна до"
+                    ),
+                ),
+                ("is_paid", models.BooleanField(default=False)),
+                (
+                    "session",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cinema.session",
+                        verbose_name="Сеанс",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Пользователь",
+                    ),
+                ),
+                ("seats", models.ManyToManyField(to="cinema.seat")),
             ],
             options={
-                'verbose_name': 'Бронирование',
-                'verbose_name_plural': 'Бронирования',
+                "verbose_name": "Бронирование",
+                "verbose_name_plural": "Бронирования",
             },
         ),
         migrations.RemoveField(
-            model_name='session',
-            name='date',
+            model_name="session",
+            name="date",
         ),
         migrations.RemoveField(
-            model_name='session',
-            name='time',
+            model_name="session",
+            name="time",
         ),
         migrations.RemoveField(
-            model_name='session',
-            name='type3d',
+            model_name="session",
+            name="type3d",
         ),
         migrations.RemoveField(
-            model_name='session',
-            name='typeimax',
+            model_name="session",
+            name="typeimax",
         ),
         migrations.RemoveField(
-            model_name='hall',
-            name='scheme',
+            model_name="hall",
+            name="scheme",
         ),
     ]

@@ -5,65 +5,150 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('cinema', '0001_initial'),
+        ("cinema", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Gallery',
+            name="Gallery",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
             ],
             options={
-                'verbose_name': 'Галерея',
-                'verbose_name_plural': 'Галереи',
+                "verbose_name": "Галерея",
+                "verbose_name_plural": "Галереи",
             },
         ),
         migrations.CreateModel(
-            name='Image',
+            name="Image",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(blank=True, null=True, upload_to='gallery_images/')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="gallery_images/"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Изображение',
-                'verbose_name_plural': 'Изображения',
+                "verbose_name": "Изображение",
+                "verbose_name_plural": "Изображения",
             },
         ),
         migrations.CreateModel(
-            name='SeoBlock',
+            name="SeoBlock",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(blank=True, max_length=200, null=True, verbose_name='Title')),
-                ('url', models.URLField(blank=True, null=True, verbose_name='URL')),
-                ('keywords', models.CharField(blank=True, max_length=50, null=True, verbose_name='Word')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Description')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        blank=True, max_length=200, null=True, verbose_name="Title"
+                    ),
+                ),
+                ("url", models.URLField(blank=True, null=True, verbose_name="URL")),
+                (
+                    "keywords",
+                    models.CharField(
+                        blank=True, max_length=50, null=True, verbose_name="Word"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Description"),
+                ),
             ],
             options={
-                'verbose_name': 'SEO блок',
-                'verbose_name_plural': 'SEO блоки',
+                "verbose_name": "SEO блок",
+                "verbose_name_plural": "SEO блоки",
             },
         ),
         migrations.CreateModel(
-            name='Booking',
+            name="Booking",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('pending', 'Ожидание'), ('confirmed', 'Подтверждено'), ('cancelled', 'Отменено'), ('paid', 'Оплачено')], default='pending', max_length=20, verbose_name='Статус')),
-                ('row', models.PositiveIntegerField(verbose_name='Ряд')),
-                ('seat_number', models.PositiveIntegerField(verbose_name='Номер места')),
-                ('ticket_price', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Цена билета')),
-                ('total_amount', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Общая сумма')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Создано')),
-                ('session', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cinema.session', verbose_name='Сеанс')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Ожидание"),
+                            ("confirmed", "Подтверждено"),
+                            ("cancelled", "Отменено"),
+                            ("paid", "Оплачено"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                        verbose_name="Статус",
+                    ),
+                ),
+                ("row", models.PositiveIntegerField(verbose_name="Ряд")),
+                (
+                    "seat_number",
+                    models.PositiveIntegerField(verbose_name="Номер места"),
+                ),
+                (
+                    "ticket_price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Цена билета"
+                    ),
+                ),
+                (
+                    "total_amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Общая сумма"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Создано"),
+                ),
+                (
+                    "session",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cinema.session",
+                        verbose_name="Сеанс",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Бронирование',
-                'verbose_name_plural': 'Бронирования',
+                "verbose_name": "Бронирование",
+                "verbose_name_plural": "Бронирования",
             },
         ),
     ]

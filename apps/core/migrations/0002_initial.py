@@ -6,27 +6,34 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('core', '0001_initial'),
+        ("core", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='booking',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Пользователь'),
+            model_name="booking",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Пользователь",
+            ),
         ),
         migrations.AddField(
-            model_name='image',
-            name='gallery',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='core.gallery'),
+            model_name="image",
+            name="gallery",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="images",
+                to="core.gallery",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='booking',
-            unique_together={('session', 'row', 'seat_number')},
+            name="booking",
+            unique_together={("session", "row", "seat_number")},
         ),
     ]

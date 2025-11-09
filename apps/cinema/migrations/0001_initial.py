@@ -4,83 +4,211 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Cinema',
+            name="Cinema",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True, verbose_name='Название кинотеатра')),
-                ('name_ru', models.CharField(max_length=50, null=True, unique=True, verbose_name='Название кинотеатра')),
-                ('name_en', models.CharField(max_length=50, null=True, unique=True, verbose_name='Название кинотеатра')),
-                ('description', models.TextField(blank=True, verbose_name='Описание')),
-                ('description_ru', models.TextField(blank=True, null=True, verbose_name='Описание')),
-                ('description_en', models.TextField(blank=True, null=True, verbose_name='Описание')),
-                ('conditions', models.TextField(blank=True, verbose_name='Условия')),
-                ('conditions_ru', models.TextField(blank=True, null=True, verbose_name='Условия')),
-                ('conditions_en', models.TextField(blank=True, null=True, verbose_name='Условия')),
-                ('logo', models.ImageField(blank=True, null=True, upload_to='logos/')),
-                ('banner', models.ImageField(blank=True, null=True, upload_to='banners/')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Название кинотеатра"
+                    ),
+                ),
+                (
+                    "name_ru",
+                    models.CharField(
+                        max_length=50,
+                        null=True,
+                        unique=True,
+                        verbose_name="Название кинотеатра",
+                    ),
+                ),
+                (
+                    "name_en",
+                    models.CharField(
+                        max_length=50,
+                        null=True,
+                        unique=True,
+                        verbose_name="Название кинотеатра",
+                    ),
+                ),
+                ("description", models.TextField(blank=True, verbose_name="Описание")),
+                (
+                    "description_ru",
+                    models.TextField(blank=True, null=True, verbose_name="Описание"),
+                ),
+                (
+                    "description_en",
+                    models.TextField(blank=True, null=True, verbose_name="Описание"),
+                ),
+                ("conditions", models.TextField(blank=True, verbose_name="Условия")),
+                (
+                    "conditions_ru",
+                    models.TextField(blank=True, null=True, verbose_name="Условия"),
+                ),
+                (
+                    "conditions_en",
+                    models.TextField(blank=True, null=True, verbose_name="Условия"),
+                ),
+                ("logo", models.ImageField(blank=True, null=True, upload_to="logos/")),
+                (
+                    "banner",
+                    models.ImageField(blank=True, null=True, upload_to="banners/"),
+                ),
             ],
             options={
-                'verbose_name': 'Кинотеатр',
-                'verbose_name_plural': 'Кинотеатры',
+                "verbose_name": "Кинотеатр",
+                "verbose_name_plural": "Кинотеатры",
             },
         ),
         migrations.CreateModel(
-            name='Hall',
+            name="Hall",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('number', models.CharField(max_length=20, unique=True)),
-                ('description', models.TextField(blank=True)),
-                ('scheme', models.ImageField(blank=True, null=True, upload_to='schemes/')),
-                ('banner', models.ImageField(blank=True, null=True, upload_to='banners/')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("number", models.CharField(max_length=20, unique=True)),
+                ("description", models.TextField(blank=True)),
+                (
+                    "scheme",
+                    models.ImageField(blank=True, null=True, upload_to="schemes/"),
+                ),
+                (
+                    "banner",
+                    models.ImageField(blank=True, null=True, upload_to="banners/"),
+                ),
             ],
             options={
-                'verbose_name': 'Зал',
-                'verbose_name_plural': 'Залы',
+                "verbose_name": "Зал",
+                "verbose_name_plural": "Залы",
             },
         ),
         migrations.CreateModel(
-            name='Movie',
+            name="Movie",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=50, unique=True, verbose_name='Название фильма')),
-                ('title_ru', models.CharField(max_length=50, null=True, unique=True, verbose_name='Название фильма')),
-                ('title_en', models.CharField(max_length=50, null=True, unique=True, verbose_name='Название фильма')),
-                ('description', models.TextField(blank=True, verbose_name='Описание фильма')),
-                ('description_ru', models.TextField(blank=True, null=True, verbose_name='Описание фильма')),
-                ('description_en', models.TextField(blank=True, null=True, verbose_name='Описание фильма')),
-                ('poster', models.ImageField(blank=True, null=True, upload_to='posters/')),
-                ('trailer_url', models.URLField(blank=True, null=True, verbose_name='Ссылка на трейлер')),
-                ('type3d', models.BooleanField(default=False, null=True, verbose_name='2D')),
-                ('type2d', models.BooleanField(default=False, null=True, verbose_name='3D')),
-                ('typeimax', models.BooleanField(default=False, null=True, verbose_name='IMAX')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Название фильма"
+                    ),
+                ),
+                (
+                    "title_ru",
+                    models.CharField(
+                        max_length=50,
+                        null=True,
+                        unique=True,
+                        verbose_name="Название фильма",
+                    ),
+                ),
+                (
+                    "title_en",
+                    models.CharField(
+                        max_length=50,
+                        null=True,
+                        unique=True,
+                        verbose_name="Название фильма",
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, verbose_name="Описание фильма"),
+                ),
+                (
+                    "description_ru",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Описание фильма"
+                    ),
+                ),
+                (
+                    "description_en",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Описание фильма"
+                    ),
+                ),
+                (
+                    "poster",
+                    models.ImageField(blank=True, null=True, upload_to="posters/"),
+                ),
+                (
+                    "trailer_url",
+                    models.URLField(
+                        blank=True, null=True, verbose_name="Ссылка на трейлер"
+                    ),
+                ),
+                (
+                    "type3d",
+                    models.BooleanField(default=False, null=True, verbose_name="2D"),
+                ),
+                (
+                    "type2d",
+                    models.BooleanField(default=False, null=True, verbose_name="3D"),
+                ),
+                (
+                    "typeimax",
+                    models.BooleanField(default=False, null=True, verbose_name="IMAX"),
+                ),
             ],
             options={
-                'verbose_name': 'Фильм',
-                'verbose_name_plural': 'Фильмы',
+                "verbose_name": "Фильм",
+                "verbose_name_plural": "Фильмы",
             },
         ),
         migrations.CreateModel(
-            name='Session',
+            name="Session",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField(verbose_name='Дата сеанса')),
-                ('time', models.TimeField(verbose_name='Время сеанса')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Цена')),
-                ('type3d', models.BooleanField(default=False)),
-                ('typeimax', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField(verbose_name="Дата сеанса")),
+                ("time", models.TimeField(verbose_name="Время сеанса")),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Цена"
+                    ),
+                ),
+                ("type3d", models.BooleanField(default=False)),
+                ("typeimax", models.BooleanField(default=False)),
             ],
             options={
-                'verbose_name': 'Сеанс',
-                'verbose_name_plural': 'Сеансы',
-                'ordering': ['date', 'time'],
+                "verbose_name": "Сеанс",
+                "verbose_name_plural": "Сеансы",
+                "ordering": ["date", "time"],
             },
         ),
     ]
