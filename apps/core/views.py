@@ -1,11 +1,15 @@
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.cinema.models import Movie
+from apps.core.forms import MailingFileUploadForm
+from apps.core.models import Mailing, MailingFile, MailingRecipient
+from apps.core.tasks import send_mailing_task
 from apps.users.forms import CustomUserUpdateForm
 from apps.users.models import CustomUser
 
@@ -150,3 +154,187 @@ def search_movies(request):
             )
 
     return JsonResponse({"results": results})
+
+
+# === РАССЫЛКИ ===
+
+
+@staff_member_required(login_url="admin:login")
+def admin_mailing(request):
+    """Главная страница рассылки"""
+    recent_files = MailingFile.objects.all()[:5]
+    selected_user_ids = request.session.get("selected_users", [])
+    active_mailing = Mailing.objects.filter(status__in=["pending", "processing"]).first()
+
+    context = {
+        "recent_files": recent_files,
+        "selected_users_count": len(selected_user_ids),
+        "total_users": CustomUser.objects.filter(is_active=True).count(),
+        "active_mailing": active_mailing,
+    }
+    return render(request, "core/admin_mailing.html", context)
+
+
+@staff_member_required(login_url="admin:login")
+def admin_user_select(request):
+    """Страница выбора пользователей для рассылки"""
+    if request.method == "POST":
+        selected_users = request.POST.getlist("selected_users")
+        request.session["selected_users"] = [int(uid) for uid in selected_users]
+        messages.success(request, f"Выбрано пользователей: {len(selected_users)}")
+        return redirect("core:admin_mailing")
+
+    search_query = request.GET.get("search", "")
+    users = CustomUser.objects.filter(is_active=True).order_by("-date_joined")
+
+    if search_query:
+        users = users.filter(
+            Q(first_name__icontains=search_query)
+            | Q(last_name__icontains=search_query)
+            | Q(email__icontains=search_query)
+        )
+
+    paginator = Paginator(users, 10)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    context = {
+        "users": page_obj,
+        "search_query": search_query,
+        "selected_user_ids": request.session.get("selected_users", []),
+    }
+    return render(request, "core/admin_user_select.html", context)
+
+
+@staff_member_required(login_url="admin:login")
+def upload_mailing_file(request):
+    """AJAX загрузка файла"""
+    if request.method == "POST":
+        form = MailingFileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            mailing_file = form.save()
+            return JsonResponse(
+                {
+                    "success": True,
+                    "file_id": mailing_file.id,
+                    "file_name": mailing_file.original_name,
+                    "file_size": mailing_file.get_file_size_display(),
+                }
+            )
+        return JsonResponse({"success": False, "errors": form.errors}, status=400)
+    return JsonResponse({"success": False}, status=400)
+
+
+@staff_member_required(login_url="admin:login")
+def delete_mailing_file(request, file_id):
+    """AJAX удаление файла"""
+    if request.method == "POST":
+        try:
+            MailingFile.objects.get(id=file_id).delete()
+            return JsonResponse({"success": True})
+        except MailingFile.DoesNotExist:
+            return JsonResponse({"success": False}, status=404)
+    return JsonResponse({"success": False}, status=400)
+
+
+@staff_member_required(login_url="admin:login")
+def start_mailing(request):
+    """Запуск рассылки (фоновая задача через Celery)"""
+    if request.method == "POST":
+        file_id = request.POST.get("file_id")
+        send_to_all = request.POST.get("send_to_all") == "true"
+
+        try:
+            with transaction.atomic():
+                mailing_file = MailingFile.objects.get(id=file_id)
+
+                # Получаем пользователей
+                if send_to_all:
+                    users = CustomUser.objects.filter(is_active=True)
+                else:
+                    user_ids = request.session.get("selected_users", [])
+                    users = CustomUser.objects.filter(id__in=user_ids, is_active=True)
+
+                # Создаем рассылку
+                mailing = Mailing.objects.create(
+                    file=mailing_file,
+                    send_to_all=send_to_all,
+                    total_recipients=users.count(),
+                )
+
+                # Создаем получателей
+                recipients = [MailingRecipient(mailing=mailing, user=user) for user in users]
+                MailingRecipient.objects.bulk_create(recipients)
+
+                # Запускаем задачу в фоне
+                send_mailing_task.delay(mailing.id)
+
+                request.session.pop("selected_users", None)
+
+                return JsonResponse({"success": True, "mailing_id": mailing.id})
+
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+    return JsonResponse({"success": False}, status=400)
+
+
+@staff_member_required(login_url="admin:login")
+def mailing_status(request, mailing_id):
+    """
+    Гибридная проверка статуса:
+    1. Для активных задач - берем из Celery (real-time)
+    2. Для завершенных - из БД (надежно)
+    """
+    try:
+        from celery.result import AsyncResult
+
+        mailing = Mailing.objects.get(id=mailing_id)
+
+        # Если задача еще выполняется - берем из Celery
+        if mailing.celery_task_id and mailing.status == "processing":
+            task = AsyncResult(mailing.celery_task_id)
+
+            # Проверяем состояние задачи в Celery
+            if task.state == "PROGRESS":
+                # REAL-TIME данные из Redis
+                return JsonResponse(
+                    {
+                        "status": "processing",
+                        "progress": task.info.get("percent", 0),
+                        "sent_count": task.info.get("sent", 0),
+                        "failed_count": task.info.get("failed", 0),
+                        "total_recipients": task.info.get("total", mailing.total_recipients),
+                    }
+                )
+
+            elif task.state == "SUCCESS":
+                # Задача завершена
+                result = task.info
+                return JsonResponse(
+                    {
+                        "status": "completed",
+                        "progress": 100,
+                        "sent_count": result.get("sent_count", mailing.sent_count),
+                        "failed_count": result.get("failed_count", mailing.failed_count),
+                        "total_recipients": mailing.total_recipients,
+                    }
+                )
+
+            elif task.state == "FAILURE":
+                return JsonResponse(
+                    {"status": "failed", "error": str(task.info), "total_recipients": mailing.total_recipients}
+                )
+
+        # Fallback: берем из БД (если задача завершена или state потерян)
+        return JsonResponse(
+            {
+                "status": mailing.status,
+                "progress": mailing.get_progress_percentage(),
+                "sent_count": mailing.sent_count,
+                "failed_count": mailing.failed_count,
+                "total_recipients": mailing.total_recipients,
+            }
+        )
+
+    except Mailing.DoesNotExist:
+        return JsonResponse({"error": "Not found"}, status=404)

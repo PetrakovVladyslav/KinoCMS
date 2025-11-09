@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import BaseInlineFormSet, inlineformset_factory
 
-from .models import Gallery, GalleryImage, SeoBlock
+from .models import Gallery, GalleryImage, MailingFile, SeoBlock
 
 FORM_CSS_CLASSES = {
     "TEXT_INPUT": "form-control",
@@ -178,3 +178,39 @@ GalleryFormSet = inlineformset_factory(
     can_delete=True,
     validate_max=True,
 )
+
+
+class MailingFileUploadForm(forms.ModelForm):
+    """Форма для загрузки HTML-файлов рассылки"""
+
+    class Meta:
+        model = MailingFile
+        fields = ["file"]
+        widgets = {
+            "file": forms.FileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept": ".html,.htm",
+                }
+            )
+        }
+        labels = {"file": "Выберите HTML-файл"}
+
+    def clean_file(self):
+        file = self.cleaned_data.get("file")
+
+        if file:
+            # Проверка расширения
+            if not file.name.lower().endswith((".html", ".htm")):
+                raise forms.ValidationError("Можно загружать только HTML-файлы (.html, .htm)")
+
+        return file
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.cleaned_data.get("file"):
+            instance.original_name = self.cleaned_data["file"].name
+            instance.file_size = self.cleaned_data["file"].size
+        if commit:
+            instance.save()
+        return instance

@@ -1,0 +1,288 @@
+{% extends 'core/admin_base.html' %}
+
+{% block title %}Рассылка - KinoCMS{% endblock %}
+
+{% block page_title %}Рассылка{% endblock %}
+
+{% block breadcrumb_active %}Рассылка{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-envelope me-2"></i>Email-рассылка</h3>
+      </div>
+      
+      <div class="card-body">
+        <!-- Выбор получателей -->
+        <div class="form-group mb-4">
+          <label class="fw-bold mb-2">Кому отправить:</label>
+          
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="recipient_type" id="send_to_all" value="all" {% if selected_users_count == 0 %}checked{% endif %}>
+            <label class="form-check-label" for="send_to_all">
+              Всем пользователям ({{ total_users }})
+            </label>
+          </div>
+          
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="recipient_type" id="send_selective" value="selective" {% if selected_users_count > 0 %}checked{% endif %}>
+            <label class="form-check-label" for="send_selective">
+              Выборочно
+            </label>
+          </div>
+          
+          <div id="selective_controls" class="mt-2" style="{% if selected_users_count > 0 %}display: block;{% else %}display: none;{% endif %}">
+            <a href="{% url 'core:admin_user_select' %}" class="btn btn-primary">
+              <i class="fas fa-users"></i> Выбрать пользователей
+            </a>
+            <span class="ms-3 text-muted" id="selected_count">
+              {% if selected_users_count > 0 %}
+                Выбрано: <strong>{{ selected_users_count }}</strong>
+              {% else %}
+                Пользователи не выбраны
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <!-- Загрузка файла -->
+        <div class="form-group mb-4">
+          <label class="fw-bold mb-2">Загрузить HTML-файл:</label>
+          <form id="uploadForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="input-group">
+              <input type="file" class="form-control" id="file_input" name="file" accept=".html,.htm" required>
+              <button class="btn btn-success" type="submit">
+                <i class="fas fa-upload"></i> Загрузить
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Список последних файлов -->
+        <div class="form-group mb-4">
+          <label class="fw-bold mb-2">Последние загруженные файлы:</label>
+          <div id="files_list" class="list-group">
+            {% if recent_files %}
+              {% for file in recent_files %}
+                <div class="list-group-item d-flex justify-content-between align-items-center" data-file-id="{{ file.id }}">
+                  <div>
+                    <i class="fas fa-file-code text-primary"></i>
+                    <strong>{{ file.original_name }}</strong>
+                    <small class="text-muted ms-2">({{ file.get_file_size_display }})</small>
+                  </div>
+                  <div>
+                    <button class="btn btn-sm btn-primary select-file-btn" data-file-id="{{ file.id }}" data-file-name="{{ file.original_name }}">
+                      <i class="fas fa-check"></i> Выбрать
+                    </button>
+                    <button class="btn btn-sm btn-danger delete-file-btn" data-file-id="{{ file.id }}">
+                      <i class="fas fa-trash"></i> Удалить
+                    </button>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="alert alert-info">Файлы еще не загружены</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Выбранный файл -->
+        <div class="form-group mb-4" id="selected_file_container" style="display: none;">
+          <label class="fw-bold mb-2">Выбранный файл для отправки:</label>
+          <div class="alert alert-success">
+            <i class="fas fa-file-code"></i>
+            <strong id="selected_file_name"></strong>
+          </div>
+        </div>
+
+        <!-- Количество писем -->
+        <div class="form-group mb-4">
+          <label class="fw-bold">Количество писем:</label>
+          <p class="fs-4" id="email_count">{% if selected_users_count > 0 %}{{ selected_users_count }}{% else %}{{ total_users }}{% endif %}</p>
+        </div>
+
+        <!-- Кнопка запуска -->
+        <div class="form-group mb-4">
+          <button id="start_mailing_btn" class="btn btn-lg btn-success" disabled>
+            <i class="fas fa-paper-plane"></i> Запустить рассылку
+          </button>
+        </div>
+
+        <!-- Прогресс-бар -->
+        <div id="progress_container" style="{% if not active_mailing %}display: none;{% endif %}">
+          <label class="fw-bold mb-2">Прогресс рассылки:</label>
+          <div class="progress mb-2" style="height: 30px;">
+            <div id="progress_bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                 role="progressbar" 
+                 style="width: {% if active_mailing %}{{ active_mailing.get_progress_percentage }}%{% else %}0%{% endif %}"
+                 aria-valuenow="{% if active_mailing %}{{ active_mailing.get_progress_percentage }}{% else %}0{% endif %}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+              <span id="progress_text">{% if active_mailing %}{{ active_mailing.get_progress_percentage }}%{% else %}0%{% endif %}</span>
+            </div>
+          </div>
+          <p class="text-muted">
+            Отправлено: <strong id="sent_count">{% if active_mailing %}{{ active_mailing.sent_count }}{% else %}0{% endif %}</strong> / 
+            <strong id="total_count">{% if active_mailing %}{{ active_mailing.total_recipients }}{% else %}0{% endif %}</strong>
+            <span class="ms-3">Ошибок: <strong id="failed_count">{% if active_mailing %}{{ active_mailing.failed_count }}{% else %}0{% endif %}</strong></span>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedFileId = null;
+let currentMailingId = {% if active_mailing %}{{ active_mailing.id }}{% else %}null{% endif %};
+let progressInterval = null;
+
+// Переключение типа получателей
+document.querySelectorAll('input[name="recipient_type"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const selectiveControls = document.getElementById('selective_controls');
+    const emailCount = document.getElementById('email_count');
+    
+    if (this.value === 'selective') {
+      selectiveControls.style.display = 'block';
+      emailCount.textContent = {{ selected_users_count }};
+    } else {
+      selectiveControls.style.display = 'none';
+      emailCount.textContent = {{ total_users }};
+    }
+    
+    updateStartButton();
+  });
+});
+
+// Загрузка файла
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const response = await fetch('{% url "core:upload_mailing_file" %}', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}'
+    }
+  });
+  
+  const data = await response.json();
+  
+  if (data.success) {
+    // Обновляем список файлов
+    location.reload();
+  } else {
+    alert('Ошибка загрузки файла');
+  }
+});
+
+// Выбор файла
+document.querySelectorAll('.select-file-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    selectedFileId = this.dataset.fileId;
+    document.getElementById('selected_file_name').textContent = this.dataset.fileName;
+    document.getElementById('selected_file_container').style.display = 'block';
+    updateStartButton();
+  });
+});
+
+// Удаление файла
+document.querySelectorAll('.delete-file-btn').forEach(btn => {
+  btn.addEventListener('click', async function() {
+    if (!confirm('Удалить файл?')) return;
+    
+    const fileId = this.dataset.fileId;
+    const response = await fetch(`/admin-panel/mailing/file/${fileId}/delete/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    }
+  });
+});
+
+// Проверка доступности кнопки запуска
+function updateStartButton() {
+  const sendToAll = document.getElementById('send_to_all').checked;
+  const hasFile = selectedFileId !== null;
+  const hasRecipients = sendToAll || {{ selected_users_count }} > 0;
+  
+  document.getElementById('start_mailing_btn').disabled = !(hasFile && hasRecipients);
+}
+
+// Запуск рассылки
+document.getElementById('start_mailing_btn').addEventListener('click', async function() {
+  const sendToAll = document.getElementById('send_to_all').checked;
+  
+  const response = await fetch('{% url "core:start_mailing" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: `file_id=${selectedFileId}&send_to_all=${sendToAll}`
+  });
+  
+  const data = await response.json();
+  
+  if (data.success) {
+    currentMailingId = data.mailing_id;
+    document.getElementById('progress_container').style.display = 'block';
+    startProgressTracking();
+    this.disabled = true;
+  } else {
+    alert('Ошибка запуска рассылки: ' + (data.error || 'Неизвестная ошибка'));
+  }
+});
+
+// Отслеживание прогресса
+function startProgressTracking() {
+  if (!currentMailingId) return;
+  
+  progressInterval = setInterval(async () => {
+    const response = await fetch(`/admin-panel/mailing/status/${currentMailingId}/`);
+    const data = await response.json();
+    
+    // Обновляем UI
+    document.getElementById('progress_bar').style.width = data.progress + '%';
+    document.getElementById('progress_bar').setAttribute('aria-valuenow', data.progress);
+    document.getElementById('progress_text').textContent = data.progress + '%';
+    document.getElementById('sent_count').textContent = data.sent_count;
+    document.getElementById('failed_count').textContent = data.failed_count;
+    document.getElementById('total_count').textContent = data.total_recipients;
+    
+    // Останавливаем, если рассылка завершена
+    if (data.status === 'completed' || data.status === 'failed') {
+      clearInterval(progressInterval);
+      document.getElementById('progress_bar').classList.remove('progress-bar-animated');
+      
+      if (data.status === 'completed') {
+        alert('Рассылка завершена!');
+      } else {
+        alert('Рассылка завершилась с ошибкой');
+      }
+    }
+  }, 2000); // Каждые 2 секунды
+}
+
+// Запускаем отслеживание, если есть активная рассылка
+if (currentMailingId) {
+  startProgressTracking();
+}
+
+// Инициализация
+updateStartButton();
+</script>
+{% endblock %}
