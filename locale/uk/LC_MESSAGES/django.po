@@ -1,0 +1,253 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: KinoCMS\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-05 15:31+0000\n"
+"PO-Revision-Date: 2025-11-05 15:15+0000\n"
+"Last-Translator: KinoCMS Team\n"
+"Language-Team: Ukrainian\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+
+msgid "2D"
+msgstr "2D"
+
+msgid "3D"
+msgstr "3D"
+
+msgid "IMAX"
+msgstr "IMAX"
+
+msgid "Количество залов"
+msgstr "Кількість залів"
+
+msgid "Список залов"
+msgstr "Список залів"
+
+msgid "Залы не добавлены"
+msgstr "Зали не додані"
+
+msgid "Смотрите сегодня"
+msgstr "Дивіться сьогодні"
+
+msgid "Время"
+msgstr "Час"
+
+msgid "Фильм"
+msgstr "Фільм"
+
+msgid "Зал"
+msgstr "Зал"
+
+msgid "Забронировать билет"
+msgstr "Забронювати квиток"
+
+msgid "Нет сеансов сегодня"
+msgstr "Немає сеансів сьогодні"
+
+msgid "Расписание всех сеансов"
+msgstr "Розклад всіх сеансів"
+
+msgid "Расписание сеансов"
+msgstr "Розклад сеансів"
+
+msgid "Условия"
+msgstr "Умови"
+
+msgid "Фотогалерея"
+msgstr "Фотогалерея"
+
+msgid "Наши кинотеатры"
+msgstr "Наші кінотеатри"
+
+msgid "Кинотеатр Премьер"
+msgstr "Кінотеатр Прем'єр"
+
+msgid "Кинотеатр Мультиплекс"
+msgstr "Кінотеатр Мультиплекс"
+
+msgid "Цена"
+msgstr "Ціна"
+
+msgid "Карта зала"
+msgstr "Карта залу"
+
+msgid "рядов"
+msgstr "рядів"
+
+msgid "мест"
+msgstr "місць"
+
+msgid "Схема зала не задана"
+msgstr "Схема залу не задана"
+
+msgid "ЭКРАН"
+msgstr "ЕКРАН"
+
+msgid "Неверный формат схемы зала"
+msgstr "Невірний формат схеми залу"
+
+msgid "Ряд"
+msgstr "Ряд"
+
+msgid "Место"
+msgstr "Місце"
+
+msgid "Все"
+msgstr "Всі"
+
+msgid "Нет сеансов на сегодня и завтра"
+msgstr "Немає сеансів на сьогодні та завтра"
+
+msgid "Сеансы не найдены"
+msgstr "Сеанси не знайдені"
+
+msgid "Смотреть трейлер"
+msgstr "Дивитись трейлер"
+
+msgid "Кадры и постеры"
+msgstr "Кадри та постери"
+
+msgid "Трейлер недоступен"
+msgstr "Трейлер недоступний"
+
+msgid "Формат"
+msgstr "Формат"
+
+msgid "Кинотеатр"
+msgstr "Кінотеатр"
+
+msgid "Все кинотеатры"
+msgstr "Всі кінотеатри"
+
+msgid "Дата"
+msgstr "Дата"
+
+msgid "Все фильмы"
+msgstr "Всі фільми"
+
+msgid "Все залы"
+msgstr "Всі зали"
+
+msgid "Бронировать"
+msgstr "Забронювати"
+
+msgid "Сеансы не найдены. Попробуйте изменить фильтры."
+msgstr "Сеанси не знайдені. Спробуйте змінити фільтри."
+
+msgid "Поиск..."
+msgstr "Пошук..."
+
+msgid "Главная"
+msgstr "Головна"
+
+msgid "Афиша"
+msgstr "Афіша"
+
+msgid "Расписание"
+msgstr "Розклад"
+
+msgid "Скоро"
+msgstr "Скоро"
+
+msgid "Кинотеатры"
+msgstr "Кінотеатри"
+
+msgid "Акции"
+msgstr "Акції"
+
+msgid "О кинотеатре"
+msgstr "Про кінотеатр"
+
+msgid "Контакты"
+msgstr "Контакти"
+
+msgid "Админ-панель"
+msgstr "Адмін-панель"
+
+msgid "Профиль"
+msgstr "Профіль"
+
+msgid "Мои билеты"
+msgstr "Мої квитки"
+
+msgid "Выйти"
+msgstr "Вийти"
+
+msgid "Войти"
+msgstr "Увійти"
+
+msgid "Регистрация"
+msgstr "Реєстрація"
+
+msgid "Смотрите сегодня,"
+msgstr "Дивіться сьогодні,"
+
+msgid "Купить билет"
+msgstr "Купити квиток"
+
+msgid "Название фильма"
+msgstr "Назва фільму"
+
+msgid "Смотрите скоро"
+msgstr "Дивіться скоро"
+
+msgid "В прокате с"
+msgstr "У прокаті з"
+
+msgid "Новости и акции"
+msgstr "Новини та акції"
+
+msgid "Новость"
+msgstr "Новина"
+
+msgid "Акция"
+msgstr "Акція"
+
+msgid "Изображение недоступно"
+msgstr "Зображення недоступне"
+
+msgid "Описание для данной страницы пока не добавлено."
+msgstr "Опис для даної сторінки поки не додано."
+
+msgid "Изображение галереи"
+msgstr "Зображення галереї"
+
+msgid "Фотогалерея для данной страницы пока не добавлена."
+msgstr "Фотогалерея для даної сторінки поки не додана."
+
+msgid "Полное изображение"
+msgstr "Повне зображення"
+
+msgid "мужской"
+msgstr "чоловічий"
+
+msgid "женский"
+msgstr "жіночий"
+
+msgid "Русский"
+msgstr "Російська"
+
+msgid "Українська"
+msgstr "Українська"
+
+msgid "Киев"
+msgstr "Київ"
+
+msgid "Днепр"
+msgstr "Дніпро"
+
+msgid "Львов"
+msgstr "Львів"
+
+msgid "Одесса"
+msgstr "Одеса"
+
+msgid "Харьков"
+msgstr "Харків"

@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 app_name = "cinema"
@@ -17,9 +18,7 @@ urlpatterns = [
         name="movie_delete",
     ),
     path("admin-panel/cinemas/create/", views.cinema_create_view, name="cinema_create"),
-    path(
-        "admin-panel/cinemas/", views.admin_cinema_list_view, name="admin_cinema_list"
-    ),
+    path("admin-panel/cinemas/", views.admin_cinema_list_view, name="admin_cinema_list"),
     path(
         "admin-panel/cinemas/<int:pk>/edit/",
         views.cinema_update_view,

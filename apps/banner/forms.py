@@ -1,11 +1,12 @@
 from django import forms
 from django.forms import inlineformset_factory
+
 from .models import (
+    BannerBackground,
     BannerItem,
     BannerSlider,
-    BannerBackground,
-    BottomBannerSlider,
     BottomBannerItem,
+    BottomBannerSlider,
 )
 
 

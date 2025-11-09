@@ -127,15 +127,11 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=100, verbose_name="Название")),
                 (
                     "name_ru",
-                    models.CharField(
-                        max_length=100, null=True, verbose_name="Название"
-                    ),
+                    models.CharField(max_length=100, null=True, verbose_name="Название"),
                 ),
                 (
                     "name_uk",
-                    models.CharField(
-                        max_length=100, null=True, verbose_name="Название"
-                    ),
+                    models.CharField(max_length=100, null=True, verbose_name="Название"),
                 ),
                 ("description", models.TextField(blank=True, verbose_name="Описание")),
                 (
@@ -148,15 +144,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "date",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Дата создания"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Дата создания"),
                 ),
                 (
                     "publish_date",
-                    models.DateField(
-                        blank=True, null=True, verbose_name="Дата публикации"
-                    ),
+                    models.DateField(blank=True, null=True, verbose_name="Дата публикации"),
                 ),
                 (
                     "logo",

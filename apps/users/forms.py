@@ -1,9 +1,8 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import get_user_model, authenticate
-from django.utils.html import strip_tags
+from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.validators import RegexValidator
-
+from django.utils.html import strip_tags
 
 User = get_user_model()
 
@@ -12,9 +11,7 @@ class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         max_length=100,
-        widget=forms.EmailInput(
-            attrs={"class": "form-control", "placeholder": "Email"}
-        ),
+        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "Email"}),
     )
     first_name = forms.CharField(
         required=True,
@@ -24,21 +21,15 @@ class CustomUserCreationForm(UserCreationForm):
     last_name = forms.CharField(
         required=True,
         max_length=50,
-        widget=forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Фамилия"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Фамилия"}),
     )
     password1 = forms.CharField(
         required=True,
-        widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Пароль"}
-        ),
+        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Пароль"}),
     )
     password2 = forms.CharField(
         required=True,
-        widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Подтвердите пароль"}
-        ),
+        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Подтвердите пароль"}),
     )
 
     class Meta:
@@ -67,9 +58,7 @@ class CustomUserLoginForm(AuthenticationForm):
     )
     password = forms.CharField(
         required=True,
-        widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Пароль"}
-        ),
+        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Пароль"}),
     )
 
     def clean(self):
@@ -169,18 +158,13 @@ class CustomUserUpdateForm(forms.ModelForm):
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
             "address": forms.TextInput(attrs={"class": "form-control"}),
-            "date_of_birth": forms.DateInput(
-                attrs={"class": "form-control", "type": "date"}
-            ),
+            "date_of_birth": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
             "city": forms.Select(attrs={"class": "form-select"}),
         }
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        if (
-            email
-            and User.objects.filter(email=email).exclude(id=self.instance.id).exists()
-        ):
+        if email and User.objects.filter(email=email).exclude(id=self.instance.id).exists():
             raise forms.ValidationError("Email уже зарегистрирован")
         return email
 

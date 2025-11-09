@@ -1,7 +1,7 @@
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import BaseInlineFormSet, inlineformset_factory
+
 from .models import Gallery, GalleryImage, SeoBlock
-from django.forms import BaseInlineFormSet
 
 FORM_CSS_CLASSES = {
     "TEXT_INPUT": "form-control",
@@ -123,11 +123,7 @@ class GalleryImageForm(forms.ModelForm):
         model = GalleryImage
         fields = ["image"]
 
-        widgets = {
-            "image": forms.FileInput(
-                attrs={"class": FORM_CSS_CLASSES["FILE_INPUT"], "accept": "image/*"}
-            )
-        }
+        widgets = {"image": forms.FileInput(attrs={"class": FORM_CSS_CLASSES["FILE_INPUT"], "accept": "image/*"})}
 
         labels = {
             "image": LABELS["IMAGE"],
@@ -137,24 +133,18 @@ class GalleryImageForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.instance and self.instance.image:
-            self.fields["image"].widget.attrs.update(
-                {"data-current-image": self.instance.image.url}
-            )
+            self.fields["image"].widget.attrs.update({"data-current-image": self.instance.image.url})
 
     def clean_image(self):
         image = self.cleaned_data.get("image")
 
         if image and hasattr(image, "content_type"):  # Проверка что это новый файл
             if image.size > 5 * 1024 * 1024:
-                raise forms.ValidationError(
-                    "Размер изображения не должен превышать 5MB"
-                )
+                raise forms.ValidationError("Размер изображения не должен превышать 5MB")
 
             allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
             if image.content_type not in allowed_types:
-                raise forms.ValidationError(
-                    "Поддерживаются только форматы: JPEG, PNG, WebP"
-                )
+                raise forms.ValidationError("Поддерживаются только форматы: JPEG, PNG, WebP")
 
         return image
 

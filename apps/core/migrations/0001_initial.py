@@ -45,9 +45,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "image",
-                    models.ImageField(
-                        blank=True, null=True, upload_to="gallery_images/"
-                    ),
+                    models.ImageField(blank=True, null=True, upload_to="gallery_images/"),
                 ),
             ],
             options={
@@ -69,16 +67,12 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "title",
-                    models.CharField(
-                        blank=True, max_length=200, null=True, verbose_name="Title"
-                    ),
+                    models.CharField(blank=True, max_length=200, null=True, verbose_name="Title"),
                 ),
                 ("url", models.URLField(blank=True, null=True, verbose_name="URL")),
                 (
                     "keywords",
-                    models.CharField(
-                        blank=True, max_length=50, null=True, verbose_name="Word"
-                    ),
+                    models.CharField(blank=True, max_length=50, null=True, verbose_name="Word"),
                 ),
                 (
                     "description",
@@ -123,15 +117,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "ticket_price",
-                    models.DecimalField(
-                        decimal_places=2, max_digits=10, verbose_name="Цена билета"
-                    ),
+                    models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Цена билета"),
                 ),
                 (
                     "total_amount",
-                    models.DecimalField(
-                        decimal_places=2, max_digits=10, verbose_name="Общая сумма"
-                    ),
+                    models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Общая сумма"),
                 ),
                 (
                     "created_at",

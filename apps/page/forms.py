@@ -1,6 +1,8 @@
 from django import forms
-from .models import PageMain, PageElse, PageContacts, PageNewsSales
-from apps.core.forms import FORM_CSS_CLASSES, PLACEHOLDERS, LABELS
+
+from apps.core.forms import FORM_CSS_CLASSES, LABELS, PLACEHOLDERS
+
+from .models import PageContacts, PageElse, PageMain, PageNewsSales
 
 DATE_INPUT_FORMAT = "%Y-%m-%d"
 
@@ -87,16 +89,10 @@ class PageElseForm(forms.ModelForm):
         widgets = {
             "name_ru": forms.TextInput(attrs={"class": FORM_CSS_CLASSES["TEXT_INPUT"]}),
             "name_uk": forms.TextInput(attrs={"class": FORM_CSS_CLASSES["TEXT_INPUT"]}),
-            "description_ru": forms.Textarea(
-                attrs={"class": FORM_CSS_CLASSES["TEXTAREA"], "rows": 6}
-            ),
-            "description_uk": forms.Textarea(
-                attrs={"class": FORM_CSS_CLASSES["TEXTAREA"], "rows": 6}
-            ),
+            "description_ru": forms.Textarea(attrs={"class": FORM_CSS_CLASSES["TEXTAREA"], "rows": 6}),
+            "description_uk": forms.Textarea(attrs={"class": FORM_CSS_CLASSES["TEXTAREA"], "rows": 6}),
             "logo": forms.FileInput(attrs={"class": FORM_CSS_CLASSES["FILE_INPUT"]}),
-            "status": forms.CheckboxInput(
-                attrs={"class": FORM_CSS_CLASSES["CHECKBOX"]}
-            ),
+            "status": forms.CheckboxInput(attrs={"class": FORM_CSS_CLASSES["CHECKBOX"]}),
         }
 
         labels = {
@@ -118,12 +114,8 @@ class PageNewsSalesForm(forms.ModelForm):
         widgets = {
             "name_ru": forms.TextInput(attrs={"class": FORM_CSS_CLASSES["TEXT_INPUT"]}),
             "name_uk": forms.TextInput(attrs={"class": FORM_CSS_CLASSES["TEXT_INPUT"]}),
-            "description_ru": forms.Textarea(
-                attrs={"class": FORM_CSS_CLASSES["TEXTAREA"], "rows": 6}
-            ),
-            "description_uk": forms.Textarea(
-                attrs={"class": FORM_CSS_CLASSES["TEXTAREA"], "rows": 6}
-            ),
+            "description_ru": forms.Textarea(attrs={"class": FORM_CSS_CLASSES["TEXTAREA"], "rows": 6}),
+            "description_uk": forms.Textarea(attrs={"class": FORM_CSS_CLASSES["TEXTAREA"], "rows": 6}),
             "publish_date": forms.DateInput(
                 format=DATE_INPUT_FORMAT,
                 attrs={
@@ -139,9 +131,7 @@ class PageNewsSalesForm(forms.ModelForm):
                     "placeholder": "https://www.youtube.com/watch?v=...",
                 }
             ),
-            "status": forms.CheckboxInput(
-                attrs={"class": FORM_CSS_CLASSES["CHECKBOX"]}
-            ),
+            "status": forms.CheckboxInput(attrs={"class": FORM_CSS_CLASSES["CHECKBOX"]}),
         }
 
         labels = {
@@ -174,9 +164,7 @@ class PageContactsForm(forms.ModelForm):
         widgets = {
             "cinema_name": forms.TextInput(attrs={"class": "form-control"}),
             "address": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "coordinates": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "50.4501, 30.5234"}
-            ),
+            "coordinates": forms.TextInput(attrs={"class": "form-control", "placeholder": "50.4501, 30.5234"}),
             "logo": forms.FileInput(attrs={"class": "form-control"}),
             "status": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "order": forms.NumberInput(attrs={"class": "form-control"}),

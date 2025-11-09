@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
-from apps.page.models import PageElse, PageMain, PageContacts
+
+from apps.page.models import PageContacts, PageElse, PageMain
 
 
 class Command(BaseCommand):

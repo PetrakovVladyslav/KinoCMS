@@ -1,0 +1,360 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Расписание сеансов" %} - KinoCMS{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <h1 class="text-center mb-4">{% trans "Расписание сеансов" %}</h1>
+    
+    <!-- Filters Section -->
+    <div class="card mb-4" style="background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div class="card-body">
+            <form method="get" action="{% url 'cinema:session_list' %}" id="filterForm">
+                <div class="row g-3">
+                    <!-- Format Filters -->
+                    <div class="col-12">
+                        <label class="form-label fw-bold" style="color: var(--text-color);">{% trans "Формат" %}:</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn-all-formats" id="btnAllFormats" onclick="selectAllFormats()">
+                                {% trans "Все" %}
+                            </button>
+                            {% for format_value, format_label in formats %}
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input format-checkbox" type="checkbox" name="format" id="format_{{ format_value }}" value="{{ format_value }}" {% if format_value in current_formats %}checked{% endif %}>
+                                <label class="form-check-label format-label format-{{ format_value }}" for="format_{{ format_value }}">
+                                    {{ format_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Cinema Filter -->
+                    <div class="col-md-3">
+                        <label for="cinema" class="form-label" style="color: var(--text-color);">{% trans "Кинотеатр" %}:</label>
+                        <select name="cinema" id="cinema" class="form-select filter-select" style="background: var(--secondary-color); color: var(--text-color); border: 1px solid rgba(255, 255, 255, 0.2);">
+                            <option value="" style="color: var(--text-color);">{% trans "Все кинотеатры" %}</option>
+                            {% for cinema in cinemas %}
+                            <option value="{{ cinema.id }}" {% if current_cinema == cinema.id|stringformat:"s" %}selected{% endif %} style="color: var(--text-color);">
+                                {{ cinema.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Date Filter -->
+                    <div class="col-md-3">
+                        <label for="date" class="form-label" style="color: var(--text-color);">{% trans "Дата" %}:</label>
+                        <input type="date" name="date" id="date" class="form-control filter-select" value="{{ current_date }}" style="background: var(--secondary-color); color: var(--text-color); border: 1px solid rgba(255, 255, 255, 0.2); color-scheme: dark;">
+                    </div>
+                    
+                    <!-- Movie Filter -->
+                    <div class="col-md-3">
+                        <label for="movie" class="form-label" style="color: var(--text-color);">{% trans "Фильм" %}:</label>
+                        <select name="movie" id="movie" class="form-select filter-select" style="background: var(--secondary-color); color: var(--text-color); border: 1px solid rgba(255, 255, 255, 0.2);">
+                            <option value="" style="color: var(--text-color);">{% trans "Все фильмы" %}</option>
+                            {% for movie in movies %}
+                            <option value="{{ movie.id }}" {% if current_movie == movie.id|stringformat:"s" %}selected{% endif %} style="color: var(--text-color);">
+                                {{ movie.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Hall Filter -->
+                    <div class="col-md-3">
+                        <label for="hall" class="form-label" style="color: var(--text-color);">{% trans "Зал" %}:</label>
+                        <select name="hall" id="hall" class="form-select filter-select" style="background: var(--secondary-color); color: var(--text-color); border: 1px solid rgba(255, 255, 255, 0.2);">
+                            <option value="" style="color: var(--text-color);">{% trans "Все залы" %}</option>
+                            {% for hall in halls %}
+                            <option value="{{ hall.id }}" {% if current_hall == hall.id|stringformat:"s" %}selected{% endif %} style="color: var(--text-color);">
+                                {{ hall.cinema.name }} - {{ hall.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Sessions Table -->
+    {% if sessions_by_date %}
+        {% for session_date, date_sessions in sessions_by_date.items %}
+        <div class="card mb-4" style="background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1);">
+            <!-- Date Header -->
+            <div class="card-header" style="background: linear-gradient(135deg, var(--accent-color), #ff6b8a); border: none;">
+                <h4 class="mb-0 text-white">
+                    <i class="fa fa-calendar me-2"></i>
+                    {{ session_date|date:"d E Y" }} ({{ session_date|date:"l" }})
+                </h4>
+            </div>
+            
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 sessions-table">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--accent-color);">
+                                <th>{% trans "Время" %}</th>
+                                <th>{% trans "Фильм" %}</th>
+                                <th>{% trans "Формат" %}</th>
+                                <th>{% trans "Кинотеатр" %}</th>
+                                <th>{% trans "Зал" %}</th>
+                                <th>{% trans "Цена" %}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in date_sessions %}
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                <td class="fw-bold" style="color: var(--accent-color);">
+                                    {{ session.start_time|date:"H:i" }}
+                                </td>
+                                <td>
+                                    <a href="{% url 'cinema:movie_detail' session.movie.pk %}" class="text-decoration-none" style="color: var(--text-color);">
+                                        {{ session.movie.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge format-badge-{{ session.format }}">
+                                        {{ session.get_format_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'cinema:cinema_detail' session.hall.cinema.pk %}" class="text-decoration-none" style="color: var(--text-color);">
+                                        {{ session.hall.cinema.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'cinema:hall_detail' session.hall.pk %}" class="text-decoration-none" style="color: var(--text-color);">
+                                        {{ session.hall.name }}
+                                    </a>
+                                </td>
+                                <td class="fw-bold">{{ session.price }} грн</td>
+                                <td class="text-center">
+                                    <a href="{% url 'cinema:booking' session.pk %}" class="btn btn-sm" style="background: var(--accent-color); color: white; border: none;">
+                                        <i class="fa fa-ticket me-1"></i>{% trans "Бронировать" %}
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card" style="background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div class="card-body">
+                <div class="text-center py-5">
+                    <i class="fa fa-calendar-times-o" style="font-size: 4rem; color: var(--text-muted);"></i>
+                    <p class="mt-3" style="color: var(--text-muted); font-size: 1.2rem;">
+                        {% trans "Сеансы не найдены. Попробуйте изменить фильтры." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    /* Format checkbox labels with colors */
+    .format-label {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid;
+        display: inline-block;
+    }
+    
+    .format-label.format-2D {
+        color: #4CAF50;
+        border-color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+    
+    .format-label.format-3D {
+        color: #2196F3;
+        border-color: #2196F3;
+        background: rgba(33, 150, 243, 0.1);
+    }
+    
+    .format-label.format-IMAX {
+        color: #FF9800;
+        border-color: #FF9800;
+        background: rgba(255, 152, 0, 0.1);
+    }
+    
+    .format-checkbox:checked + .format-label {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .format-checkbox:checked + .format-label.format-2D {
+        background: #4CAF50;
+        color: white;
+    }
+    
+    .format-checkbox:checked + .format-label.format-3D {
+        background: #2196F3;
+        color: white;
+    }
+    
+    .format-checkbox:checked + .format-label.format-IMAX {
+        background: #FF9800;
+        color: white;
+    }
+    
+    .format-checkbox {
+        display: none;
+    }
+    
+    /* Format badges in table */
+    .format-badge-2D {
+        background: #4CAF50 !important;
+        color: white;
+        padding: 6px 12px;
+        font-weight: 600;
+    }
+    
+    .format-badge-3D {
+        background: #2196F3 !important;
+        color: white;
+        padding: 6px 12px;
+        font-weight: 600;
+    }
+    
+    .format-badge-IMAX {
+        background: #FF9800 !important;
+        color: white;
+        padding: 6px 12px;
+        font-weight: 600;
+    }
+    
+    .form-select option {
+        background: var(--secondary-color);
+        color: var(--text-color);
+    }
+    
+    .table-dark {
+        --bs-table-bg: transparent;
+        --bs-table-border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .table-dark tbody tr:hover {
+        background-color: rgba(233, 69, 96, 0.1);
+    }
+    
+    .form-check-label {
+        user-select: none;
+    }
+    
+    /* All formats button */
+    .btn-all-formats {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: transparent;
+        color: var(--text-color);
+        display: inline-block;
+    }
+    
+    .btn-all-formats:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+        color: white;
+    }
+    
+    /* Date header styling */
+    .card-header h4 {
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card-header i {
+        font-size: 1.2em;
+    }
+    
+    /* Fixed column widths for consistent table alignment */
+    .sessions-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+    
+    .sessions-table th:nth-child(1),
+    .sessions-table td:nth-child(1) {
+        width: 8%; /* Время */
+    }
+    
+    .sessions-table th:nth-child(2),
+    .sessions-table td:nth-child(2) {
+        width: 22%; /* Фильм */
+    }
+    
+    .sessions-table th:nth-child(3),
+    .sessions-table td:nth-child(3) {
+        width: 10%; /* Формат */
+    }
+    
+    .sessions-table th:nth-child(4),
+    .sessions-table td:nth-child(4) {
+        width: 20%; /* Кинотеатр */
+    }
+    
+    .sessions-table th:nth-child(5),
+    .sessions-table td:nth-child(5) {
+        width: 15%; /* Зал */
+    }
+    
+    .sessions-table th:nth-child(6),
+    .sessions-table td:nth-child(6) {
+        width: 10%; /* Цена */
+    }
+    
+    .sessions-table th:nth-child(7),
+    .sessions-table td:nth-child(7) {
+        width: 15%; /* Бронировать */
+        text-align: center;
+    }
+</style>
+
+<script>
+    // Select all formats function
+    function selectAllFormats() {
+        const checkboxes = document.querySelectorAll('.format-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        document.getElementById('filterForm').submit();
+    }
+    
+    // Auto-submit form when any filter changes
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('filterForm');
+        
+        // Auto-submit on checkbox change
+        document.querySelectorAll('.format-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                form.submit();
+            });
+        });
+        
+        // Auto-submit on select change
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', function() {
+                form.submit();
+            });
+        });
+    });
+</script>
+{% endblock %}

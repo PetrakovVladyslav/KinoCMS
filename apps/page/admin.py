@@ -1,7 +1,7 @@
 from django.contrib import admin
 from modeltranslation.admin import TranslationAdmin
 
-from .models import PageContacts, PageNewsSales, PageMain, PageElse
+from .models import PageContacts, PageElse, PageMain, PageNewsSales
 
 # Register your models here.
 

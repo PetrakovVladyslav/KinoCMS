@@ -1,0 +1,890 @@
+{% extends 'core/admin_base.html' %}
+{% load static %}
+
+{% block title %}Управление баннерами - KinoCMS{% endblock %}
+
+{% block page_title %}Баннеры и слайдеры{% endblock %}
+
+{% block breadcrumb_active %}Управление баннерами{% endblock %}
+
+{% block extra_css %}
+<style>
+    .banner-block {
+        background: white;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border: 1px solid #ddd;
+    }
+    
+    .banner-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .banner-header h4 {
+        margin: 0;
+        color: #333;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .slider-toggle {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .3s;
+        border-radius: 24px;
+    }
+    
+    .slider-toggle:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .slider-toggle {
+        background-color: #28a745;
+    }
+    
+    input:checked + .slider-toggle:before {
+        transform: translateX(26px);
+    }
+    
+    /* Сетка карточек баннеров */
+    .formset-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .formset-item {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        position: relative;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .formset-item:hover {
+        border-color: #999;
+    }
+    
+    .delete-item {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 10;
+    }
+    
+    .delete-item input[type="checkbox"] {
+        display: none;
+    }
+    
+    .delete-item label {
+        cursor: pointer;
+        color: #dc3545;
+        font-size: 0.85rem;
+        padding: 2px 6px;
+        background: #fff;
+        border: 1px solid #dc3545;
+        border-radius: 3px;
+        display: inline-block;
+    }
+    
+    .delete-item label:hover {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .form-group {
+        margin-bottom: 10px;
+    }
+    
+    .form-group label {
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 3px;
+        display: block;
+        font-size: 0.85rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        background-color: #fff;
+        box-sizing: border-box;
+    }
+    
+    .form-control:focus {
+        border-color: #4a90e2;
+        outline: none;
+    }
+    
+    /* Стили для всех полей ввода в карточке */
+    .formset-item input[type="text"],
+    .formset-item input[type="url"],
+    .formset-item input[type="email"] {
+        width: 100%;
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        background-color: #fff;
+        color: #333;
+        box-sizing: border-box;
+    }
+    
+    .formset-item input[type="text"]:focus,
+    .formset-item input[type="url"]:focus,
+    .formset-item input[type="email"]:focus {
+        border-color: #4a90e2;
+        outline: none;
+        color: #333;
+    }
+    
+    .formset-item input[type="file"] {
+        font-size: 0.8rem;
+        width: 100%;
+        padding: 4px;
+        background-color: #fff;
+    }
+    
+    .formset-item textarea {
+        width: 100%;
+        height: 80px;
+        resize: none;
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        background-color: #fff;
+        color: #333;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+    
+    .formset-item textarea:focus {
+        border-color: #4a90e2;
+        outline: none;
+        color: #333;
+    }
+    
+    /* Превью изображения */
+    .image-preview-container {
+        position: relative;
+        width: 100%;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #f5f5f5;
+        border-radius: 3px;
+        margin-bottom: 8px;
+    }
+    
+    .banner-image-preview {
+        max-width: 100%;
+        max-height: 120px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+    }
+    
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: rgba(220, 53, 69, 0.9);
+        border-radius: 0 3px 0 8px;
+        padding: 0.25rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .formset-item:hover .image-overlay {
+        opacity: 1;
+    }
+    
+    .delete-banner-image {
+        color: white;
+        border: none;
+        background: none;
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+    
+    .empty-image-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+        color: #6c757d;
+        text-align: center;
+    }
+    
+    .empty-image-placeholder i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #adb5bd;
+    }
+    
+    .empty-image-placeholder p {
+        margin: 0;
+        font-size: 0.875rem;
+    }
+    
+    .image-upload-field {
+        padding-top: 8px;
+        border-top: 1px solid #e0e0e0;
+    }
+    
+    .image-upload-field input[type="file"] {
+        font-size: 0.75rem;
+        width: 100%;
+    }
+    
+    .file-input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .current-file-name {
+        font-size: 0.8rem;
+        color: #666;
+        font-style: italic;
+    }
+    
+    /* Скрываем стандартные поля Django */
+    .formset-item .field-image {
+        display: none !important;
+    }
+    
+    .formset-item p {
+        display: none !important;
+    }
+    
+    .formset-item .helptext {
+        display: none !important;
+    }
+    
+    .formset-item .clearable-file-input {
+        display: none !important;
+    }
+    
+    /* Скрываем чекбокс DELETE */
+    .formset-item input[type="checkbox"][name$="-DELETE"] {
+        display: none !important;
+    }
+    
+    /* Скрываем лишние поля в фоновом баннере */
+    .background-banner .field-image {
+        display: none !important;
+    }
+    
+    .background-banner p {
+        display: none !important;
+    }
+    
+    .background-banner .helptext {
+        display: none !important;
+    }
+    
+    .background-banner .clearable-file-input {
+        display: none !important;
+    }
+    
+    .btn-add-photo {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    .btn-add-photo:hover {
+        background: #0056b3;
+    }
+    
+    .btn-save {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-top: 15px;
+    }
+    
+    .btn-save:hover {
+        background: #218838;
+    }
+    
+    .background-banner .radio-group {
+        margin-bottom: 15px;
+    }
+    
+    .radio-group label {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 15px;
+        cursor: pointer;
+        font-weight: normal;
+    }
+    
+    .radio-group input[type="radio"] {
+        /* Сброс кастомных стилей */
+        -webkit-appearance: radio;
+        -moz-appearance: radio;
+        appearance: radio;
+        
+        margin-right: 8px;
+        cursor: pointer;
+        width: auto;
+        height: auto;
+        
+        /* Стандартные размеры */
+        min-width: 16px;
+        min-height: 16px;
+        
+        /* Цвет акцента для современных браузеров */
+        accent-color: #007bff;
+        
+        /* Убираем возможные переопределения */
+        background: none;
+        border: none;
+        padding: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+    
+    .rotation-select {
+        max-width: 150px;
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .top-banner {
+        border-left: 3px solid #007bff;
+    }
+    
+    .background-banner {
+        border-left: 3px solid #ffc107;
+    }
+    
+    .bottom-banner {
+        border-left: 3px solid #28a745;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 1200px) {
+        .formset-grid {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .formset-grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .formset-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        
+        <!-- 1️⃣ Верхний баннер (На главной верх) -->
+        <div class="banner-block top-banner">
+            <div class="banner-header">
+                <h4>🎬 На главной верх</h4>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="top-banner-toggle" 
+                           name="top-is_active" 
+                           form="top-banner-form"
+                           {% if top_slider_form.instance.is_active %}checked{% endif %}>
+                    <span class="slider-toggle"></span>
+                </label>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data" id="top-banner-form">
+                {% csrf_token %}
+                {{ top_items_formset.management_form }}
+                
+                <div id="top-banner-formset" class="formset-grid">
+                    {% for form in top_items_formset %}
+                        <div class="formset-item" data-formset-item>
+                            {{ form.id }}
+                            {% if form.instance.pk %}
+                                {{ form.DELETE }}
+                            {% endif %}
+                            
+                            {% if form.instance.image %}
+                                <div class="image-preview-container">
+                                    <img src="{{ form.instance.image.url }}" alt="Баннер" class="banner-image-preview">
+                                    <div class="image-overlay">
+                                        <button type="button" class="btn btn-sm btn-danger delete-banner-image">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="empty-image-placeholder">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <p>Добавить изображение</p>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="image-upload-field">
+                                <input type="file" name="{{ form.image.html_name }}" accept="image/*" class="form-control-file" id="{{ form.image.id_for_label }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.url.id_for_label }}">URL:</label>
+                                {{ form.url }}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.text.id_for_label }}">Текст:</label>
+                                {{ form.text }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="button" class="btn-add-photo" id="add-top-photo">
+                    <i class="fas fa-plus"></i> Добавить фото
+                </button>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="{{ top_slider_form.rotation_time.id_for_label }}">Скорость вращения (секунды):</label>
+                    <select name="top-rotation_time" id="{{ top_slider_form.rotation_time.id_for_label }}" class="form-control rotation-select">
+                        {% for value, label in top_slider_form.fields.rotation_time.choices %}
+                            <option value="{{ value }}" {% if top_slider_form.instance.rotation_time == value %}selected{% endif %}>
+                                {{ label }}s
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <input type="hidden" name="top-title" value="{{ top_slider_form.instance.title }}">
+                <button type="submit" name="save_top" class="btn-save">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+            </form>
+        </div>
+        
+        <!-- 2️⃣ Сквозной баннер на заднем фоне -->
+        <div class="banner-block background-banner">
+            <div class="banner-header">
+                <h4>🖼️ Сквозной баннер на заднем фоне</h4>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data" id="background-banner-form">
+                {% csrf_token %}
+                
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="bg-use_image" value="true" 
+                               {% if background_form.instance.use_image %}checked{% endif %}
+                               id="bg-photo-option">
+                        Фото на фон
+                    </label>
+                    <label>
+                        <input type="radio" name="bg-use_image" value="false"
+                               {% if not background_form.instance.use_image %}checked{% endif %}
+                               id="bg-plain-option">
+                        Просто фон
+                    </label>
+                </div>
+                
+                <div id="bg-photo-upload" class="{% if not background_form.instance.use_image %}hidden{% endif %}">
+                    <div class="form-group">
+                        {% if background_form.instance.image %}
+                            <div style="margin-bottom: 15px;">
+                                <img src="{{ background_form.instance.image.url }}" alt="Background" style="max-width: 300px; max-height: 200px; border-radius: 4px; border: 1px solid #ddd; display: block; margin-bottom: 8px;">
+                                <small style="color: #666;">{{ background_form.instance.image.name }}</small>
+                            </div>
+                        {% endif %}
+                        <input type="file" name="{{ background_form.image.html_name }}" accept="image/*" id="{{ background_form.image.id_for_label }}">
+                    </div>
+                </div>
+                
+                <button type="submit" name="save_background" class="btn-save">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+            </form>
+        </div>
+        
+        <!-- 3️⃣ Нижний баннер (На главной Новости Акции внизу) -->
+        <div class="banner-block bottom-banner">
+            <div class="banner-header">
+                <h4>📰 На главной Новости Акции внизу</h4>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="bottom-banner-toggle" 
+                           name="bottom-is_active" 
+                           form="bottom-banner-form"
+                           {% if bottom_slider_form.instance.is_active %}checked{% endif %}>
+                    <span class="slider-toggle"></span>
+                </label>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data" id="bottom-banner-form">
+                {% csrf_token %}
+                {{ bottom_items_formset.management_form }}
+                
+                <div id="bottom-banner-formset" class="formset-grid">
+                    {% for form in bottom_items_formset %}
+                        <div class="formset-item" data-formset-item>
+                            {{ form.id }}
+                            {% if form.instance.pk %}
+                                {{ form.DELETE }}
+                            {% endif %}
+                            
+                            {% if form.instance.image %}
+                                <div class="image-preview-container">
+                                    <img src="{{ form.instance.image.url }}" alt="Баннер" class="banner-image-preview">
+                                    <div class="image-overlay">
+                                        <button type="button" class="btn btn-sm btn-danger delete-banner-image">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="empty-image-placeholder">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <p>Добавить изображение</p>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="image-upload-field">
+                                <input type="file" name="{{ form.image.html_name }}" accept="image/*" class="form-control-file" id="{{ form.image.id_for_label }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.url.id_for_label }}">URL:</label>
+                                {{ form.url }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="button" class="btn-add-photo" id="add-bottom-photo">
+                    <i class="fas fa-plus"></i> Добавить фото
+                </button>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="{{ bottom_slider_form.rotation_time.id_for_label }}">Скорость вращения (секунды):</label>
+                    <select name="bottom-rotation_time" id="{{ bottom_slider_form.rotation_time.id_for_label }}" class="form-control rotation-select">
+                        {% for value, label in bottom_slider_form.fields.rotation_time.choices %}
+                            <option value="{{ value }}" {% if bottom_slider_form.instance.rotation_time == value %}selected{% endif %}>
+                                {{ label }}s
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <input type="hidden" name="bottom-title" value="{{ bottom_slider_form.instance.title }}">
+                <button type="submit" name="save_bottom" class="btn-save">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+            </form>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Переключение между "Фото на фон" и "Просто фон"
+    const bgPhotoOption = document.getElementById('bg-photo-option');
+    const bgPlainOption = document.getElementById('bg-plain-option');
+    const bgPhotoUpload = document.getElementById('bg-photo-upload');
+    
+    function toggleBackgroundUpload() {
+        if (bgPhotoOption.checked) {
+            bgPhotoUpload.classList.remove('hidden');
+        } else {
+            bgPhotoUpload.classList.add('hidden');
+        }
+    }
+    
+    bgPhotoOption.addEventListener('change', toggleBackgroundUpload);
+    bgPlainOption.addEventListener('change', toggleBackgroundUpload);
+    
+    // Обработчики для существующих кнопок удаления
+    document.querySelectorAll('.delete-banner-image').forEach(button => {
+        button.addEventListener('click', function() {
+            const formsetItem = this.closest('.formset-item');
+            const bannerId = formsetItem.querySelector('input[name$="-id"]');
+            
+            // Если это существующий баннер (есть ID)
+            if (bannerId && bannerId.value) {
+                if (confirm('Удалить этот баннер?')) {
+                    // Помечаем на удаление и скрываем
+                    const deleteCheckbox = formsetItem.querySelector('input[name$="-DELETE"]');
+                    if (deleteCheckbox) {
+                        deleteCheckbox.checked = true;
+                    }
+                    formsetItem.style.display = 'none';
+                }
+            } else {
+                // Для новых баннеров просто скрываем
+                formsetItem.style.display = 'none';
+            }
+        });
+    });
+    
+    // Функция для обработки превью изображений
+    function handleImagePreview(e, formsetItem) {
+        const file = e.target.files[0];
+        let previewContainer = formsetItem.querySelector('.image-preview-container');
+        const placeholder = formsetItem.querySelector('.empty-image-placeholder');
+        
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Скрываем placeholder
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+                
+                // Если контейнера нет, создаем новый
+                if (!previewContainer) {
+                    previewContainer = document.createElement('div');
+                    previewContainer.className = 'image-preview-container';
+                    const uploadField = formsetItem.querySelector('.image-upload-field');
+                    formsetItem.insertBefore(previewContainer, uploadField);
+                }
+                
+                // Очищаем контейнер и создаем новое изображение
+                previewContainer.innerHTML = '';
+                
+                const img = document.createElement('img');
+                img.className = 'banner-image-preview';
+                img.alt = 'Превью баннера';
+                img.src = event.target.result;
+                
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    // Обработчики для загрузки изображений
+    document.querySelectorAll('.formset-item input[type="file"]').forEach(input => {
+        input.addEventListener('change', function(e) {
+            const formsetItem = e.target.closest('.formset-item');
+            handleImagePreview(e, formsetItem);
+        });
+    });
+    
+    // Добавление нового слайда для верхнего баннера
+    const addTopPhotoBtn = document.getElementById('add-top-photo');
+    const topFormsetContainer = document.getElementById('top-banner-formset');
+    const topTotalForms = document.querySelector('input[name="top_items-TOTAL_FORMS"]');
+    
+    if (addTopPhotoBtn) {
+        addTopPhotoBtn.addEventListener('click', function() {
+            const formCount = parseInt(topTotalForms.value);
+            const firstForm = document.querySelector('#top-banner-formset .formset-item');
+            
+            if (!firstForm) return;
+            
+            const newForm = firstForm.cloneNode(true);
+            
+            // Обновляем индексы в новой форме
+            newForm.innerHTML = newForm.innerHTML.replace(/top_items-\d+-/g, `top_items-${formCount}-`);
+            
+            // Очищаем значения
+            newForm.querySelectorAll('input[type="text"], input[type="url"], textarea').forEach(input => {
+                input.value = '';
+            });
+            newForm.querySelectorAll('input[type="file"]').forEach(input => {
+                input.value = '';
+            });
+            newForm.querySelectorAll('input[type="hidden"]').forEach(input => {
+                if (input.name.includes('-id')) {
+                    input.value = '';
+                }
+            });
+            
+            // Удаляем превью изображения если есть
+            const previewContainer = newForm.querySelector('.image-preview-container');
+            if (previewContainer) previewContainer.remove();
+            
+            // Создаем/показываем placeholder если его нет
+            let placeholder = newForm.querySelector('.empty-image-placeholder');
+            if (!placeholder) {
+                placeholder = document.createElement('div');
+                placeholder.className = 'empty-image-placeholder';
+                placeholder.innerHTML = `
+                    <i class="fas fa-plus-circle"></i>
+                    <p>Добавить изображение</p>
+                `;
+                const uploadField = newForm.querySelector('.image-upload-field');
+                newForm.insertBefore(placeholder, uploadField);
+            } else {
+                placeholder.style.display = 'flex';
+            }
+            
+            // Добавляем новую кнопку удаления для новой формы
+            const deleteDiv = document.createElement('div');
+            deleteDiv.className = 'delete-item';
+            deleteDiv.innerHTML = '<label style="cursor: pointer;"><i class="fas fa-times"></i></label>';
+            newForm.insertBefore(deleteDiv, newForm.firstChild);
+            
+            // Обработчик удаления для новой карточки
+            deleteDiv.querySelector('label').addEventListener('click', function(e) {
+                e.preventDefault();
+                newForm.remove();
+                // Не уменьшаем счетчик, чтобы индексы оставались уникальными
+            });
+            
+            // Сбрасываем стили
+            newForm.style.opacity = '1';
+            newForm.style.borderColor = '#ddd';
+            newForm.style.background = '#f9f9f9';
+            
+            topFormsetContainer.appendChild(newForm);
+            topTotalForms.value = formCount + 1;
+            
+            // Добавляем обработчик превью для нового поля загрузки
+            const newFileInput = newForm.querySelector('input[type="file"]');
+            if (newFileInput) {
+                newFileInput.addEventListener('change', function(e) {
+                    const formsetItem = e.target.closest('.formset-item');
+                    handleImagePreview(e, formsetItem);
+                });
+            }
+        });
+    }
+    
+    // Добавление нового слайда для нижнего баннера
+    const addBottomPhotoBtn = document.getElementById('add-bottom-photo');
+    const bottomFormsetContainer = document.getElementById('bottom-banner-formset');
+    const bottomTotalForms = document.querySelector('input[name="bottom_items-TOTAL_FORMS"]');
+    
+    if (addBottomPhotoBtn) {
+        addBottomPhotoBtn.addEventListener('click', function() {
+            const formCount = parseInt(bottomTotalForms.value);
+            const firstForm = document.querySelector('#bottom-banner-formset .formset-item');
+            
+            if (!firstForm) return;
+            
+            const newForm = firstForm.cloneNode(true);
+            
+            // Обновляем индексы в новой форме
+            newForm.innerHTML = newForm.innerHTML.replace(/bottom_items-\d+-/g, `bottom_items-${formCount}-`);
+            
+            // Очищаем значения
+            newForm.querySelectorAll('input[type="text"], input[type="url"]').forEach(input => {
+                input.value = '';
+            });
+            newForm.querySelectorAll('input[type="file"]').forEach(input => {
+                input.value = '';
+            });
+            newForm.querySelectorAll('input[type="hidden"]').forEach(input => {
+                if (input.name.includes('-id')) {
+                    input.value = '';
+                }
+            });
+            
+            // Удаляем превью изображения если есть
+            const previewContainer = newForm.querySelector('.image-preview-container');
+            if (previewContainer) previewContainer.remove();
+            
+            // Показываем placeholder
+            const placeholder = newForm.querySelector('.empty-image-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'flex';
+            }
+            
+            // Добавляем новую кнопку удаления для новой формы
+            const deleteDiv = document.createElement('div');
+            deleteDiv.className = 'delete-item';
+            deleteDiv.innerHTML = '<label style="cursor: pointer;"><i class="fas fa-times"></i></label>';
+            newForm.insertBefore(deleteDiv, newForm.firstChild);
+            
+            // Обработчик удаления для новой карточки
+            deleteDiv.querySelector('label').addEventListener('click', function(e) {
+                e.preventDefault();
+                newForm.remove();
+                // Не уменьшаем счетчик, чтобы индексы оставались уникальными
+            });
+            
+            // Сбрасываем стили
+            newForm.style.opacity = '1';
+            newForm.style.borderColor = '#ddd';
+            newForm.style.background = '#f9f9f9';
+            
+            bottomFormsetContainer.appendChild(newForm);
+            bottomTotalForms.value = formCount + 1;
+            
+            // Добавляем обработчик превью для нового поля загрузки
+            const newFileInput = newForm.querySelector('input[type="file"]');
+            if (newFileInput) {
+                newFileInput.addEventListener('change', function(e) {
+                    const formsetItem = e.target.closest('.formset-item');
+                    handleImagePreview(e, formsetItem);
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

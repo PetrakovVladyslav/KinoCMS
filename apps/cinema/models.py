@@ -1,11 +1,13 @@
-from django.db import models
-from django.conf import settings
-from django.utils import timezone
 from datetime import timedelta
+
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from .enums import MovieFormat
+from django.db import models
+from django.utils import timezone
+
 from apps.core.models import Gallery, SeoBlock
 
+from .enums import MovieFormat
 
 # Create your models here.
 
@@ -14,27 +16,17 @@ class Movie(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Название фильма")
     description = models.TextField(blank=True, verbose_name="Описание фильма")
     poster = models.ImageField(upload_to="posters/", null=True, blank=True)
-    gallery = models.ForeignKey(
-        Gallery, on_delete=models.SET_NULL, blank=True, null=True
-    )
-    trailer_url = models.URLField(
-        null=True, blank=True, verbose_name="Ссылка на трейлер"
-    )
-    start_date = models.DateField(
-        null=True, blank=True, verbose_name="Дата начала проката"
-    )
-    end_date = models.DateField(
-        null=True, blank=True, verbose_name="Дата окончания проката"
-    )
+    gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
+    trailer_url = models.URLField(null=True, blank=True, verbose_name="Ссылка на трейлер")
+    start_date = models.DateField(null=True, blank=True, verbose_name="Дата начала проката")
+    end_date = models.DateField(null=True, blank=True, verbose_name="Дата окончания проката")
     formats = ArrayField(
         models.CharField(max_length=10, choices=MovieFormat.choices),
         default=list,
         blank=True,
         verbose_name="Форматы показа",
     )
-    seo_block = models.OneToOneField(
-        SeoBlock, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Фильмы"
@@ -51,19 +43,13 @@ class Movie(models.Model):
 
 
 class Cinema(models.Model):
-    name = models.CharField(
-        max_length=50, unique=True, verbose_name="Название кинотеатра"
-    )
+    name = models.CharField(max_length=50, unique=True, verbose_name="Название кинотеатра")
     description = models.TextField(blank=True, verbose_name="Описание")
     conditions = models.TextField(blank=True, verbose_name="Условия")
     logo = models.ImageField(upload_to="cinema/logos/", null=True, blank=True)
     banner = models.ImageField(upload_to="cinema/banners/", null=True, blank=True)
-    gallery = models.ForeignKey(
-        Gallery, on_delete=models.SET_NULL, blank=True, null=True
-    )
-    seo_block = models.OneToOneField(
-        SeoBlock, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
+    seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -88,12 +74,8 @@ class Hall(models.Model):
     )
     banner = models.ImageField(upload_to="banners/", null=True, blank=True)
     scheme_data = models.JSONField(null=True, blank=True, verbose_name="Схема зала")
-    gallery = models.ForeignKey(
-        Gallery, on_delete=models.SET_NULL, blank=True, null=True
-    )
-    seo_block = models.OneToOneField(
-        SeoBlock, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
+    seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
@@ -114,12 +96,8 @@ class Hall(models.Model):
 class Session(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, verbose_name="Фильм")
     hall = models.ForeignKey(Hall, on_delete=models.CASCADE, verbose_name="Зал")
-    start_time = models.DateTimeField(
-        verbose_name="Начало сеанса", default=timezone.now
-    )
-    end_time = models.DateTimeField(
-        verbose_name="Окончание сеанса", default=timezone.now
-    )
+    start_time = models.DateTimeField(verbose_name="Начало сеанса", default=timezone.now)
+    end_time = models.DateTimeField(verbose_name="Окончание сеанса", default=timezone.now)
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
     format = models.CharField(
         max_length=10,
@@ -151,21 +129,13 @@ class Seat(models.Model):
 
 
 class Booking(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь"
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
     session = models.ForeignKey(Session, on_delete=models.CASCADE, verbose_name="Сеанс")
     seats = models.ManyToManyField(Seat)
-    ticket_price = models.DecimalField(
-        max_digits=10, decimal_places=2, verbose_name="Цена билета"
-    )
-    total_amount = models.DecimalField(
-        max_digits=10, decimal_places=2, verbose_name="Общая сумма"
-    )
+    ticket_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена билета")
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая сумма")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
-    expires_at = models.DateTimeField(
-        blank=True, null=True, verbose_name="Действительна до"
-    )
+    expires_at = models.DateTimeField(blank=True, null=True, verbose_name="Действительна до")
     is_paid = models.BooleanField(default=False)
 
     class Meta:

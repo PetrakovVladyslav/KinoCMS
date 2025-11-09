@@ -1,16 +1,18 @@
-from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import DetailView, ListView
-from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
 from datetime import date, timedelta
 from itertools import groupby
 
-from .models import Cinema, Movie, Hall, Session, Booking
-from .forms import PageMovieForm, CinemaForm, HallForm
-from .enums import MovieFormat
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import DetailView, ListView
+
+from apps.core.forms import GalleryFormSet, SeoBlockForm
 from apps.core.models import Gallery
-from apps.core.forms import SeoBlockForm, GalleryFormSet
+
+from .enums import MovieFormat
+from .forms import CinemaForm, HallForm, PageMovieForm
+from .models import Booking, Cinema, Hall, Movie, Session
 
 # Create your views here.
 
@@ -102,11 +104,7 @@ class HallDetailView(DetailView):
         from datetime import date
 
         today = date.today()
-        today_sessions = (
-            hall.session_set.filter(start_time__date=today)
-            .select_related("movie")
-            .order_by("start_time")
-        )
+        today_sessions = hall.session_set.filter(start_time__date=today).select_related("movie").order_by("start_time")
 
         context["today_sessions"] = today_sessions
         return context
@@ -119,9 +117,7 @@ def admin_movie_list_view(request):
     current_movies = Movie.objects.filter(start_date__lte=today, end_date__gte=today)
     upcoming_movies = Movie.objects.filter(start_date__gt=today)
     past_movies = Movie.objects.filter(end_date__lt=today)
-    movies_without_dates = Movie.objects.filter(
-        start_date__isnull=True
-    ) | Movie.objects.filter(end_date__isnull=True)
+    movies_without_dates = Movie.objects.filter(start_date__isnull=True) | Movie.objects.filter(end_date__isnull=True)
 
     context = {
         "today": today,
@@ -212,9 +208,7 @@ def movie_update_view(request, movie_id):
 
     if request.method == "POST":
         form = PageMovieForm(request.POST, request.FILES, instance=movie)
-        seo_form = SeoBlockForm(
-            request.POST, instance=movie.seo_block if movie.seo_block_id else None
-        )
+        seo_form = SeoBlockForm(request.POST, instance=movie.seo_block if movie.seo_block_id else None)
         gallery_formset = GalleryFormSet(
             request.POST,
             request.FILES,
@@ -253,12 +247,8 @@ def movie_update_view(request, movie_id):
             messages.error(request, "Пожалуйста, исправьте ошибки")
     else:
         form = PageMovieForm(instance=movie)
-        seo_form = SeoBlockForm(
-            instance=movie.seo_block if movie.seo_block_id else None
-        )
-        gallery_formset = GalleryFormSet(
-            instance=movie.gallery if movie.gallery_id else None
-        )
+        seo_form = SeoBlockForm(instance=movie.seo_block if movie.seo_block_id else None)
+        gallery_formset = GalleryFormSet(instance=movie.gallery if movie.gallery_id else None)
 
     context = {
         "form": form,
@@ -327,9 +317,7 @@ def cinema_update_view(request, pk):
 
     if request.method == "POST":
         form = CinemaForm(request.POST, request.FILES, instance=cinema)
-        seo_form = SeoBlockForm(
-            request.POST, instance=cinema.seo_block if cinema.seo_block_id else None
-        )
+        seo_form = SeoBlockForm(request.POST, instance=cinema.seo_block if cinema.seo_block_id else None)
         gallery_formset = GalleryFormSet(
             request.POST,
             request.FILES,
@@ -368,12 +356,8 @@ def cinema_update_view(request, pk):
             messages.error(request, "Пожалуйста, исправьте ошибки")
     else:
         form = CinemaForm(instance=cinema)
-        seo_form = SeoBlockForm(
-            instance=cinema.seo_block if cinema.seo_block_id else None
-        )
-        gallery_formset = GalleryFormSet(
-            instance=cinema.gallery if cinema.gallery_id else None
-        )
+        seo_form = SeoBlockForm(instance=cinema.seo_block if cinema.seo_block_id else None)
+        gallery_formset = GalleryFormSet(instance=cinema.gallery if cinema.gallery_id else None)
 
     halls = cinema.halls.all().order_by("created_at")
 
@@ -489,9 +473,7 @@ def hall_update_view(request, pk):
 
     if request.method == "POST":
         form = HallForm(request.POST, request.FILES, instance=hall)
-        seo_form = SeoBlockForm(
-            request.POST, instance=hall.seo_block if hall.seo_block_id else None
-        )
+        seo_form = SeoBlockForm(request.POST, instance=hall.seo_block if hall.seo_block_id else None)
         gallery_formset = GalleryFormSet(
             request.POST,
             request.FILES,
@@ -531,9 +513,7 @@ def hall_update_view(request, pk):
     else:
         form = HallForm(instance=hall)
         seo_form = SeoBlockForm(instance=hall.seo_block if hall.seo_block_id else None)
-        gallery_formset = GalleryFormSet(
-            instance=hall.gallery if hall.gallery_id else None
-        )
+        gallery_formset = GalleryFormSet(instance=hall.gallery if hall.gallery_id else None)
 
     context = {
         "form": form,
@@ -576,9 +556,7 @@ class SessionListView(ListView):
     context_object_name = "sessions"
 
     def get_queryset(self):
-        queryset = Session.objects.select_related(
-            "movie", "hall", "hall__cinema"
-        ).order_by("start_time")
+        queryset = Session.objects.select_related("movie", "hall", "hall__cinema").order_by("start_time")
 
         # Filter by format (multiple selection)
         format_filters = self.request.GET.getlist("format")
@@ -613,9 +591,7 @@ class SessionListView(ListView):
         # Add filter choices
         context["formats"] = MovieFormat.choices
         context["cinemas"] = Cinema.objects.all()
-        context["movies"] = Movie.objects.filter(start_date__lte=date.today()).order_by(
-            "name"
-        )
+        context["movies"] = Movie.objects.filter(start_date__lte=date.today()).order_by("name")
         context["halls"] = Hall.objects.select_related("cinema").all()
 
         # Preserve current filters
@@ -650,6 +626,7 @@ class BookingView(DetailView):
 
     def get_context_data(self, **kwargs):
         import json
+
         from django.utils.safestring import mark_safe
 
         context = super().get_context_data(**kwargs)
@@ -665,8 +642,8 @@ class BookingView(DetailView):
 
         # Get booked seats from database
         # Find all bookings for this session that are either paid or not expired
-        from django.utils import timezone
         from django.db.models import Q
+        from django.utils import timezone
 
         active_bookings = (
             Booking.objects.filter(session=session)
@@ -694,11 +671,13 @@ class BookingView(DetailView):
 @csrf_exempt
 def process_booking(request, session_id):
     """Process booking/purchase request via AJAX."""
+    import json
+
+    from django.db import transaction
     from django.http import JsonResponse
     from django.utils import timezone
-    from django.db import transaction
+
     from .models import Seat
-    import json
 
     if request.method != "POST":
         return JsonResponse({"error": "Method not allowed"}, status=405)
@@ -728,9 +707,7 @@ def process_booking(request, session_id):
                 number = int(seat_info["seat"])
 
                 # Get or create seat
-                seat, created = Seat.objects.get_or_create(
-                    hall=session.hall, row=row, number=number
-                )
+                seat, created = Seat.objects.get_or_create(hall=session.hall, row=row, number=number)
                 seat_objects.append(seat)
 
             # Check if any seats are already booked
@@ -761,9 +738,7 @@ def process_booking(request, session_id):
                 ticket_price=session.price,
                 total_amount=total_amount,
                 is_paid=(action == "buy"),  # Если "купить" - сразу оплачено
-                expires_at=timezone.now() + timedelta(minutes=30)
-                if action == "book"
-                else None,
+                expires_at=timezone.now() + timedelta(minutes=30) if action == "book" else None,
             )
             booking.save()  # Save first to get ID
 
@@ -774,9 +749,7 @@ def process_booking(request, session_id):
                 {
                     "success": True,
                     "booking_id": booking.id,
-                    "message": "Бронирование успешно создано"
-                    if action == "book"
-                    else "Билеты успешно куплены",
+                    "message": "Бронирование успешно создано" if action == "book" else "Билеты успешно куплены",
                 }
             )
 

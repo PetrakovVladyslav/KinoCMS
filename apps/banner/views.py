@@ -1,18 +1,19 @@
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
 from django.shortcuts import redirect
-from django.contrib import messages
-from django.views.generic import TemplateView
-from django.views.decorators.cache import never_cache
-from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
-from .models import BannerSlider, BannerBackground, BottomBannerSlider
+from django.views.decorators.cache import never_cache
+from django.views.generic import TemplateView
+
 from .forms import (
-    BannerSliderForm,
-    BannerItemFormset,
     BannerBackgroundForm,
-    BottomBannerSliderForm,
+    BannerItemFormset,
+    BannerSliderForm,
     BottomBannerItemFormset,
+    BottomBannerSliderForm,
 )
+from .models import BannerBackground, BannerSlider, BottomBannerSlider
 
 
 @method_decorator([staff_member_required, never_cache], name="dispatch")
@@ -46,18 +47,10 @@ class BannerManagementView(TemplateView):
         context.update(
             {
                 "top_slider_form": BannerSliderForm(instance=top_slider, prefix="top"),
-                "top_items_formset": BannerItemFormset(
-                    instance=top_slider, prefix="top_items"
-                ),
-                "background_form": BannerBackgroundForm(
-                    instance=background, prefix="bg"
-                ),
-                "bottom_slider_form": BottomBannerSliderForm(
-                    instance=bottom_slider, prefix="bottom"
-                ),
-                "bottom_items_formset": BottomBannerItemFormset(
-                    instance=bottom_slider, prefix="bottom_items"
-                ),
+                "top_items_formset": BannerItemFormset(instance=top_slider, prefix="top_items"),
+                "background_form": BannerBackgroundForm(instance=background, prefix="bg"),
+                "bottom_slider_form": BottomBannerSliderForm(instance=bottom_slider, prefix="bottom"),
+                "bottom_items_formset": BottomBannerItemFormset(instance=bottom_slider, prefix="bottom_items"),
                 "title": "Управление баннерами",
             }
         )
@@ -66,19 +59,13 @@ class BannerManagementView(TemplateView):
     def save_top_banner(self, request):
         top_slider = BannerSlider.objects.first()
         if not top_slider:
-            top_slider = BannerSlider.objects.create(
-                title="На главной верх", is_active=False
-            )
+            top_slider = BannerSlider.objects.create(title="На главной верх", is_active=False)
 
         # Обработка чекбокса активации
         is_active = "top-is_active" in request.POST
 
-        top_slider_form = BannerSliderForm(
-            request.POST, instance=top_slider, prefix="top"
-        )
-        top_items_formset = BannerItemFormset(
-            request.POST, request.FILES, instance=top_slider, prefix="top_items"
-        )
+        top_slider_form = BannerSliderForm(request.POST, instance=top_slider, prefix="top")
+        top_items_formset = BannerItemFormset(request.POST, request.FILES, instance=top_slider, prefix="top_items")
 
         if top_slider_form.is_valid() and top_items_formset.is_valid():
             with transaction.atomic():
@@ -91,9 +78,7 @@ class BannerManagementView(TemplateView):
         else:
             # Выводим ошибки для отладки
             if not top_slider_form.is_valid():
-                messages.error(
-                    request, f"Ошибки формы слайдера: {top_slider_form.errors}"
-                )
+                messages.error(request, f"Ошибки формы слайдера: {top_slider_form.errors}")
             if not top_items_formset.is_valid():
                 messages.error(request, f"Ошибки formset: {top_items_formset.errors}")
             messages.error(request, "Ошибка сохранения верхнего баннера")
@@ -105,9 +90,7 @@ class BannerManagementView(TemplateView):
         if not background:
             background = BannerBackground.objects.create(title="Фон")
 
-        background_form = BannerBackgroundForm(
-            request.POST, request.FILES, instance=background, prefix="bg"
-        )
+        background_form = BannerBackgroundForm(request.POST, request.FILES, instance=background, prefix="bg")
 
         if background_form.is_valid():
             background_form.save()
@@ -120,16 +103,12 @@ class BannerManagementView(TemplateView):
     def save_bottom_banner(self, request):
         bottom_slider = BottomBannerSlider.objects.first()
         if not bottom_slider:
-            bottom_slider = BottomBannerSlider.objects.create(
-                title="На главной Новости Акции внизу", is_active=False
-            )
+            bottom_slider = BottomBannerSlider.objects.create(title="На главной Новости Акции внизу", is_active=False)
 
         # Обработка чекбокса активации
         is_active = "bottom-is_active" in request.POST
 
-        bottom_slider_form = BottomBannerSliderForm(
-            request.POST, instance=bottom_slider, prefix="bottom"
-        )
+        bottom_slider_form = BottomBannerSliderForm(request.POST, instance=bottom_slider, prefix="bottom")
         bottom_items_formset = BottomBannerItemFormset(
             request.POST, request.FILES, instance=bottom_slider, prefix="bottom_items"
         )

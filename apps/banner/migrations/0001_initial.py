@@ -24,9 +24,7 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=255)),
                 (
                     "image",
-                    models.ImageField(
-                        blank=True, null=True, upload_to="banner_background"
-                    ),
+                    models.ImageField(blank=True, null=True, upload_to="banner_background"),
                 ),
                 ("just_color", models.CharField(blank=True, max_length=255, null=True)),
             ],

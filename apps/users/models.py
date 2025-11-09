@@ -1,7 +1,8 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db import models
 from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
+
 # Create your models here.
 
 
@@ -28,17 +29,13 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError("Нужно ввести Email")
         email = self.normalize_email(email)
-        user = self.model(
-            email=email, first_name=first_name, last_name=last_name, **extra_fields
-        )
+        user = self.model(email=email, first_name=first_name, last_name=last_name, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
 
         return user
 
-    def create_superuser(
-        self, email, first_name, last_name, password=None, **extra_fields
-    ):
+    def create_superuser(self, email, first_name, last_name, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 

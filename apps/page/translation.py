@@ -1,5 +1,6 @@
-from modeltranslation.translator import register, TranslationOptions
-from .models import PageMain, PageElse, PageNewsSales
+from modeltranslation.translator import TranslationOptions, register
+
+from .models import PageElse, PageMain, PageNewsSales
 
 
 @register(PageMain)

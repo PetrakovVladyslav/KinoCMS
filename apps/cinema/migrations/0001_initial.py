@@ -23,9 +23,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "name",
-                    models.CharField(
-                        max_length=50, unique=True, verbose_name="Название кинотеатра"
-                    ),
+                    models.CharField(max_length=50, unique=True, verbose_name="Название кинотеатра"),
                 ),
                 (
                     "name_ru",
@@ -116,9 +114,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "title",
-                    models.CharField(
-                        max_length=50, unique=True, verbose_name="Название фильма"
-                    ),
+                    models.CharField(max_length=50, unique=True, verbose_name="Название фильма"),
                 ),
                 (
                     "title_ru",
@@ -144,15 +140,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description_ru",
-                    models.TextField(
-                        blank=True, null=True, verbose_name="Описание фильма"
-                    ),
+                    models.TextField(blank=True, null=True, verbose_name="Описание фильма"),
                 ),
                 (
                     "description_en",
-                    models.TextField(
-                        blank=True, null=True, verbose_name="Описание фильма"
-                    ),
+                    models.TextField(blank=True, null=True, verbose_name="Описание фильма"),
                 ),
                 (
                     "poster",
@@ -160,9 +152,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "trailer_url",
-                    models.URLField(
-                        blank=True, null=True, verbose_name="Ссылка на трейлер"
-                    ),
+                    models.URLField(blank=True, null=True, verbose_name="Ссылка на трейлер"),
                 ),
                 (
                     "type3d",
@@ -198,9 +188,7 @@ class Migration(migrations.Migration):
                 ("time", models.TimeField(verbose_name="Время сеанса")),
                 (
                     "price",
-                    models.DecimalField(
-                        decimal_places=2, max_digits=10, verbose_name="Цена"
-                    ),
+                    models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Цена"),
                 ),
                 ("type3d", models.BooleanField(default=False)),
                 ("typeimax", models.BooleanField(default=False)),

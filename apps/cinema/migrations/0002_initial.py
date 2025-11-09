@@ -36,9 +36,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="hall",
             name="cinema",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="cinema.cinema"
-            ),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="cinema.cinema"),
         ),
         migrations.AddField(
             model_name="hall",

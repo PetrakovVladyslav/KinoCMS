@@ -2,8 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from transliterate import translit
 
-from apps.core.models import SeoBlock, Gallery
-
+from apps.core.models import Gallery, SeoBlock
 
 # Create your models here.
 
@@ -13,9 +12,7 @@ class PageContacts(models.Model):
     address = models.TextField()
     coordinates = models.CharField(max_length=100)
     logo = models.ImageField(upload_to="page/logo", null=True, blank=True)
-    seo_block = models.OneToOneField(
-        SeoBlock, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
     is_main = models.BooleanField(default=False, verbose_name="Главный блок")
     order = models.IntegerField(default=0, verbose_name="Порядок")
     status = models.BooleanField(default=True, verbose_name="Активен")
@@ -38,9 +35,7 @@ class PageContacts(models.Model):
     def save(self, *args, **kwargs):
         if self.is_main:
             # Снимаем флаг is_main с других блоков
-            PageContacts.objects.filter(is_main=True).exclude(pk=self.pk).update(
-                is_main=False
-            )
+            PageContacts.objects.filter(is_main=True).exclude(pk=self.pk).update(is_main=False)
         super().save(*args, **kwargs)
 
 
@@ -50,9 +45,7 @@ class PageMain(models.Model):
     status = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
     seo_text = models.TextField(blank=True, null=True)
-    seo_block = models.OneToOneField(
-        SeoBlock, on_delete=models.CASCADE, blank=True, null=True
-    )
+    seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
     can_delete = models.BooleanField(default=False)
 
     def __str__(self):
@@ -70,21 +63,13 @@ class PageNewsSales(models.Model):
     description = models.TextField(blank=True, verbose_name="Описание")
 
     date = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
-    publish_date = models.DateField(
-        null=True, blank=True, verbose_name="Дата публикации"
-    )
+    publish_date = models.DateField(null=True, blank=True, verbose_name="Дата публикации")
 
-    logo = models.ImageField(
-        upload_to="page/logo", null=True, blank=True, verbose_name="Главная картинка"
-    )
-    gallery = models.ForeignKey(
-        Gallery, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    logo = models.ImageField(upload_to="page/logo", null=True, blank=True, verbose_name="Главная картинка")
+    gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     video_url = models.URLField(blank=True, verbose_name="Ссылка на видео")
 
-    seo_block = models.OneToOneField(
-        SeoBlock, on_delete=models.CASCADE, blank=True, null=True
-    )
+    seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
     status = models.BooleanField(default=False, verbose_name="Активна")
 
     class Meta:
@@ -107,12 +92,8 @@ class PageElse(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, verbose_name="Описание")
     logo = models.ImageField(upload_to="page/logo", null=True, blank=True)
-    gallery = models.ForeignKey(
-        Gallery, on_delete=models.SET_NULL, blank=True, null=True
-    )
-    seo_block = models.OneToOneField(
-        SeoBlock, on_delete=models.CASCADE, blank=True, null=True
-    )
+    gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
+    seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False)
     is_system = models.BooleanField(default=False)

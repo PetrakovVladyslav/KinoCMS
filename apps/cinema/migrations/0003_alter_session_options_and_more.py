@@ -97,9 +97,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="movie",
             name="end_date",
-            field=models.DateField(
-                blank=True, null=True, verbose_name="Дата окончания проката"
-            ),
+            field=models.DateField(blank=True, null=True, verbose_name="Дата окончания проката"),
         ),
         migrations.AddField(
             model_name="movie",
@@ -118,23 +116,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="movie",
             name="start_date",
-            field=models.DateField(
-                blank=True, null=True, verbose_name="Дата начала проката"
-            ),
+            field=models.DateField(blank=True, null=True, verbose_name="Дата начала проката"),
         ),
         migrations.AddField(
             model_name="session",
             name="end_time",
-            field=models.DateTimeField(
-                default=django.utils.timezone.now, verbose_name="Окончание сеанса"
-            ),
+            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name="Окончание сеанса"),
         ),
         migrations.AddField(
             model_name="session",
             name="start_time",
-            field=models.DateTimeField(
-                default=django.utils.timezone.now, verbose_name="Начало сеанса"
-            ),
+            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name="Начало сеанса"),
         ),
         migrations.AlterField(
             model_name="cinema",
@@ -193,9 +185,7 @@ class Migration(migrations.Migration):
                 ("is_available", models.BooleanField(default=True)),
                 (
                     "hall",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="cinema.hall"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="cinema.hall"),
                 ),
             ],
             options={
@@ -217,15 +207,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "ticket_price",
-                    models.DecimalField(
-                        decimal_places=2, max_digits=10, verbose_name="Цена билета"
-                    ),
+                    models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Цена билета"),
                 ),
                 (
                     "total_amount",
-                    models.DecimalField(
-                        decimal_places=2, max_digits=10, verbose_name="Общая сумма"
-                    ),
+                    models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Общая сумма"),
                 ),
                 (
                     "created_at",
@@ -233,9 +219,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "expires_at",
-                    models.DateTimeField(
-                        blank=True, null=True, verbose_name="Действительна до"
-                    ),
+                    models.DateTimeField(blank=True, null=True, verbose_name="Действительна до"),
                 ),
                 ("is_paid", models.BooleanField(default=False)),
                 (

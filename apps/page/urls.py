@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 app_name = "page"
@@ -8,15 +9,11 @@ urlpatterns = [
     path("admin-panel/pages/", views.admin_page_list_view, name="admin_page_list"),
     # Специальные страницы
     path("admin-panel/pages/main/", views.main_page_view, name="main_edit"),
-    path(
-        "admin-panel/pages/contacts/", views.contacts_admin_edit_view, name="contacts"
-    ),
+    path("admin-panel/pages/contacts/", views.contacts_admin_edit_view, name="contacts"),
     # Системные и пользовательские страницы (редактируются по ID)
     path("admin-panel/pages/create/", views.page_create_view, name="page_create"),
     path("admin-panel/pages/<int:pk>/edit/", views.page_update_view, name="page_edit"),
-    path(
-        "admin-panel/pages/<int:pk>/delete/", views.page_delete_view, name="page_delete"
-    ),
+    path("admin-panel/pages/<int:pk>/delete/", views.page_delete_view, name="page_delete"),
     # Админские списки новостей и акций
     path("admin-panel/news/", views.admin_news_list_view, name="admin_news_list"),
     path("admin-panel/sales/", views.admin_sales_list_view, name="admin_sales_list"),
@@ -24,9 +21,7 @@ urlpatterns = [
     path("admin-panel/news/create/", views.news_view, name="news_create"),
     path("admin-panel/sales/create/", views.sales_view, name="sales_create"),
     # Редактирование и удаление
-    path(
-        "admin-panel/news/<int:news_id>/edit/", views.news_update_view, name="news_edit"
-    ),
+    path("admin-panel/news/<int:news_id>/edit/", views.news_update_view, name="news_edit"),
     path(
         "admin-panel/news/<int:news_id>/delete/",
         views.news_delete_view,

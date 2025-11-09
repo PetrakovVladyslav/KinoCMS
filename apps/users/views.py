@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+from django.shortcuts import redirect, render
+
 from .forms import CustomUserCreationForm, CustomUserLoginForm, CustomUserUpdateForm
 
 

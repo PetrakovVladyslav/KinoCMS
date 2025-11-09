@@ -1,15 +1,17 @@
-from django.utils import timezone
-from apps.cinema.models import Movie
-from apps.banner.models import BannerSlider, BannerBackground, BottomBannerSlider
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.db import models
-from apps.core.models import Gallery
-from .models import PageElse, PageContacts, PageNewsSales, PageMain
-from .forms import PageMainForm, PageElseForm, PageContactsForm, PageNewsSalesForm
-from apps.core.forms import GalleryFormSet, SeoBlockForm
 from django.forms import modelformset_factory
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+
+from apps.banner.models import BannerBackground, BannerSlider, BottomBannerSlider
+from apps.cinema.models import Movie
+from apps.core.forms import GalleryFormSet, SeoBlockForm
+from apps.core.models import Gallery
+
+from .forms import PageContactsForm, PageElseForm, PageMainForm, PageNewsSalesForm
+from .models import PageContacts, PageElse, PageMain, PageNewsSales
 
 
 def page_detail_view(request, slug):
@@ -33,12 +35,8 @@ def home_view(request):
     background = BannerBackground.objects.first()
 
     # Получаем новости и акции
-    news = PageNewsSales.objects.filter(type="news", status=True).order_by(
-        "-publish_date"
-    )[:3]
-    sales = PageNewsSales.objects.filter(type="sale", status=True).order_by(
-        "-publish_date"
-    )[:3]
+    news = PageNewsSales.objects.filter(type="news", status=True).order_by("-publish_date")[:3]
+    sales = PageNewsSales.objects.filter(type="sale", status=True).order_by("-publish_date")[:3]
 
     context = {
         "today_movies": today_movies,
@@ -83,9 +81,7 @@ def soon_view(request):
 
 def contacts_view(request):
     # Только активные контакты, главный первый, затем по порядку
-    contacts = PageContacts.objects.filter(status=True).order_by(
-        "-is_main", "order", "cinema_name"
-    )
+    contacts = PageContacts.objects.filter(status=True).order_by("-is_main", "order", "cinema_name")
 
     context = {"contacts": contacts, "title": "Кинотеатры"}
     return render(request, "page/contacts.html", context)
@@ -97,15 +93,11 @@ def main_page_view(request):
     main_page = PageMain.objects.first()
 
     if not main_page:
-        main_page = PageMain.objects.create(
-            phone_number1="", phone_number2="", status=True
-        )
+        main_page = PageMain.objects.create(phone_number1="", phone_number2="", status=True)
 
     if request.method == "POST":
         form = PageMainForm(request.POST, request.FILES, instance=main_page)
-        seo_form = SeoBlockForm(
-            request.POST, instance=main_page.seo_block if main_page.seo_block else None
-        )
+        seo_form = SeoBlockForm(request.POST, instance=main_page.seo_block if main_page.seo_block else None)
 
         if form.is_valid() and seo_form.is_valid():
             main_page = form.save(commit=False)
@@ -121,9 +113,7 @@ def main_page_view(request):
             messages.error(request, "Пожалуйста, исправьте ошибки")
     else:
         form = PageMainForm(instance=main_page)
-        seo_form = SeoBlockForm(
-            instance=main_page.seo_block if main_page.seo_block else None
-        )
+        seo_form = SeoBlockForm(instance=main_page.seo_block if main_page.seo_block else None)
 
     context = {
         "form": form,
@@ -256,9 +246,7 @@ def news_update_view(request, news_id):
             request.FILES,
             instance=news.gallery if news.gallery_id else None,
         )
-        seo_form = SeoBlockForm(
-            request.POST, instance=news.seo_block if news.seo_block_id else None
-        )
+        seo_form = SeoBlockForm(request.POST, instance=news.seo_block if news.seo_block_id else None)
 
         if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():
             # Сохраняем новость
@@ -294,9 +282,7 @@ def news_update_view(request, news_id):
             messages.error(request, "Пожалуйста, исправьте ошибки")
     else:
         form = PageNewsSalesForm(instance=news)
-        gallery_formset = GalleryFormSet(
-            instance=news.gallery if news.gallery_id else None
-        )
+        gallery_formset = GalleryFormSet(instance=news.gallery if news.gallery_id else None)
         seo_form = SeoBlockForm(instance=news.seo_block if news.seo_block_id else None)
 
     context = {
@@ -352,9 +338,7 @@ def sales_update_view(request, sales_id):
             request.FILES,
             instance=sales.gallery if sales.gallery_id else None,
         )
-        seo_form = SeoBlockForm(
-            request.POST, instance=sales.seo_block if sales.seo_block_id else None
-        )
+        seo_form = SeoBlockForm(request.POST, instance=sales.seo_block if sales.seo_block_id else None)
 
         if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():
             sales = form.save(commit=False)
@@ -387,12 +371,8 @@ def sales_update_view(request, sales_id):
             messages.error(request, "Пожалуйста, исправьте ошибки")
     else:
         form = PageNewsSalesForm(instance=sales)
-        gallery_formset = GalleryFormSet(
-            instance=sales.gallery if sales.gallery_id else None
-        )
-        seo_form = SeoBlockForm(
-            instance=sales.seo_block if sales.seo_block_id else None
-        )
+        gallery_formset = GalleryFormSet(instance=sales.gallery if sales.gallery_id else None)
+        seo_form = SeoBlockForm(instance=sales.seo_block if sales.seo_block_id else None)
 
     context = {
         "form": form,
@@ -428,9 +408,7 @@ def sales_delete_view(request, sales_id):
 
 @staff_member_required(login_url="admin:login")
 def sale_detail_view(request, item_id):
-    item = get_object_or_404(
-        PageNewsSales, pk=item_id, type__in=["sale", "news"], status=True
-    )
+    item = get_object_or_404(PageNewsSales, pk=item_id, type__in=["sale", "news"], status=True)
 
     context = {
         "item": item,
@@ -441,9 +419,7 @@ def sale_detail_view(request, item_id):
 
 @staff_member_required(login_url="admin:login")
 def sale_news_list_view(request):
-    sales = PageNewsSales.objects.filter(
-        type__in=["sale", "news"], status=True
-    ).order_by("-publish_date", "-date")
+    sales = PageNewsSales.objects.filter(type__in=["sale", "news"], status=True).order_by("-publish_date", "-date")
 
     context = {
         "sales": sales,
@@ -457,9 +433,7 @@ def contacts_admin_edit_view(request):
     """Упрощенный вариант - все в одной форме БЕЗ toggle"""
 
     main_contact = PageContacts.objects.filter(is_main=True).first()
-    additional_contacts = PageContacts.objects.filter(is_main=False).order_by(
-        "order", "id"
-    )
+    additional_contacts = PageContacts.objects.filter(is_main=False).order_by("order", "id")
 
     PageContactsFormSet = modelformset_factory(
         PageContacts,
@@ -469,9 +443,7 @@ def contacts_admin_edit_view(request):
     )
 
     if request.method == "POST":
-        main_form = PageContactsForm(
-            request.POST, request.FILES, instance=main_contact, prefix="main"
-        )
+        main_form = PageContactsForm(request.POST, request.FILES, instance=main_contact, prefix="main")
         formset = PageContactsFormSet(
             request.POST,
             request.FILES,
@@ -480,9 +452,7 @@ def contacts_admin_edit_view(request):
         )
         seo_form = SeoBlockForm(
             request.POST,
-            instance=main_contact.seo_block
-            if main_contact and main_contact.seo_block
-            else None,
+            instance=main_contact.seo_block if main_contact and main_contact.seo_block else None,
             prefix="seo",
         )
 
@@ -521,9 +491,7 @@ def contacts_admin_edit_view(request):
         main_form = PageContactsForm(instance=main_contact, prefix="main")
         formset = PageContactsFormSet(queryset=additional_contacts, prefix="additional")
         seo_form = SeoBlockForm(
-            instance=main_contact.seo_block
-            if main_contact and main_contact.seo_block
-            else None,
+            instance=main_contact.seo_block if main_contact and main_contact.seo_block else None,
             prefix="seo",
         )
 
@@ -615,9 +583,7 @@ def page_update_view(request, pk):
 
     if request.method == "POST":
         form = PageElseForm(request.POST, request.FILES, instance=page)
-        gallery_formset = GalleryFormSet(
-            request.POST, request.FILES, instance=page.gallery
-        )
+        gallery_formset = GalleryFormSet(request.POST, request.FILES, instance=page.gallery)
         seo_form = SeoBlockForm(request.POST, instance=page.seo_block)
 
         if form.is_valid() and gallery_formset.is_valid() and seo_form.is_valid():

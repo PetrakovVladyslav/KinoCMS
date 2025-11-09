@@ -1,5 +1,6 @@
-from modeltranslation.translator import register, TranslationOptions
-from .models import Movie, Cinema, Hall
+from modeltranslation.translator import TranslationOptions, register
+
+from .models import Cinema, Hall, Movie
 
 
 @register(Movie)

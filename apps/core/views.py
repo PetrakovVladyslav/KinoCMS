@@ -1,13 +1,13 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
-from apps.users.models import CustomUser
-from apps.users.forms import CustomUserUpdateForm
-from django.contrib.admin.views.decorators import staff_member_required
-from apps.cinema.models import Movie
+from django.shortcuts import get_object_or_404, redirect, render
 
+from apps.cinema.models import Movie
+from apps.users.forms import CustomUserUpdateForm
+from apps.users.models import CustomUser
 
 # Create your views here.
 
@@ -82,9 +82,7 @@ def admin_user_edit(request, user_id):
         form = CustomUserUpdateForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            messages.success(
-                request, f"Пользователь {user.get_full_name()} успешно обновлён"
-            )
+            messages.success(request, f"Пользователь {user.get_full_name()} успешно обновлён")
             return redirect("core:admin_users_list")
         else:
             messages.error(request, "Ошибки в форме")
@@ -134,9 +132,7 @@ def search_movies(request):
         today = timezone.now().date()
 
         movies = (
-            Movie.objects.filter(
-                Q(name_ru__icontains=query) | Q(name_uk__icontains=query)
-            )
+            Movie.objects.filter(Q(name_ru__icontains=query) | Q(name_uk__icontains=query))
             .filter(Q(start_date__lte=today) | Q(start_date__isnull=True))
             .filter(Q(end_date__gte=today) | Q(end_date__isnull=True))
             .distinct()[:10]
