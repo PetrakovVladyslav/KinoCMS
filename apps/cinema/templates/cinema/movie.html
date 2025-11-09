@@ -450,7 +450,7 @@
         <div class="row align-items-center mb-3">
             <div class="col-md-6">
                 <h5 class="mb-0 text-white">
-                    <i class="fas fa-calendar-alt me-2"></i>Расписание сеансов:
+                    <i class="fas fa-calendar-alt me-2"></i>{% trans "Расписание сеансов" %}:
                 </h5>
             </div>
             <div class="col-md-6 text-end">
@@ -460,7 +460,7 @@
                     {% endfor %}
                 </select>
                 <div class="format-tabs d-inline-flex">
-                    <button class="format-tab active" data-format="">Все</button>
+                    <button class="format-tab active" data-format="">{% trans "Все" %}</button>
                     {% if movie.formats %}
                         {% for format in movie.formats %}
                             <button class="format-tab" data-format="{{ format }}">{{ format }}</button>
@@ -480,7 +480,7 @@
             {% endfor %}
             {% if not sessions_by_date %}
             <div class="text-muted">
-                <i class="fas fa-info-circle me-2"></i>Нет сеансов на сегодня и завтра
+                <i class="fas fa-info-circle me-2"></i>{% trans "Нет сеансов на сегодня и завтра" %}
             </div>
             {% endif %}
         </div>
@@ -513,7 +513,7 @@
             {% else %}
             <div class="text-center text-muted py-4">
                 <i class="fas fa-calendar-times" style="font-size: 3rem;"></i>
-                <p class="mt-2">Сеансы не найдены</p>
+                <p class="mt-2">{% trans "Сеансы не найдены" %}</p>
             </div>
             {% endif %}
         </div>
@@ -536,7 +536,7 @@
                 
                 {% if movie.trailer_url %}
                     <a href="{{ movie.trailer_url }}" target="_blank" class="btn btn-outline-custom w-100">
-                        <i class="bi bi-play me-2"></i>Смотреть трейлер
+                        <i class="bi bi-play me-2"></i>{% trans "Смотреть трейлер" %}
                     </a>
                 {% endif %}
             </div>
@@ -574,7 +574,7 @@
             {% if movie.get_gallery_images %}
             <div class="gallery-container mb-4">
                 <div class="p-3">
-                    <h4 class="text-white mb-3">Кадры и постеры</h4>
+                    <h4 class="text-white mb-3 text-center">{% trans "Кадры и постеры" %}</h4>
                     <div class="slider" id="gallerySlider">
                         <div class="slides" id="slidesTrack">
                             {% for image in movie.get_gallery_images %}
@@ -612,7 +612,7 @@ function playTrailer() {
     {% if movie.trailer_url %}
         window.open('{{ movie.trailer_url }}', '_blank');
     {% else %}
-        alert('Трейлер недоступен');
+        alert('{% trans "Трейлер недоступен" %}');
     {% endif %}
 }
 

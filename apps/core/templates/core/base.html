@@ -14,7 +14,7 @@
     <!-- Local Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Base CSS -->
@@ -59,7 +59,8 @@
             display: flex;
             align-items: center;
             max-width: 300px;
-            margin-left: 20px; /* Уменьшенный отступ, так как логотип теперь в navbar */
+            margin-left: 20px;
+            position: relative;
         }
         
         .search-form input {
@@ -90,6 +91,82 @@
         
         .search-form button:hover {
             background: #d93955;
+        }
+        
+        /* Search Results Dropdown */
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--secondary-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin-top: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .search-results-dropdown.show {
+            display: block;
+        }
+        
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-item:hover {
+            background: rgba(233, 69, 96, 0.1);
+        }
+        
+        .search-result-poster {
+            width: 50px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .search-result-placeholder {
+            width: 50px;
+            height: 70px;
+            background: #333;
+            border-radius: 5px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .search-result-info {
+            flex: 1;
+        }
+        
+        .search-result-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .search-no-results {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-muted);
         }
         
         .social-icons {
@@ -422,8 +499,15 @@
             
             .search-form {
                 max-width: 100%;
+                width: 100%;
                 margin-left: 0;
                 order: 1;
+            }
+            
+            .search-results-dropdown {
+                max-width: 100vw;
+                left: -10px;
+                right: -10px;
             }
             
             .social-icons {
@@ -459,10 +543,11 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between flex-wrap">
                     <!-- Left side: Search form -->
-                    <form class="search-form" method="get">
-                        <input type="text" name="q" placeholder="{% trans 'Поиск...' %}" value="{{ request.GET.q }}">
-                        <button type="submit"><i class="fas fa-search"></i></button>
-                    </form>
+                    <div class="search-form">
+                        <input type="text" id="searchInput" placeholder="{% trans 'Поиск фильмов...' %}" autocomplete="off">
+                        <button type="button" onclick="document.getElementById('searchInput').focus()"><i class="fas fa-search"></i></button>
+                        <div class="search-results-dropdown" id="searchResults"></div>
+                    </div>
                     
                     <!-- Right side: Social icons and phones -->
                     <div class="d-flex align-items-center">
@@ -767,6 +852,86 @@
                 });
             });
         });
+        
+        // Live Search for Movies
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        let searchTimeout = null;
+        
+        if (searchInput && searchResults) {
+            // Поиск при вводе текста
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                // Очищаем предыдущий таймаут
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                
+                // Если запрос пустой или меньше 2 символов
+                if (query.length < 2) {
+                    searchResults.classList.remove('show');
+                    searchResults.innerHTML = '';
+                    return;
+                }
+                
+                // Задержка перед запросом (300ms)
+                searchTimeout = setTimeout(() => {
+                    fetch(`{% url 'core:search_movies' %}?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            displaySearchResults(data.results);
+                        })
+                        .catch(error => {
+                            console.error('Search error:', error);
+                        });
+                }, 300);
+            });
+            
+            // Закрытие результатов при клике вне поиска
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.remove('show');
+                }
+            });
+            
+            // Повторное открытие при фокусе
+            searchInput.addEventListener('focus', function() {
+                if (this.value.trim().length >= 2 && searchResults.innerHTML) {
+                    searchResults.classList.add('show');
+                }
+            });
+        }
+        
+        function displaySearchResults(results) {
+            const currentLang = document.documentElement.lang || 'ru';
+            
+            if (!results || results.length === 0) {
+                searchResults.innerHTML = '<div class="search-no-results"><i class="fas fa-search me-2"></i>{% trans "Ничего не найдено" %}</div>';
+                searchResults.classList.add('show');
+                return;
+            }
+            
+            let html = '';
+            results.forEach(movie => {
+                const movieName = currentLang === 'uk' && movie.name_uk ? movie.name_uk : movie.name;
+                const posterHtml = movie.poster 
+                    ? `<img src="${movie.poster}" alt="${movieName}" class="search-result-poster">` 
+                    : `<div class="search-result-placeholder"><i class="fas fa-film" style="color: var(--text-muted);"></i></div>`;
+                
+                html += `
+                    <a href="${movie.url}" class="search-result-item">
+                        ${posterHtml}
+                        <div class="search-result-info">
+                            <div class="search-result-name">${movieName}</div>
+                        </div>
+                    </a>
+                `;
+            });
+            
+            searchResults.innerHTML = html;
+            searchResults.classList.add('show');
+        }
     </script>
     
     {% block extra_js %}{% endblock %}

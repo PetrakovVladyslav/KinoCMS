@@ -209,11 +209,16 @@
             });
         });
 
-        // Клик по кнопке «Купить билет» не должен мешать переходу по карточке
+        // Клик по кнопке «Купить билет» — переход на карточку фильма
         document.querySelectorAll('.buy-ticket-btn').forEach(function(btn){
             btn.addEventListener('click', function(e){
+                e.preventDefault();
                 e.stopPropagation();
-                // Пока пустое действие — позже здесь будет реальный переход на покупку
+                const card = this.closest('.movie-card');
+                const url = card ? card.getAttribute('data-url') : null;
+                if (url && url !== '#') {
+                    window.location.href = url;
+                }
             });
         });
     });

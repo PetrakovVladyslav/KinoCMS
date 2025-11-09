@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from apps.users.models import CustomUser
 from apps.users.forms import CustomUserUpdateForm
 from django.contrib.admin.views.decorators import staff_member_required
+from apps.cinema.models import Movie
 
 
 # Create your views here.
@@ -108,4 +109,36 @@ def admin_user_delete(request, user_id):
     }
     return render(request, 'core/admin_user_delete.html', context)
 
+
+def search_movies(request):
+    """
+    Живой поиск фильмов по названию (возвращает JSON)
+    """
+    query = request.GET.get('q', '').strip()
+    results = []
+    
+    if query and len(query) >= 2:  # Начинаем поиск с 2 символов
+        # Поиск по названию на русском и украинском языках
+        # Только фильмы в прокате (start_date <= сегодня, end_date >= сегодня или не установлена)
+        from django.utils import timezone
+        today = timezone.now().date()
+        
+        movies = Movie.objects.filter(
+            Q(name_ru__icontains=query) | Q(name_uk__icontains=query)
+        ).filter(
+            Q(start_date__lte=today) | Q(start_date__isnull=True)
+        ).filter(
+            Q(end_date__gte=today) | Q(end_date__isnull=True)
+        ).distinct()[:10]  # Ограничиваем 10 результатами
+        
+        for movie in movies:
+            results.append({
+                'id': movie.id,
+                'name': getattr(movie, 'name_ru', movie.name),
+                'name_uk': getattr(movie, 'name_uk', movie.name),
+                'poster': movie.poster.url if movie.poster else None,
+                'url': f'/movie/{movie.id}/',
+            })
+    
+    return JsonResponse({'results': results})
 

@@ -622,6 +622,7 @@ class SessionListView(ListView):
 
 
 class BookingView(DetailView):
+    """View for booking page where users select seats and book/buy tickets."""
     model = Session
     template_name = 'cinema/booking.html'
     context_object_name = 'session'
