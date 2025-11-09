@@ -16,46 +16,72 @@ makemigrations:
 
 dev: pages sessions run
 
-.PHONY: format lint check fix commit-fix push-all help
+.PHONY: fix check ship quick help
 
 help:
 	@echo "Available commands:"
-	@echo "  make format      - Format code with ruff"
-	@echo "  make lint        - Check code with ruff (no fixes)"
-	@echo "  make check       - Run pre-commit checks (no fixes)"
-	@echo "  make fix         - Auto-fix all issues"
-	@echo "  make commit-fix  - Fix + auto-commit"
-	@echo "  make push-all    - Fix + commit + push"
+	@echo "  make fix    - Just fix and format (no commit)"
+	@echo "  make check  - Check code without changes"
+	@echo "  make ship   - Full workflow: fix → commit (prompt) → push"
+	@echo "  make quick  - Quick: fix → commit 'style: fixes' → push"
 
-format:
-	@echo "🎨 Formatting code..."
-	@uv run ruff format .
-
-lint:
-	@echo "🔍 Linting code..."
+# Быстрая проверка кода
+check:
+	@echo "🔍 Checking code..."
 	@uv run ruff check .
 
-check:
-	@echo "✅ Running pre-commit checks..."
-	@uv run pre-commit run --all-files
-
+# Только фиксы без коммита
 fix:
-	@echo "🔧 Auto-fixing issues..."
+	@echo "🔧 Fixing and formatting..."
 	@uv run ruff check --fix .
 	@uv run ruff format .
+	@echo "✅ Done"
 
-commit-fix: fix
-	@echo "📝 Checking for changes..."
+# Полный workflow с запросом сообщения и подтверждением push
+ship:
+	@echo "🔍 Checking code..."
+	@uv run ruff check . || true
+	@echo ""
+	@echo "🔧 Fixing issues..."
+	@uv run ruff check --fix .
+	@echo ""
+	@echo "🎨 Formatting code..."
+	@uv run ruff format .
+	@echo ""
 	@git add -A
 	@if git diff --cached --quiet; then \
 		echo "✨ No changes to commit"; \
 	else \
-		echo "Files changed: $$(git diff --cached --name-only | wc -l)"; \
-		git commit -m "style: apply ruff fixes" --quiet; \
-		echo "✅ Changes committed"; \
+		echo "📊 Changed files:"; \
+		git diff --cached --name-only | sed 's/^/  • /'; \
+		echo ""; \
+		read -p "💬 Commit message: " msg; \
+		while [ -z "$$msg" ]; do \
+			echo "❌ Cannot be empty!"; \
+			read -p "💬 Commit message: " msg; \
+		done; \
+		git commit -m "$$msg" --quiet; \
+		echo "✅ Committed: $$msg"; \
+		echo ""; \
+		read -p "🚀 Push to remote? [Y/n] " yn; \
+		case "$$yn" in \
+			[Nn]* ) echo "⏸️  Push skipped";; \
+			* ) git push && echo "✅ Pushed!" || echo "❌ Push failed!";; \
+		esac; \
 	fi
 
-push-all: commit-fix
-	@echo "🚀 Pushing to remote..."
-	@git push --quiet
-	@echo "✅ Done!"
+# Быстрый автоматический workflow без запросов
+quick:
+	@echo "🔧 Applying fixes..."
+	@uv run ruff check --fix . > /dev/null 2>&1 || true
+	@uv run ruff format . > /dev/null 2>&1
+	@git add -A
+	@if git diff --cached --quiet; then \
+		echo "✨ No changes to commit"; \
+	else \
+		echo "📊 Committing changes:"; \
+		git diff --cached --name-only | sed 's/^/  • /'; \
+		git commit -m "style: apply ruff fixes" --quiet; \
+		echo "🚀 Pushing to remote..."; \
+		git push && echo "✅ Done!" || echo "❌ Push failed!"; \
+	fi
