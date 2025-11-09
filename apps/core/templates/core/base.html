@@ -765,10 +765,10 @@
                     <h5>Навигация</h5>
                     <ul class="list-unstyled">
                         <li><a href="/">Главная</a></li>
-                        <li><a href="#">Афиша</a></li>
-                        <li><a href="#">Расписание</a></li>
-                        <li><a href="#">Скоро</a></li>
-                        <li><a href="#">Акции</a></li>
+                        <li><a href="{% url 'page:afisha' %}">Афиша</a></li>
+                        <li><a href="{% url 'cinema:session_list' %}">Расписание</a></li>
+                        <li><a href="{% url 'page:soon' %}">Скоро</a></li>
+                        <li><a href="{% url 'page:sale_news_list' %}">Акции</a></li>
                     </ul>
                 </div>
             </div>
@@ -780,11 +780,7 @@
                     <p class="text-muted mb-0">&copy; 2025 KinoCMS. Все права защищены.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <div class="d-flex justify-content-md-end justify-content-center">
-                        <a href="#" class="me-2"><img src="{% static 'img/googleplay.png' %}" alt="Google Play" height="40" onerror="this.style.display='none'"></a>
-                        <a href="#"><img src="{% static 'img/appstore.png' %}" alt="App Store" height="40" onerror="this.style.display='none'"></a>
-                    </div>
-                    <small class="text-muted d-block mt-2">Разработано с <i class="fas fa-heart text-danger"></i> для любителей кино</small>
+                    <small class="text-muted">Разработано с <i class="fas fa-heart text-danger"></i> для любителей кино</small>
                 </div>
             </div>
         </div>
