@@ -4,6 +4,7 @@ import logging
 import time
 
 from celery import shared_task
+from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils import timezone
 
@@ -42,7 +43,7 @@ def send_mailing_task(self, mailing_id):
         failed_count = 0
 
         # Адаптивная задержка
-        delay = 0.1 if total < 100 else 0.5
+        delay = 0.5
 
         for i, recipient in enumerate(recipients, 1):
             try:
@@ -50,7 +51,7 @@ def send_mailing_task(self, mailing_id):
                 email = EmailMessage(
                     subject="Файл от KinoCMS",
                     body="Здравствуйте! Отправляем вам файл.",
-                    from_email="noreply@cinema.com",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
                     to=[recipient.user.email],
                 )
 
@@ -99,7 +100,6 @@ def send_mailing_task(self, mailing_id):
         mailing.status = "completed"
         mailing.completed_at = timezone.now()
         mailing.save()
-
         return {
             "status": "completed",
             "sent_count": sent_count,

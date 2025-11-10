@@ -252,34 +252,49 @@ function startProgressTracking() {
   if (!currentMailingId) return;
   
   progressInterval = setInterval(async () => {
-    const response = await fetch(`/admin-panel/mailing/status/${currentMailingId}/`);
-    const data = await response.json();
-    
-    // Обновляем UI
-    document.getElementById('progress_bar').style.width = data.progress + '%';
-    document.getElementById('progress_bar').setAttribute('aria-valuenow', data.progress);
-    document.getElementById('progress_text').textContent = data.progress + '%';
-    document.getElementById('sent_count').textContent = data.sent_count;
-    document.getElementById('failed_count').textContent = data.failed_count;
-    document.getElementById('total_count').textContent = data.total_recipients;
-    
-    // Останавливаем, если рассылка завершена
-    if (data.status === 'completed' || data.status === 'failed') {
-      clearInterval(progressInterval);
-      document.getElementById('progress_bar').classList.remove('progress-bar-animated');
+    try {
+      const response = await fetch(`/admin-panel/mailing/status/${currentMailingId}/`);
+      const data = await response.json();
       
-      if (data.status === 'completed') {
-        alert('Рассылка завершена!');
-      } else {
-        alert('Рассылка завершилась с ошибкой');
+      // Обновляем UI
+      document.getElementById('progress_bar').style.width = data.progress + '%';
+      document.getElementById('progress_bar').setAttribute('aria-valuenow', data.progress);
+      document.getElementById('progress_text').textContent = data.progress + '%';
+      document.getElementById('sent_count').textContent = data.sent_count;
+      document.getElementById('failed_count').textContent = data.failed_count;
+      document.getElementById('total_count').textContent = data.total_recipients;
+      
+      // Останавливаем, если рассылка завершена
+      if (data.status === 'completed' || data.status === 'failed') {
+        clearInterval(progressInterval);
+        progressInterval = null;
+        currentMailingId = null;
+        document.getElementById('progress_bar').classList.remove('progress-bar-animated');
+        
+        if (data.status === 'completed') {
+          alert('Рассылка завершена!');
+        } else {
+          alert('Рассылка завершилась с ошибкой');
+        }
       }
+    } catch (error) {
+      console.error('Ошибка получения статуса:', error);
+      clearInterval(progressInterval);
+      progressInterval = null;
     }
   }, 2000); // Каждые 2 секунды
 }
 
-// Запускаем отслеживание, если есть активная рассылка
+// Запускаем отслеживание только для активных рассылок
 if (currentMailingId) {
-  startProgressTracking();
+  // Проверяем статус перед запуском polling
+  fetch(`/admin-panel/mailing/status/${currentMailingId}/`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'processing' || data.status === 'pending') {
+        startProgressTracking();
+      }
+    });
 }
 
 // Инициализация
