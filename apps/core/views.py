@@ -16,7 +16,7 @@ from apps.users.models import CustomUser
 # Create your views here.
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_dashboard(request):
     context = {
         "total_movies": 42,
@@ -27,7 +27,7 @@ def admin_dashboard(request):
     return render(request, "core/admin_dashboard.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_users_list(request):
     # Поиск
     search_query = request.GET.get("search", "")
@@ -78,7 +78,7 @@ def admin_users_list(request):
     return render(request, "core/admin_users_list.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_user_edit(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
@@ -102,7 +102,7 @@ def admin_user_edit(request, user_id):
     return render(request, "core/admin_user_edit.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_user_delete(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
@@ -159,7 +159,7 @@ def search_movies(request):
 # === РАССЫЛКИ ===
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_mailing(request):
     """Главная страница рассылки"""
     recent_files = MailingFile.objects.all()[:5]
@@ -175,7 +175,7 @@ def admin_mailing(request):
     return render(request, "core/admin_mailing.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_user_select(request):
     """Страница выбора пользователей для рассылки"""
     if request.method == "POST":
@@ -205,7 +205,7 @@ def admin_user_select(request):
     return render(request, "core/admin_user_select.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def upload_mailing_file(request):
     """AJAX загрузка файла"""
     if request.method == "POST":
@@ -224,7 +224,7 @@ def upload_mailing_file(request):
     return JsonResponse({"success": False}, status=400)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def delete_mailing_file(request, file_id):
     """AJAX удаление файла"""
     if request.method == "POST":
@@ -236,7 +236,7 @@ def delete_mailing_file(request, file_id):
     return JsonResponse({"success": False}, status=400)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def start_mailing(request):
     """Запуск рассылки (фоновая задача через Celery)"""
     if request.method == "POST":
@@ -278,7 +278,7 @@ def start_mailing(request):
     return JsonResponse({"success": False}, status=400)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def mailing_status(request, mailing_id):
     """
     Гибридная проверка статуса:

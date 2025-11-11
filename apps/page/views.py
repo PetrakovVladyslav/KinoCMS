@@ -87,7 +87,7 @@ def contacts_view(request):
     return render(request, "page/contacts.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def main_page_view(request):
     """Редактирование главной страницы"""
     main_page = PageMain.objects.first()
@@ -123,7 +123,7 @@ def main_page_view(request):
     return render(request, "page/admin_main_page_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def news_view(request):
     """Создание новости"""
     if request.method == "POST":
@@ -174,7 +174,7 @@ def news_view(request):
     return render(request, "page/admin_news_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def sales_view(request):
     """Создание акции"""
     if request.method == "POST":
@@ -225,7 +225,7 @@ def sales_view(request):
     return render(request, "page/admin_sales_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_news_list_view(request):
     news_list = PageNewsSales.objects.filter(type="news").order_by("-date")
 
@@ -235,7 +235,7 @@ def admin_news_list_view(request):
     return render(request, "page/admin_news_list.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def news_update_view(request, news_id):
     news = get_object_or_404(PageNewsSales, pk=news_id, type="news")
 
@@ -296,7 +296,7 @@ def news_update_view(request, news_id):
     return render(request, "page/admin_news_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def news_delete_view(request, news_id):
     news = get_object_or_404(PageNewsSales, id=news_id, type="news")
     if request.method == "POST":
@@ -317,7 +317,7 @@ def news_delete_view(request, news_id):
         return redirect("page:admin_news_list")
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_sales_list_view(request):
     sales_list = PageNewsSales.objects.filter(type="sale").order_by("-date")
 
@@ -327,7 +327,7 @@ def admin_sales_list_view(request):
     return render(request, "page/admin_sales_list.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def sales_update_view(request, sales_id):
     sales = get_object_or_404(PageNewsSales, pk=sales_id, type="sale")
 
@@ -385,7 +385,7 @@ def sales_update_view(request, sales_id):
     return render(request, "page/admin_sales_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def sales_delete_view(request, sales_id):
     sales = get_object_or_404(PageNewsSales, id=sales_id, type="sale")
     if request.method == "POST":
@@ -406,7 +406,7 @@ def sales_delete_view(request, sales_id):
         return redirect("page:admin_sales_list")
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def sale_detail_view(request, item_id):
     item = get_object_or_404(PageNewsSales, pk=item_id, type__in=["sale", "news"], status=True)
 
@@ -417,7 +417,7 @@ def sale_detail_view(request, item_id):
     return render(request, "page/sale_news_detail.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def sale_news_list_view(request):
     sales = PageNewsSales.objects.filter(type__in=["sale", "news"], status=True).order_by("-publish_date", "-date")
 
@@ -428,7 +428,7 @@ def sale_news_list_view(request):
     return render(request, "page/sale_news_list.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def contacts_admin_edit_view(request):
     """Упрощенный вариант - все в одной форме БЕЗ toggle"""
 
@@ -505,7 +505,7 @@ def contacts_admin_edit_view(request):
     return render(request, "page/admin_contacts_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_page_list_view(request):
     """Просто показываем существующие страницы"""
     system_pages = PageElse.objects.filter(is_system=True).order_by("slug")
@@ -524,7 +524,7 @@ def admin_page_list_view(request):
     return render(request, "page/admin_list.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def page_create_view(request):
     """Создание новой пользовательской страницы"""
     if request.method == "POST":
@@ -576,7 +576,7 @@ def page_create_view(request):
     return render(request, "page/admin_system_page_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def page_update_view(request, pk):
     """Редактирование любой страницы"""
     page = get_object_or_404(PageElse, pk=pk)
@@ -632,7 +632,7 @@ def page_update_view(request, pk):
     return render(request, "page/admin_system_page_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def page_delete_view(request, pk):
     """Удаление страницы (только пользовательских)"""
     page = get_object_or_404(PageElse, pk=pk)

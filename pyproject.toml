@@ -32,6 +32,7 @@ dependencies = [
     "django==5.2.6",
     "django-bootstrap5==25.2",
     "django-celery-results>=2.6.0",
+    "django-cleanup>=9.0.0",
     "django-environ>=0.12.0",
     "django-modeltranslation==0.19.17",
     "dnspython==2.8.0",

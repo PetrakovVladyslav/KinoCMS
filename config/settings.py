@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "apps.banner",
     "apps.users",
     "django_celery_results",
+    "django_cleanup.apps.CleanupConfig",
 ]
 
 

@@ -173,7 +173,7 @@ GalleryFormSet = inlineformset_factory(
     GalleryImage,
     form=GalleryImageForm,
     formset=BaseGalleryFormSet,
-    extra=5,
+    extra=1,
     max_num=10,
     can_delete=True,
     validate_max=True,

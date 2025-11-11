@@ -12,7 +12,7 @@ class PageMovieForm(forms.ModelForm):
     formats = forms.MultipleChoiceField(
         choices=MovieFormat.choices,
         widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
-        required=False,
+        required=True,
         label="Форматы показа",
         help_text="Выберите один или несколько форматов показа фильма",
     )
@@ -77,7 +77,22 @@ class PageMovieForm(forms.ModelForm):
         end_date = cleaned_data.get("end_date")
 
         if start_date and end_date and end_date < start_date:
-            raise forms.ValidationError({"end_date": "Дата окончания не может быть раньше даты начала"})
+            self.add_error("end_date", "Дата окончания не может быть раньше даты начала.")
+
+        required_fields = [
+            "name_ru",
+            "name_uk",
+            "description_ru",
+            "description_uk",
+            "poster",
+            "trailer_url",
+            "start_date",
+            "end_date",
+        ]
+
+        for field in required_fields:
+            if not cleaned_data.get(field):
+                self.add_error(field, "Это поле обязательно для заполнения.")
 
         return cleaned_data
 

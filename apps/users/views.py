@@ -36,6 +36,27 @@ def login_view(request):
     return render(request, "users/login.html", {"form": form})
 
 
+def admin_login_view(request):
+    """Вход для администраторов с AdminLTE интерфейсом"""
+    if request.method == "POST":
+        form = CustomUserLoginForm(request=request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            if not user.is_staff:
+                messages.error(request, "У вас нет прав доступа к админ панели")
+                return render(request, "registration/login.html", {"form": form})
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+            messages.success(request, f"Добро пожаловать, {user.first_name}!")
+            # Редирект на страницу, с которой пришли, или на дашборд
+            next_url = request.GET.get("next") or request.POST.get("next") or "core:admin_dashboard"
+            return redirect(next_url)
+        else:
+            messages.error(request, "Пожалуйста, проверьте введенные данные")
+    else:
+        form = CustomUserLoginForm()
+    return render(request, "registration/login.html", {"form": form})
+
+
 def logout_view(request):
     logout(request)
     messages.success(request, "Вы успешно вышли из системы")

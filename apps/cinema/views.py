@@ -110,7 +110,7 @@ class HallDetailView(DetailView):
         return context
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_movie_list_view(request):
     today = date.today()
 
@@ -130,7 +130,7 @@ def admin_movie_list_view(request):
     return render(request, "cinema/admin_movie_list.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def movie_create_view(request):
     if request.method == "POST":
         form = PageMovieForm(request.POST, request.FILES)
@@ -180,7 +180,7 @@ def movie_create_view(request):
     return render(request, "cinema/admin_movie_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def movie_delete_view(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
 
@@ -202,7 +202,7 @@ def movie_delete_view(request, movie_id):
         return redirect("cinema:admin_movie_list")
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def movie_update_view(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
 
@@ -261,7 +261,7 @@ def movie_update_view(request, movie_id):
     return render(request, "cinema/admin_movie_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def cinema_create_view(request):
     if request.method == "POST":
         form = CinemaForm(request.POST, request.FILES)
@@ -311,7 +311,7 @@ def cinema_create_view(request):
     return render(request, "cinema/admin_cinema_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def cinema_update_view(request, pk):
     cinema = get_object_or_404(Cinema, pk=pk)
 
@@ -373,7 +373,7 @@ def cinema_update_view(request, pk):
     return render(request, "cinema/admin_cinema_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def cinema_delete_view(request, pk):
     cinema = get_object_or_404(Cinema, pk=pk)
 
@@ -395,7 +395,7 @@ def cinema_delete_view(request, pk):
         return redirect("cinema:admin_cinema_list")
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def admin_cinema_list_view(request):
     cinemas = Cinema.objects.all().order_by("-id")
 
@@ -412,7 +412,7 @@ def cinema_view(request):
     return render(request, "cinema/cinema_list.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def hall_create_view(request, cinema_id):
     cinema = get_object_or_404(Cinema, pk=cinema_id)
 
@@ -466,7 +466,7 @@ def hall_create_view(request, cinema_id):
     return render(request, "cinema/admin_hall_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def hall_update_view(request, pk):
     hall = get_object_or_404(Hall, pk=pk)
     cinema = hall.cinema
@@ -527,7 +527,7 @@ def hall_update_view(request, pk):
     return render(request, "cinema/admin_hall_form.html", context)
 
 
-@staff_member_required(login_url="admin:login")
+@staff_member_required(login_url="users:admin_login")
 def hall_delete_view(request, pk):
     hall = get_object_or_404(Hall, pk=pk)
     cinema_id = hall.cinema.pk

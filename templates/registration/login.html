@@ -36,13 +36,24 @@
         </div>
       {% endif %}
 
-      <form action="{% url 'login' %}" method="post">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post">
         {% csrf_token %}
+        {% if request.GET.next %}
+          <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
         <div class="input-group mb-3">
-          <input type="text" name="username" class="form-control" placeholder="Имя пользователя" required>
+          <input type="email" name="username" class="form-control" placeholder="Email" required>
           <div class="input-group-append">
             <div class="input-group-text">
-              <span class="bi bi-person"></span>
+              <span class="bi bi-envelope"></span>
             </div>
           </div>
         </div>
