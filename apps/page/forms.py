@@ -167,7 +167,7 @@ class PageContactsForm(forms.ModelForm):
             "coordinates": forms.TextInput(attrs={"class": "form-control", "placeholder": "50.4501, 30.5234"}),
             "logo": forms.FileInput(attrs={"class": "form-control"}),
             "status": forms.CheckboxInput(attrs={"class": "form-check-input"}),
-            "order": forms.NumberInput(attrs={"class": "form-control"}),
+            "order": forms.HiddenInput(),
         }
         labels = {
             "cinema_name": "Название кинотеатра",

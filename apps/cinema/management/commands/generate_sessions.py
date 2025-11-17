@@ -10,7 +10,7 @@ from apps.cinema.models import Hall, Movie, Session
 
 
 class Command(BaseCommand):
-    help = "Генерирует расписание сеансов на сегодня и завтра для фильмов в прокате"
+    help = "Генерирует расписание сеансов на сегодня и следующие 3 дня"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -18,10 +18,21 @@ class Command(BaseCommand):
             action="store_true",
             help="Удалить старые сеансы перед генерацией новых",
         )
+        parser.add_argument(
+            "--days",
+            type=int,
+            default=3,
+            help="Количество дней для генерации (по умолчанию 3)",
+        )
 
     def handle(self, *args, **options):
         today = timezone.now().date()
-        tomorrow = today + timedelta(days=1)
+        days_ahead = options["days"]  # Получаем количество дней из аргументов
+
+        # Создаем список дат: сегодня + следующие N дней
+        dates = [today + timedelta(days=i) for i in range(days_ahead + 1)]
+
+        date_range_str = f"{today.strftime('%d.%m.%Y')} - {dates[-1].strftime('%d.%m.%Y')}"
 
         # Удаляем старые сеансы (все что раньше сегодняшнего дня)
         old_sessions_count = Session.objects.filter(start_time__date__lt=today).count()
@@ -60,8 +71,10 @@ class Command(BaseCommand):
 
         created_count = 0
 
-        # Для каждой даты (сегодня и завтра)
-        for date in [today, tomorrow]:
+        # Для каждой даты в диапазоне
+        for date in dates:
+            self.stdout.write(f"\nГенерация сеансов на {date.strftime('%d.%m.%Y')}:")
+
             for hall in halls:
                 # Выбираем случайный фильм
                 movie = random.choice(movies_in_theaters)
@@ -101,12 +114,8 @@ class Command(BaseCommand):
                         created_count += 1
 
                         self.stdout.write(
-                            f"Создан сеанс: {movie.name} в {hall.cinema.name} - {hall.name}, "
-                            f"{start_time.strftime('%d.%m.%Y %H:%M')}, {format_choice}, {price} грн"
+                            f"  Создан сеанс: {movie.name} в {hall.cinema.name} - {hall.name}, "
+                            f"{start_time.strftime('%H:%M')}, {format_choice}, {price} грн"
                         )
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"\nУспешно создано {created_count} сеансов на {today.strftime('%d.%m.%Y')} и {tomorrow.strftime('%d.%m.%Y')}"
-            )
-        )
+        self.stdout.write(self.style.SUCCESS(f"\nУспешно создано {created_count} сеансов на период {date_range_str}"))

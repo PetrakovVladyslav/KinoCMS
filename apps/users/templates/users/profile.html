@@ -4,65 +4,10 @@
 {% block title %}Профиль - {{ user.first_name }} {{ user.last_name }} - KinoCMS{% endblock %}
 
 {% block extra_css %}
-<style>
-    .profile-card {
-        background: var(--card-bg);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-    }
-    
-    .form-control, .form-select {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: var(--text-color);
-    }
-    
-    .form-control:focus, .form-select:focus {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
-        color: var(--text-color);
-    }
-    
-    .form-control::placeholder {
-        color: var(--text-muted);
-    }
-    
-    .form-label {
-        color: var(--text-color);
-        font-weight: 500;
-    }
-    
-    .text-danger {
-        color: #ff6b8a !important;
-    }
-    
-    .text-success {
-        color: #4ade80 !important;
-    }
-    
-    .form-check-input[type="radio"] {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .form-check-input[type="radio"]:checked {
-        background-color: var(--accent-color);
-        border-color: var(--accent-color);
-    }
-    
-    .form-check-input[type="radio"]:focus {
-        box-shadow: 0 0 0 0.25rem rgba(233, 69, 96, 0.25);
-    }
-    
-    .form-check-label {
-        color: var(--text-color);
-    }
-</style>
 {% endblock %}
 
 {% block content %}
+
 <div class="row justify-content-center">
     <div class="col-lg-10 col-xl-8">
         <div class="profile-card p-4">
@@ -126,7 +71,21 @@
                             {% endif %}
                         </div>
                     </div>
-                    
+
+                    <div class="mb-3">
+                        <label for="{{ form.nickname.id_for_label }}" class="form-label">
+                            <i class="bi bi-house me-2"></i>{{ form.nickname.label }}
+                        </label>
+                        {{ form.nickname }}
+                        {% if form.nickname.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.nickname.errors %}
+                                    <small><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
                     <!-- Email -->
                     <div class="mb-3">
                         <label for="{{ form.email.id_for_label }}" class="form-label">

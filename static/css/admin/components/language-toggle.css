@@ -1,0 +1,21 @@
+/* ==========================================================================
+   Language Toggle Component - KinoCMS
+   Переключатель языков для мультиязычных форм
+   ========================================================================== */
+
+.language-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.language-toggle .btn {
+    min-width: 50px;
+    padding: 5px 10px;
+}
+
+.language-toggle .btn.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}

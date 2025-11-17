@@ -4,53 +4,9 @@
 {% block title %}Регистрация - KinoCMS{% endblock %}
 
 {% block extra_css %}
-<style>
-    .register-form {
-        background: var(--card-bg);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-    }
-    
-    .form-control {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: var(--text-color);
-    }
-    
-    .form-control:focus {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
-        color: var(--text-color);
-    }
-    
-    .form-control::placeholder {
-        color: var(--text-muted);
-    }
-    
-    .form-label {
-        color: var(--text-color);
-        font-weight: 500;
-    }
-    
-    .text-danger {
-        color: #ff6b8a !important;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="register-form p-4 p-lg-5">
-            <div class="text-center mb-4">
-                <i class="bi bi-person-plus-fill" style="font-size: 3rem; color: var(--accent-color);"></i>
-                <h2 class="h3 mt-3 mb-1">Создать аккаунт</h2>
-                <p class="text-muted">Присоединяйтесь к KinoCMS</p>
-            </div>
-            
-            <form method="post" novalidate>
                 {% csrf_token %}
                 
                 <!-- Отображение общих ошибок формы -->

@@ -6,6 +6,36 @@
 
 {% block breadcrumb_active %}Выбор пользователей{% endblock %}
 
+{% block extra_css %}
+<style>
+.select-all-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 12px 20px;
+    margin: 0;
+}
+
+.select-all-checkbox {
+    transform: scale(1.1);
+    margin-right: 8px;
+}
+
+.table th {
+    vertical-align: middle !important;
+    padding: 12px 8px !important;
+}
+
+.table td {
+    vertical-align: middle !important;
+    padding: 12px 8px !important;
+}
+
+.user-checkbox {
+    transform: scale(1.1);
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row">
   <div class="col-12">
@@ -20,8 +50,8 @@
           <div class="col-md-6">
             <form method="get" class="d-flex">
               <div class="input-group">
-                <input type="text" name="search" class="form-control" 
-                       placeholder="Поиск..." 
+                <input type="text" name="search" class="form-control"
+                       placeholder="Поиск..."
                        value="{{ search_query }}">
                 <button class="btn btn-primary" type="submit">
                   <i class="fas fa-search"></i>
@@ -31,19 +61,30 @@
           </div>
         </div>
       </div>
-      
+
       <form method="post" id="user_select_form">
         {% csrf_token %}
-        
+
         <div class="card-body p-0">
+          <!-- Отдельная строка для "Выбрать всех" -->
+          <div class="select-all-header">
+            <div class="form-check d-flex align-items-center mb-0">
+              <input type="checkbox" id="select_all" class="form-check-input select-all-checkbox">
+              <label class="form-check-label fw-medium mb-0 ms-2" for="select_all">
+                Выбрать всех пользователей на этой странице
+              </label>
+              <span class="text-muted ms-3" id="selected_count_display">
+                (Выбрано: <strong id="selected_count">0</strong>)
+              </span>
+            </div>
+          </div>
+
           {% if users %}
           <div class="table-responsive">
             <table class="table table-striped table-hover mb-0">
               <thead class="table-light">
                 <tr>
-                  <th scope="col" style="width: 50px;">
-                    <input type="checkbox" id="select_all" class="form-check-input">
-                  </th>
+                  <th scope="col" style="width: 60px; text-align: center;">Выбор</th>
                   <th scope="col">ID</th>
                   <th scope="col">Дата регистрации</th>
                   <th scope="col">Email</th>
@@ -54,10 +95,10 @@
               <tbody>
                 {% for user in users %}
                 <tr>
-                  <td>
-                    <input type="checkbox" 
-                           name="selected_users" 
-                           value="{{ user.id }}" 
+                  <td style="text-align: center;">
+                    <input type="checkbox"
+                           name="selected_users"
+                           value="{{ user.id }}"
                            class="form-check-input user-checkbox"
                            {% if user.id in selected_user_ids %}checked{% endif %}>
                   </td>
@@ -96,7 +137,7 @@
           </div>
           {% endif %}
         </div>
-        
+
         {% if users.has_other_pages %}
         <div class="card-footer">
           <nav aria-label="Навигация">
@@ -108,7 +149,7 @@
                   </a>
                 </li>
               {% endif %}
-              
+
               {% for page_num in users.paginator.page_range %}
                 {% if page_num == users.number %}
                   <li class="page-item active">
@@ -122,7 +163,7 @@
                   </li>
                 {% endif %}
               {% endfor %}
-              
+
               {% if users.has_next %}
                 <li class="page-item">
                   <a class="page-link" href="?page={{ users.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
@@ -134,11 +175,11 @@
           </nav>
         </div>
         {% endif %}
-        
+
         <div class="card-footer">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <span class="text-muted">Выбрано: <strong id="selected_count">0</strong></span>
+              <span class="text-muted">Итого выбрано: <strong id="footer_selected_count">0</strong> пользователей</span>
             </div>
             <div>
               <a href="{% url 'core:admin_mailing' %}" class="btn btn-secondary">
@@ -150,7 +191,6 @@
             </div>
           </div>
         </div>
-        
       </form>
     </div>
   </div>
@@ -169,7 +209,23 @@ document.getElementById('select_all').addEventListener('change', function() {
 // Обновление счетчика
 function updateSelectedCount() {
   const checked = document.querySelectorAll('.user-checkbox:checked').length;
+  const total = document.querySelectorAll('.user-checkbox').length;
+
   document.getElementById('selected_count').textContent = checked;
+  document.getElementById('footer_selected_count').textContent = checked;
+
+  // Обновляем состояние чекбокса "Выбрать все"
+  const selectAll = document.getElementById('select_all');
+  if (checked === 0) {
+    selectAll.checked = false;
+    selectAll.indeterminate = false;
+  } else if (checked === total) {
+    selectAll.checked = true;
+    selectAll.indeterminate = false;
+  } else {
+    selectAll.checked = false;
+    selectAll.indeterminate = true;
+  }
 }
 
 // Обновлять счетчик при изменении чекбоксов
@@ -178,6 +234,8 @@ document.querySelectorAll('.user-checkbox').forEach(cb => {
 });
 
 // Инициализация
-updateSelectedCount();
+document.addEventListener('DOMContentLoaded', function() {
+  updateSelectedCount();
+});
 </script>
 {% endblock %}

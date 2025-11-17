@@ -1,278 +1,160 @@
 {% extends 'core/admin_base.html' %}
 
-{% block title %}Dashboard - KinoCMS{% endblock %}
+{% block title %}Статистика - KinoCMS{% endblock %}
+{% block page_title %}Статистика{% endblock %}
+{% block breadcrumb_active %}Статистика{% endblock %}
 
-{% block page_title %}Dashboard{% endblock %}
-
-{% block breadcrumb_active %}Dashboard{% endblock %}
+{% block extra_css %}
+<style>
+    .stat-card {
+        border-left: 4px solid #007bff;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Main row -->
 <div class="row">
-  <!-- Left col -->
-  <section class="col-lg-7 connectedSortable ui-sortable">
-    <!-- Custom tabs (Charts with tabs) -->
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="bi bi-chart-bar me-1"></i>
-          Статистика
-        </h3>
-      </div><!-- /.card-header -->
-      <div class="card-body">
-        <div class="tab-content p-0">
-          <!-- Morris chart - Sales -->
-          <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px;">
-            <div class="d-flex justify-content-center align-items-center h-100">
-              <div class="text-center">
-                <i class="bi bi-chart-line" style="font-size: 3rem; color: #007bff;"></i>
-                <h5 class="mt-3">График статистики</h5>
-                <p class="text-muted">Здесь будет отображаться график посещаемости и продаж</p>
-              </div>
+    <div class="col-lg-4 col-12">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title text-muted mb-3 d-inline">Всего пользователей:</h5>
+                        <h2 class="mb-0 d-inline ms-3">{{ total_users }}</h2>
+                    </div>
+                    <div class="text-primary">
+                        <i class="fas fa-users fa-3x"></i>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div><!-- /.card-body -->
     </div>
-    <!-- /.card -->
-
-    <!-- TABLE: LATEST ORDERS -->
-    <div class="card">
-      <div class="card-header border-transparent">
-        <h3 class="card-title">Последние заказы</h3>
-        <div class="card-tools">
-          <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
-            <i class="bi bi-dash"></i>
-          </button>
-          <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
-            <i class="bi bi-x"></i>
-          </button>
-        </div>
-      </div>
-      <!-- /.card-header -->
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table m-0">
-            <thead>
-            <tr>
-              <th>ID заказа</th>
-              <th>Фильм</th>
-              <th>Статус</th>
-              <th>Сумма</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td><a href="pages/examples/invoice.html">OR9842</a></td>
-              <td>Мстители: Финал</td>
-              <td><span class="badge text-bg-success">Оплачено</span></td>
-              <td>
-                <div class="sparkbar" data-color="#00a65a" data-height="20">500</div>
-              </td>
-            </tr>
-            <tr>
-              <td><a href="pages/examples/invoice.html">OR1848</a></td>
-              <td>Человек-паук</td>
-              <td><span class="badge text-bg-warning">В ожидании</span></td>
-              <td>
-                <div class="sparkbar" data-color="#f39c12" data-height="20">350</div>
-              </td>
-            </tr>
-            <tr>
-              <td><a href="pages/examples/invoice.html">OR7429</a></td>
-              <td>Интерстеллар</td>
-              <td><span class="badge text-bg-danger">Отменен</span></td>
-              <td>
-                <div class="sparkbar" data-color="#f56954" data-height="20">400</div>
-              </td>
-            </tr>
-            <tr>
-              <td><a href="pages/examples/invoice.html">OR7429</a></td>
-              <td>Тор</td>
-              <td><span class="badge text-bg-info">Обработка</span></td>
-              <td>
-                <div class="sparkbar" data-color="#00c0ef" data-height="20">450</div>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- /.table-responsive -->
-      </div>
-      <!-- /.card-body -->
-      <div class="card-footer clearfix">
-        <a href="javascript:void(0)" class="btn btn-sm btn-info float-start">Создать заказ</a>
-        <a href="javascript:void(0)" class="btn btn-sm btn-secondary float-end">Все заказы</a>
-      </div>
-      <!-- /.card-footer -->
-    </div>
-    <!-- /.card -->
-  </section>
-  <!-- /.Left col -->
-  
-  <!-- right col (We are only adding the ID to make the widgets sortable)-->
-  <section class="col-lg-5 connectedSortable ui-sortable">
-    
-    <!-- solid sales graph -->
-    <div class="card bg-gradient-info">
-      <div class="card-header border-0">
-        <h3 class="card-title">
-          <i class="bi bi-chart-line me-1"></i>
-          График продаж
-        </h3>
-        <!-- card tools -->
-        <div class="card-tools">
-          <button type="button" class="btn btn-info btn-sm" data-lte-toggle="card-collapse">
-            <i class="bi bi-dash"></i>
-          </button>
-          <button type="button" class="btn btn-info btn-sm" data-lte-toggle="card-remove">
-            <i class="bi bi-x"></i>
-          </button>
-        </div>
-        <!-- /.card-tools -->
-      </div>
-      <div class="card-body">
-        <div class="chart" id="line-chart" style="height: 250px;">
-          <div class="d-flex justify-content-center align-items-center h-100">
-            <div class="text-center text-white">
-              <i class="bi bi-graph-up" style="font-size: 2.5rem;"></i>
-              <h6 class="mt-2">График продаж по дням</h6>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- /.card-body -->
-      <div class="card-footer bg-transparent">
-        <div class="row">
-          <div class="col-4 text-center">
-            <input type="text" class="knob" data-readonly="true" value="20" data-width="60" data-height="60" data-fgColor="#39CCCC">
-            <div class="text-white">Онлайн продажи</div>
-          </div>
-          <!-- ./col -->
-          <div class="col-4 text-center">
-            <input type="text" class="knob" data-readonly="true" value="50" data-width="60" data-height="60" data-fgColor="#39CCCC">
-            <div class="text-white">В кассе</div>
-          </div>
-          <!-- ./col -->
-          <div class="col-4 text-center">
-            <input type="text" class="knob" data-readonly="true" value="30" data-width="60" data-height="60" data-fgColor="#39CCCC">
-            <div class="text-white">Возвраты</div>
-          </div>
-          <!-- ./col -->
-        </div>
-        <!-- /.row -->
-      </div>
-      <!-- /.card-footer -->
-    </div>
-    <!-- /.card -->
-
-    <!-- Calendar -->
-    <div class="card bg-gradient-success">
-      <div class="card-header border-0">
-        <h3 class="card-title">
-          <i class="bi bi-calendar4-week me-1"></i>
-          Календарь
-        </h3>
-        <!-- tools card -->
-        <div class="card-tools">
-          <!-- button with a dropdown -->
-          <div class="btn-group">
-            <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" data-offset="-52">
-              <i class="bi bi-bars"></i>
-            </button>
-            <div class="dropdown-menu" role="menu">
-              <a href="#" class="dropdown-item">Добавить событие</a>
-              <a href="#" class="dropdown-item">Очистить события</a>
-              <div class="dropdown-divider"></div>
-              <a href="#" class="dropdown-item">Просмотр календаря</a>
-            </div>
-          </div>
-          <button type="button" class="btn btn-success btn-sm" data-lte-toggle="card-collapse">
-            <i class="bi bi-dash"></i>
-          </button>
-          <button type="button" class="btn btn-success btn-sm" data-lte-toggle="card-remove">
-            <i class="bi bi-x"></i>
-          </button>
-        </div>
-        <!-- /. tools -->
-      </div>
-      <!-- /.card-header -->
-      <div class="card-body pt-0">
-        <!-- The calendar -->
-        <div id="calendar" style="width: 100%">
-          <div class="text-center text-white p-4">
-            <i class="bi bi-calendar4-week" style="font-size: 3rem;"></i>
-            <h5 class="mt-3">Календарь сеансов</h5>
-            <p class="small">Здесь будет календарь с расписанием сеансов</p>
-          </div>
-        </div>
-      </div>
-      <!-- /.card-body -->
-    </div>
-    <!-- /.card -->
-  </section>
-  <!-- right col -->
 </div>
-<!-- /.row (main row) -->
-
-<!-- Small boxes (Stat box) -->
-<div class="row">
-  <div class="col-lg-3 col-6">
-    <!-- small box -->
-    <div class="small-box text-bg-info">
-      <div class="inner">
-        <h3>{{ sidebar_stats.total_halls|default:0 }}</h3>
-        <p>Залов в кинотеатрах</p>
-      </div>
-      <div class="icon">
-        <i class="bi bi-film"></i>
-      </div>
-      <a href="#" class="small-box-footer">Подробнее <i class="bi bi-arrow-right-circle-fill"></i></a>
+<div class="row mt-3">
+    <!-- Новая карточка: Популярный фильм -->
+    <div class="col-lg-8 col-12">
+        <div class="card" style="border-left: 4px solid #28a745;">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h5 class="card-title text-muted mb-2 d-inline">Популярный фильм сегодня:</h5>
+                        {% if popular_movie %}
+                            <h3 class="mb-1 d-inline ms-3">{{ popular_movie.title }}
+                                <a href="{% url 'cinema:movie_edit' popular_movie.movie__id %}"
+                                   class="text-decoration-none text-dark">
+                                    {{ popular_movie.movie__name }}
+                                </a>
+                            </h3>
+                            <small class="text-muted ">
+                                <i class="fas fa-film"></i> {{ popular_movie.sessions_count }} сеансов
+                            </small>
+                        {% else %}
+                            <p class="mb-0 text-muted">Нет сеансов на сегодня</p>
+                        {% endif %}
+                    </div>
+                    <div class="text-success">
+                        <i class="fas fa-star fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  <!-- ./col -->
-  <div class="col-lg-3 col-6">
-    <!-- small box -->
-    <div class="small-box text-bg-success">
-      <div class="inner">
-        <h3>53<sup style="font-size: 20px">%</sup></h3>
-        <p>Заполняемость залов</p>
-      </div>
-      <div class="icon">
-        <i class="bi bi-bar-chart"></i>
-      </div>
-      <a href="#" class="small-box-footer">Подробнее <i class="bi bi-arrow-right-circle-fill"></i></a>
-    </div>
-  </div>
-  <!-- ./col -->
-  <div class="col-lg-3 col-6">
-    <!-- small box -->
-    <div class="small-box text-bg-warning">
-      <div class="inner">
-        <h3>{{ sidebar_stats.total_users|default:0 }}</h3>
-        <p>Пользователей</p>
-      </div>
-      <div class="icon">
-        <i class="bi bi-people"></i>
-      </div>
-      <a href="#" class="small-box-footer">Подробнее <i class="bi bi-arrow-right-circle-fill"></i></a>
-    </div>
-  </div>
-  <!-- ./col -->
-  <div class="col-lg-3 col-6">
-    <!-- small box -->
-    <div class="small-box text-bg-danger">
-      <div class="inner">
-        <h3>{{ sidebar_stats.total_movies|default:0 }}</h3>
-        <p>Фильмов в прокате</p>
-      </div>
-      <div class="icon">
-        <i class="bi bi-camera-reels"></i>
-      </div>
-      <a href="#" class="small-box-footer">Подробнее <i class="bi bi-arrow-right-circle-fill"></i></a>
-    </div>
-  </div>
-  <!-- ./col -->
 </div>
-<!-- /.row -->
+<div class="row mt-3">
+    <div class="col-lg-8 col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Сеансы на ближайшие 7 дней</h3>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="sessionsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Пол пользователей</h3>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="genderChart"></canvas>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted" id="gender-stats"></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    const sessionsData = {{ sessions_data|safe }};
+    const genderData = {{ gender_data|safe }};
+
+    // График сеансов
+    new Chart(document.getElementById('sessionsChart'), {
+        type: 'line',
+        data: {
+            labels: sessionsData.map(item => item.date),
+            datasets: [{
+                label: 'Количество сеансов',
+                data: sessionsData.map(item => item.count),
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+
+    // Круговая диаграмма
+    new Chart(document.getElementById('genderChart'), {
+        type: 'doughnut',
+        data: {
+            labels: genderData.labels,
+            datasets: [{
+                data: genderData.data,
+                backgroundColor: genderData.colors,
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    document.getElementById('gender-stats').innerHTML =
+        `Мужчины: ${genderData.counts[0]} (${genderData.data[0]}%)<br>` +
+        `Женщины: ${genderData.counts[1]} (${genderData.data[1]}%)`;
+</script>
 {% endblock %}

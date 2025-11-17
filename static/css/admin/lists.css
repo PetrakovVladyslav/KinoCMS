@@ -1,0 +1,103 @@
+/* ==========================================================================
+   Admin Lists - KinoCMS
+   Стили для списков в админке (таблицы, карточки)
+   ========================================================================== */
+
+/* Table Actions */
+.table-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.table-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Table Cell Alignments */
+.table td.text-center,
+.table th.text-center {
+    text-align: center;
+}
+
+.table td.text-right,
+.table th.text-right {
+    text-align: right;
+}
+
+/* Image in Table */
+.table-image {
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+/* Status Badges */
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.badge-success {
+    color: #fff;
+    background-color: #28a745;
+}
+
+.badge-danger {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+.badge-warning {
+    color: #212529;
+    background-color: #ffc107;
+}
+
+.badge-info {
+    color: #fff;
+    background-color: #17a2b8;
+}
+
+.badge-secondary {
+    color: #fff;
+    background-color: #6c757d;
+}
+
+/* Search & Filter Bar */
+.list-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.list-filters .form-control {
+    max-width: 300px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #adb5bd;
+}
+
+.empty-state h3 {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}

@@ -6,6 +6,9 @@
 
 {% block breadcrumb_active %}Рассылка{% endblock %}
 
+{% block extra_css %}
+{% endblock %}
+
 {% block content %}
 <div class="row">
   <div class="col-12">
@@ -13,26 +16,26 @@
       <div class="card-header">
         <h3 class="card-title"><i class="fas fa-envelope me-2"></i>Email-рассылка</h3>
       </div>
-      
+
       <div class="card-body">
         <!-- Выбор получателей -->
         <div class="form-group mb-4">
           <label class="fw-bold mb-2">Кому отправить:</label>
-          
+
           <div class="form-check mb-2">
             <input class="form-check-input" type="radio" name="recipient_type" id="send_to_all" value="all" {% if selected_users_count == 0 %}checked{% endif %}>
             <label class="form-check-label" for="send_to_all">
               Всем пользователям ({{ total_users }})
             </label>
           </div>
-          
+
           <div class="form-check">
             <input class="form-check-input" type="radio" name="recipient_type" id="send_selective" value="selective" {% if selected_users_count > 0 %}checked{% endif %}>
             <label class="form-check-label" for="send_selective">
               Выборочно
             </label>
           </div>
-          
+
           <div id="selective_controls" class="mt-2" style="{% if selected_users_count > 0 %}display: block;{% else %}display: none;{% endif %}">
             <a href="{% url 'core:admin_user_select' %}" class="btn btn-primary">
               <i class="fas fa-users"></i> Выбрать пользователей
@@ -115,17 +118,17 @@
         <div id="progress_container" style="{% if not active_mailing %}display: none;{% endif %}">
           <label class="fw-bold mb-2">Прогресс рассылки:</label>
           <div class="progress mb-2" style="height: 30px;">
-            <div id="progress_bar" class="progress-bar progress-bar-striped progress-bar-animated" 
-                 role="progressbar" 
+            <div id="progress_bar" class="progress-bar progress-bar-striped progress-bar-animated"
+                 role="progressbar"
                  style="width: {% if active_mailing %}{{ active_mailing.get_progress_percentage }}%{% else %}0%{% endif %}"
-                 aria-valuenow="{% if active_mailing %}{{ active_mailing.get_progress_percentage }}{% else %}0{% endif %}" 
-                 aria-valuemin="0" 
+                 aria-valuenow="{% if active_mailing %}{{ active_mailing.get_progress_percentage }}{% else %}0{% endif %}"
+                 aria-valuemin="0"
                  aria-valuemax="100">
               <span id="progress_text">{% if active_mailing %}{{ active_mailing.get_progress_percentage }}%{% else %}0%{% endif %}</span>
             </div>
           </div>
           <p class="text-muted">
-            Отправлено: <strong id="sent_count">{% if active_mailing %}{{ active_mailing.sent_count }}{% else %}0{% endif %}</strong> / 
+            Отправлено: <strong id="sent_count">{% if active_mailing %}{{ active_mailing.sent_count }}{% else %}0{% endif %}</strong> /
             <strong id="total_count">{% if active_mailing %}{{ active_mailing.total_recipients }}{% else %}0{% endif %}</strong>
             <span class="ms-3">Ошибок: <strong id="failed_count">{% if active_mailing %}{{ active_mailing.failed_count }}{% else %}0{% endif %}</strong></span>
           </p>
@@ -148,7 +151,7 @@ document.querySelectorAll('input[name="recipient_type"]').forEach(radio => {
   radio.addEventListener('change', function() {
     const selectiveControls = document.getElementById('selective_controls');
     const emailCount = document.getElementById('email_count');
-    
+
     if (this.value === 'selective') {
       selectiveControls.style.display = 'block';
       emailCount.textContent = {{ selected_users_count }};
@@ -156,7 +159,7 @@ document.querySelectorAll('input[name="recipient_type"]').forEach(radio => {
       selectiveControls.style.display = 'none';
       emailCount.textContent = {{ total_users }};
     }
-    
+
     updateStartButton();
   });
 });
@@ -164,7 +167,7 @@ document.querySelectorAll('input[name="recipient_type"]').forEach(radio => {
 // Загрузка файла
 document.getElementById('uploadForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  
+
   const formData = new FormData(this);
   const response = await fetch('{% url "core:upload_mailing_file" %}', {
     method: 'POST',
@@ -173,9 +176,9 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
       'X-CSRFToken': '{{ csrf_token }}'
     }
   });
-  
+
   const data = await response.json();
-  
+
   if (data.success) {
     // Обновляем список файлов
     location.reload();
@@ -198,7 +201,7 @@ document.querySelectorAll('.select-file-btn').forEach(btn => {
 document.querySelectorAll('.delete-file-btn').forEach(btn => {
   btn.addEventListener('click', async function() {
     if (!confirm('Удалить файл?')) return;
-    
+
     const fileId = this.dataset.fileId;
     const response = await fetch(`/admin-panel/mailing/file/${fileId}/delete/`, {
       method: 'POST',
@@ -206,7 +209,7 @@ document.querySelectorAll('.delete-file-btn').forEach(btn => {
         'X-CSRFToken': '{{ csrf_token }}'
       }
     });
-    
+
     if (response.ok) {
       location.reload();
     }
@@ -218,14 +221,14 @@ function updateStartButton() {
   const sendToAll = document.getElementById('send_to_all').checked;
   const hasFile = selectedFileId !== null;
   const hasRecipients = sendToAll || {{ selected_users_count }} > 0;
-  
+
   document.getElementById('start_mailing_btn').disabled = !(hasFile && hasRecipients);
 }
 
 // Запуск рассылки
 document.getElementById('start_mailing_btn').addEventListener('click', async function() {
   const sendToAll = document.getElementById('send_to_all').checked;
-  
+
   const response = await fetch('{% url "core:start_mailing" %}', {
     method: 'POST',
     headers: {
@@ -234,9 +237,9 @@ document.getElementById('start_mailing_btn').addEventListener('click', async fun
     },
     body: `file_id=${selectedFileId}&send_to_all=${sendToAll}`
   });
-  
+
   const data = await response.json();
-  
+
   if (data.success) {
     currentMailingId = data.mailing_id;
     document.getElementById('progress_container').style.display = 'block';
@@ -249,13 +252,32 @@ document.getElementById('start_mailing_btn').addEventListener('click', async fun
 
 // Отслеживание прогресса
 function startProgressTracking() {
-  if (!currentMailingId) return;
-  
+  // Очищаем предыдущий интервал на всякий случай
+  if (progressInterval) {
+    clearInterval(progressInterval);
+  }
+
   progressInterval = setInterval(async () => {
+    // ПРОВЕРКА: если mailingId стал null, останавливаем интервал
+    if (!currentMailingId) {
+      clearInterval(progressInterval);
+      progressInterval = null;
+      return;
+    }
+
     try {
       const response = await fetch(`/admin-panel/mailing/status/${currentMailingId}/`);
+
+      // Если страница не найдена (404), останавливаем интервал
+      if (response.status === 404) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+        console.log('Mailing not found, stopping tracking');
+        return;
+      }
+
       const data = await response.json();
-      
+
       // Обновляем UI
       document.getElementById('progress_bar').style.width = data.progress + '%';
       document.getElementById('progress_bar').setAttribute('aria-valuenow', data.progress);
@@ -263,14 +285,14 @@ function startProgressTracking() {
       document.getElementById('sent_count').textContent = data.sent_count;
       document.getElementById('failed_count').textContent = data.failed_count;
       document.getElementById('total_count').textContent = data.total_recipients;
-      
+
       // Останавливаем, если рассылка завершена
       if (data.status === 'completed' || data.status === 'failed') {
         clearInterval(progressInterval);
         progressInterval = null;
         currentMailingId = null;
         document.getElementById('progress_bar').classList.remove('progress-bar-animated');
-        
+
         if (data.status === 'completed') {
           alert('Рассылка завершена!');
         } else {
@@ -285,15 +307,21 @@ function startProgressTracking() {
   }, 2000); // Каждые 2 секунды
 }
 
-// Запускаем отслеживание только для активных рассылок
 if (currentMailingId) {
-  // Проверяем статус перед запуском polling
   fetch(`/admin-panel/mailing/status/${currentMailingId}/`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Mailing not found');
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.status === 'processing' || data.status === 'pending') {
         startProgressTracking();
       }
+    })
+    .catch(error => {
+      console.error('Error checking initial status:', error);
     });
 }
 

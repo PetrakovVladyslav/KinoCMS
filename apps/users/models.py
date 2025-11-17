@@ -49,6 +49,7 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractUser):
     username = None
+    nickname = models.CharField(unique=True, max_length=128)
     email = models.EmailField(unique=True, max_length=250)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -81,7 +82,7 @@ class CustomUser(AbstractUser):
         return self.email
 
     def clean(self):
-        text_fields = ["first_name", "last_name", "email", "address", "phone_number"]
+        text_fields = ["first_name", "last_name", "email", "address", "phone_number", "nickname"]
         for field in text_fields:
             value = getattr(self, field, None)
             if value:

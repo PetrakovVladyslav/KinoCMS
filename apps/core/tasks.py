@@ -15,12 +15,6 @@ logger = logging.getLogger(__name__)
 
 @shared_task(bind=True)
 def send_mailing_task(self, mailing_id):
-    """
-    Задача для отправки email-рассылки с файлом
-
-    Args:
-        mailing_id: ID рассылки
-    """
     try:
         mailing = Mailing.objects.get(id=mailing_id)
         mailing.status = "processing"
@@ -28,7 +22,6 @@ def send_mailing_task(self, mailing_id):
         mailing.celery_task_id = self.request.id
         mailing.save()
 
-        # Получаем всех получателей с пользователями (оптимизация)
         recipients = MailingRecipient.objects.filter(mailing=mailing, status="pending").select_related("user")
 
         total = recipients.count()
@@ -42,7 +35,6 @@ def send_mailing_task(self, mailing_id):
         sent_count = 0
         failed_count = 0
 
-        # Адаптивная задержка
         delay = 0.5
 
         for i, recipient in enumerate(recipients, 1):

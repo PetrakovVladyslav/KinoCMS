@@ -15,402 +15,8 @@
 {% endblock %}
 
 {% block extra_css %}
-<style>
-.language-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-}
+        <link rel="stylesheet" href="{% static '/css/admin/components/hall-scheme.css' %}">
 
-.language-toggle .btn {
-    min-width: 50px;
-    padding: 5px 10px;
-}
-
-.language-toggle .btn.active {
-    background-color: #007bff;
-    border-color: #007bff;
-    color: white;
-}
-
-.form-section {
-    margin-bottom: 30px;
-    padding: 20px;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    background-color: #f8f9fa;
-}
-
-.form-section h5 {
-    margin-bottom: 15px;
-    color: #495057;
-    font-weight: 600;
-}
-
-.multilang-field {
-    position: relative;
-}
-
-.field-group {
-    display: none;
-}
-
-.field-group.active {
-    display: block;
-}
-
-/* Banner preview */
-.banner-preview-wrapper {
-    position: relative;
-    display: inline-block;
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    overflow: hidden;
-    max-width: 400px;
-    margin-top: 1rem;
-}
-
-.banner-preview {
-    max-width: 400px;
-    max-height: 200px;
-    width: auto;
-    height: auto;
-    display: block;
-}
-
-/* Hall Scheme Editor */
-.scheme-editor {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-.scheme-controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.scheme-size-inputs {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.scheme-size-inputs input {
-    width: 80px;
-}
-
-.scheme-grid-wrapper {
-    overflow: auto;
-    max-height: 600px;
-    border: 2px solid #dee2e6;
-    border-radius: 4px;
-    padding: 20px;
-    background: #fafafa;
-}
-
-.scheme-with-controls {
-    display: flex;
-    gap: 5px;
-    width: fit-content;
-    margin: 0 auto;
-}
-
-.scheme-rows-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    align-content: start;
-    margin-top: 29px;
-}
-
-.scheme-cols-controls {
-    display: flex;
-    gap: 2px;
-    margin-bottom: 5px;
-    margin-left: -25px;
-}
-
-.delete-row-btn,
-.delete-col-btn {
-    background: #dc3545;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 9px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 3px;
-}
-
-.delete-row-btn {
-    width: 24px;
-    height: 30px;
-    padding: 0;
-}
-
-.delete-col-btn {
-    width: 30px;
-    height: 24px;
-    padding: 0;
-}
-
-.corner-spacer {
-    width: 24px;
-    height: 24px;
-    background: transparent;
-}
-
-.delete-row-btn:hover,
-.delete-col-btn:hover {
-    background: #c82333;
-    transform: scale(1.1);
-}
-
-.delete-row-btn:active,
-.delete-col-btn:active {
-    transform: scale(0.95);
-}
-
-.scheme-grid-container {
-    display: flex;
-    flex-direction: column;
-}
-
-.scheme-grid {
-    display: grid;
-    gap: 2px;
-    margin: 0 auto;
-    width: fit-content;
-}
-
-.scheme-cell {
-    width: 30px;
-    height: 30px;
-    border: 1px solid #cbd5e0;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.scheme-cell:hover {
-    border-color: #007bff;
-    transform: scale(1.05);
-}
-
-.scheme-cell.active {
-    background: #28a745;
-    border-color: #28a745;
-}
-
-/* Removed chair icon */
-
-/* Screen indicator */
-.screen-indicator {
-    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    padding: 8px 15px;
-    border-radius: 8px 8px 0 0;
-    text-align: center;
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    position: relative;
-    border: 2px solid #1a252f;
-}
-
-.screen-indicator.bottom {
-    border-radius: 0 0 8px 8px;
-    margin-bottom: 0;
-    margin-top: 10px;
-}
-
-.screen-indicator::before {
-    content: '\1F3AC';
-    margin-right: 8px;
-    font-size: 16px;
-}
-
-.screen-indicator::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-top: 10px solid #34495e;
-}
-
-.screen-indicator.bottom::after {
-    bottom: auto;
-    top: -10px;
-    border-top: none;
-    border-bottom: 10px solid #2c3e50;
-}
-
-.screen-position-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.screen-position-toggle label {
-    margin: 0;
-    font-weight: 500;
-}
-
-.screen-toggle-buttons {
-    display: flex;
-    gap: 5px;
-}
-
-.screen-toggle-buttons .btn {
-    padding: 5px 15px;
-    font-size: 14px;
-}
-
-.screen-toggle-buttons .btn.active {
-    background-color: #28a745;
-    border-color: #28a745;
-    color: white;
-}
-
-.scheme-legend {
-    display: flex;
-    gap: 20px;
-    margin-top: 15px;
-    padding: 10px;
-    background: white;
-    border-radius: 4px;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.legend-box {
-    width: 24px;
-    height: 24px;
-    border: 1px solid #cbd5e0;
-    border-radius: 2px;
-}
-
-.legend-box.active {
-    background: #28a745;
-}
-
-/* Gallery styles */
-.gallery-container {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 1rem;
-    background: #fff;
-}
-
-.gallery-forms {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.gallery-item {
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    position: relative;
-    background: #f8f9fa;
-    min-height: 200px;
-    transition: all 0.3s ease;
-}
-
-.gallery-item:hover {
-    border-color: #007bff;
-}
-
-.gallery-item-content {
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.image-preview-container {
-    position: relative;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.gallery-image-preview {
-    max-width: 100%;
-    max-height: 150px;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-}
-
-.image-overlay {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: rgba(220, 53, 69, 0.9);
-    border-radius: 0 0 0 8px;
-    padding: 0.25rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.gallery-item:hover .image-overlay {
-    opacity: 1;
-}
-
-.delete-image {
-    color: white;
-    border: none;
-    background: none;
-}
-
-.empty-image-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 150px;
-    color: #6c757d;
-    text-align: center;
-}
-
-.image-upload-field {
-    padding: 0.5rem;
-    border-top: 1px solid #dee2e6;
-    background: white;
-    border-radius: 0 0 6px 6px;
-}
-
-.gallery-item.marked-for-deletion {
-    opacity: 0.5;
-    border-color: #dc3545;
-    background: #f8d7da;
-}
-</style>
 {% endblock %}
 
 {% block content %}
@@ -541,41 +147,52 @@
           </div>
 
           <!-- Banner Section -->
-          <div class="form-section">
-            <h5><i class="fas fa-image"></i> Верхний баннер</h5>
-            <div class="form-group">
-              {% if hall.banner %}
-                <div class="banner-preview-wrapper mb-3">
-                  <img src="{{ hall.banner.url }}" alt="Баннер" class="banner-preview">
-                </div>
-              {% endif %}
-              {{ form.banner }}
-            </div>
-          </div>
+										<div class="form-section">
+										    <h5><i class="fas fa-image"></i> Баннер</h5>
+										    <div class="form-group">
+										        {% if cinema.banner %}
+										            <div class="current-banner-preview mb-3">
+										                <div class="banner-preview-wrapper">
+										                    <img src="{{ cinema.banner.url }}" alt="Баннер" class="banner-preview">
+										                    <button type="button" class="btn btn-sm btn-danger delete-banner">
+										                        <i class="fas fa-times"></i>
+										                    </button>
+										                </div>
+										            </div>
+										        {% endif %}
+										        <div class="banner-upload-container">
+										            <div class="file-input-wrapper">
+										                {{ form.banner }}
+										                <button type="button" class="btn btn-primary mt-2 custom-file-button">
+										                    <i class="fas fa-folder-open"></i> Выбрать файл
+										                </button>
+										            </div>
+										        </div>
+										    </div>
+										</div>
 
-          <!-- Gallery Section -->
           {% if gallery_formset %}
           <div class="form-section">
             <h5><i class="fas fa-images"></i> Галерея изображений</h5>
             <div class="gallery-container">
               {{ gallery_formset.management_form }}
               <div class="gallery-forms">
-                {% for form_item in gallery_formset %}
+                {% for form in gallery_formset %}
                   <div class="gallery-item" data-form-index="{{ forloop.counter0 }}">
-                    <input type="hidden" name="{{ form_item.id.html_name }}" value="{{ form_item.id.value|default:'' }}" id="{{ form_item.id.id_for_label }}">
-                    {% if form_item.instance.pk %}
-                      <input type="checkbox" name="{{ form_item.DELETE.html_name }}" id="{{ form_item.DELETE.id_for_label }}" style="display: none;">
+                    <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                    <input type="hidden" name="{{ form.gallery.html_name }}" value="{{ form.gallery.value|default:'' }}" id="{{ form.gallery.id_for_label }}">
+                    {% if form.instance.pk %}
+                      <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="display: none;">
                     {% endif %}
 
                     <div class="gallery-item-content">
-                      {% if form_item.instance.image %}
+                      {% if form.instance.image %}
                         <div class="image-preview-container">
-                          <img src="{{ form_item.instance.image.url }}" alt="Изображение {{ forloop.counter }}" class="gallery-image-preview">
-                          <div class="image-overlay">
-                            <button type="button" class="btn btn-sm btn-danger delete-image">
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
+                          <img src="{{ form.instance.image.url }}" alt="Изображение {{ forloop.counter }}" class="gallery-image-preview">
+                          <!-- Убрали image-overlay и перенесли кнопку прямо в контейнер -->
+                          <button type="button" class="btn btn-sm btn-danger delete-image">
+                            <i class="fas fa-times"></i>
+                          </button>
                         </div>
                       {% else %}
                         <div class="empty-image-placeholder">
@@ -585,7 +202,19 @@
                       {% endif %}
 
                       <div class="image-upload-field">
-                        {{ form_item.image }}
+                        <div class="file-input-wrapper">
+                          {{ form.image }}
+                          <button type="button" class="btn btn-sm btn-primary custom-file-button">
+                            <i class="fas fa-folder-open"></i> Добавить
+                          </button>
+                        </div>
+                        {% if form.image.errors %}
+                          <div class="invalid-feedback d-block">
+                            {% for error in form.image.errors %}
+                              {{ error }}
+                            {% endfor %}
+                          </div>
+                        {% endif %}
                       </div>
                     </div>
                   </div>
@@ -596,6 +225,9 @@
                 <button type="button" class="btn btn-success" id="add-gallery-image">
                   <i class="fas fa-plus"></i> Добавить еще изображение
                 </button>
+                <small class="form-text text-muted ml-3">
+                  Можно загрузить до 10 изображений. Поддерживаемые форматы: JPG, PNG, GIF
+                </small>
               </div>
             </div>
           </div>
@@ -660,38 +292,13 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/admin/language-switcher.js' %}" defer></script>
+<script src="{% static 'js/admin/alert-manager.js' %}" defer></script>
+<script src="{% static 'js/admin/gallery-manager.js' %}" defer></script>
+<script src="{% static 'js/admin/banner-manager.js' %}" defer></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Language switcher functionality
-    const langRuBtn = document.getElementById('lang-ru');
-    const langUkBtn = document.getElementById('lang-uk');
-    const fieldGroups = document.querySelectorAll('.field-group');
-
-    function switchLanguage(lang) {
-        // Update button states
-        if (lang === 'ru') {
-            langRuBtn.classList.add('active');
-            langUkBtn.classList.remove('active');
-        } else {
-            langUkBtn.classList.add('active');
-            langRuBtn.classList.remove('active');
-        }
-
-        // Show/hide appropriate field groups
-        fieldGroups.forEach(group => {
-            if (group.dataset.lang === lang) {
-                group.classList.add('active');
-                group.style.display = 'block';
-            } else {
-                group.classList.remove('active');
-                group.style.display = 'none';
-            }
-        });
-    }
-
-    langRuBtn.addEventListener('click', () => switchLanguage('ru'));
-    langUkBtn.addEventListener('click', () => switchLanguage('uk'));
-
     // Hall Scheme Editor
     const schemeGrid = document.getElementById('scheme-grid');
     const rowsInput = document.getElementById('scheme-rows');
@@ -748,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cell.className = 'scheme-cell';
                 cell.dataset.row = r;
                 cell.dataset.col = c;
-                
+
                 if (scheme[r][c] === 1) {
                     cell.classList.add('active');
                 }
@@ -759,25 +366,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 schemeGrid.appendChild(cell);
             }
         }
-        
+
         // Render delete buttons
         renderDeleteButtons();
     }
-    
+
     // Render delete buttons for rows and columns
     function renderDeleteButtons() {
         const rowsControls = document.getElementById('rows-controls');
         const colsControls = document.getElementById('cols-controls');
-        
+
         // Clear existing buttons
         rowsControls.innerHTML = '';
         colsControls.innerHTML = '';
-        
+
         // Add corner spacer to column controls
         const spacer = document.createElement('div');
         spacer.className = 'corner-spacer';
         colsControls.appendChild(spacer);
-        
+
         // Create column delete buttons
         for (let c = 0; c < cols; c++) {
             const btn = document.createElement('button');
@@ -789,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('click', deleteColumn);
             colsControls.appendChild(btn);
         }
-        
+
         // Create row delete buttons
         for (let r = 0; r < rows; r++) {
             const btn = document.createElement('button');
@@ -810,25 +417,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const cell = e.target;
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
-        
+
         // Remember the initial state to apply to all dragged cells
         dragStartState = scheme[row][col] === 1 ? 0 : 1;
-        
+
         // Apply to first cell
         setCellState(cell, row, col, dragStartState);
     }
-    
+
     // Handle mouse enter during drag
     function handleMouseEnter(e) {
         if (isDragging) {
             const cell = e.target;
             const row = parseInt(cell.dataset.row);
             const col = parseInt(cell.dataset.col);
-            
+
             setCellState(cell, row, col, dragStartState);
         }
     }
-    
+
     // Handle mouse up - stop dragging
     function handleMouseUp(e) {
         if (isDragging) {
@@ -837,7 +444,7 @@ document.addEventListener('DOMContentLoaded', function() {
             saveScheme();
         }
     }
-    
+
     // Set cell state
     function setCellState(cell, row, col, state) {
         scheme[row][col] = state;
@@ -862,12 +469,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Delete row
     function deleteRow(e) {
         const rowIndex = parseInt(e.currentTarget.dataset.row);
-        
+
         if (rows <= 1) {
             alert('Нельзя удалить последний ряд');
             return;
         }
-        
+
         if (confirm(`Удалить ряд ${rowIndex + 1}?`)) {
             scheme.splice(rowIndex, 1);
             rows--;
@@ -876,16 +483,16 @@ document.addEventListener('DOMContentLoaded', function() {
             saveScheme();
         }
     }
-    
+
     // Delete column
     function deleteColumn(e) {
         const colIndex = parseInt(e.currentTarget.dataset.col);
-        
+
         if (cols <= 1) {
             alert('Нельзя удалить последний столбец');
             return;
         }
-        
+
         if (confirm(`Удалить столбец ${colIndex + 1}?`)) {
             for (let r = 0; r < rows; r++) {
                 scheme[r].splice(colIndex, 1);
@@ -896,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
             saveScheme();
         }
     }
-    
+
     // Apply new size
     applySizeBtn.addEventListener('click', function() {
         const newRows = parseInt(rowsInput.value);
@@ -905,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newRows > 0 && newRows <= 30 && newCols > 0 && newCols <= 40) {
             // Create new scheme with new dimensions
             const newScheme = Array(newRows).fill(null).map(() => Array(newCols).fill(0));
-            
+
             // Copy existing data
             for (let r = 0; r < Math.min(rows, newRows); r++) {
                 for (let c = 0; c < Math.min(cols, newCols); c++) {
@@ -941,24 +548,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateScreenPosition(position) {
         screenPosition = position;
         const schemeWithControls = document.getElementById('scheme-with-controls');
-        
+
         // Update button states
         if (position === 'top') {
             screenTopBtn.classList.add('active');
             screenBottomBtn.classList.remove('active');
             screenIndicator.classList.remove('bottom');
-            
+
             // Move screen to top (before scheme-with-controls)
             schemeGridWrapper.insertBefore(screenIndicator, schemeWithControls);
         } else {
             screenBottomBtn.classList.add('active');
             screenTopBtn.classList.remove('active');
             screenIndicator.classList.add('bottom');
-            
+
             // Move screen to bottom (after scheme-with-controls)
             schemeGridWrapper.appendChild(screenIndicator);
         }
-        
+
         saveScheme();
     }
 
@@ -969,126 +576,6 @@ document.addEventListener('DOMContentLoaded', function() {
     screenBottomBtn.addEventListener('click', function() {
         updateScreenPosition('bottom');
     });
-
-    // Gallery functionality
-    window.handleImagePreview = function(e, galleryItem) {
-        const file = e.target.files[0];
-        const previewContainer = galleryItem.querySelector('.image-preview-container');
-        const placeholder = galleryItem.querySelector('.empty-image-placeholder');
-
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                let img = galleryItem.querySelector('.gallery-image-preview');
-                if (!img) {
-                    if (placeholder) {
-                        placeholder.style.display = 'none';
-                    }
-
-                    let newPreviewContainer = previewContainer;
-                    if (!newPreviewContainer) {
-                        newPreviewContainer = document.createElement('div');
-                        newPreviewContainer.className = 'image-preview-container';
-                        const itemContent = galleryItem.querySelector('.gallery-item-content');
-                        itemContent.insertBefore(newPreviewContainer, itemContent.firstChild);
-                    }
-
-                    img = document.createElement('img');
-                    img.className = 'gallery-image-preview';
-                    img.alt = 'Превью изображения';
-
-                    const overlay = document.createElement('div');
-                    overlay.className = 'image-overlay';
-                    overlay.innerHTML = `
-                        <button type="button" class="btn btn-sm btn-danger delete-image">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `;
-
-                    newPreviewContainer.appendChild(img);
-                    newPreviewContainer.appendChild(overlay);
-
-                    overlay.querySelector('.delete-image').addEventListener('click', function() {
-                        newPreviewContainer.remove();
-                        e.target.value = '';
-                        if (placeholder) {
-                            placeholder.style.display = 'flex';
-                        }
-                    });
-                }
-
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    document.querySelectorAll('.gallery-item input[type="file"]').forEach(input => {
-        input.addEventListener('change', function(e) {
-            const galleryItem = e.target.closest('.gallery-item');
-            handleImagePreview(e, galleryItem);
-        });
-    });
-
-    document.querySelectorAll('.delete-image').forEach(button => {
-        button.addEventListener('click', function() {
-            const galleryItem = this.closest('.gallery-item');
-            const deleteCheckbox = galleryItem.querySelector('input[type="checkbox"][name$="-DELETE"]');
-            if (deleteCheckbox) {
-                deleteCheckbox.checked = !deleteCheckbox.checked;
-                galleryItem.classList.toggle('marked-for-deletion');
-            }
-        });
-    });
-
-    const addButton = document.getElementById('add-gallery-image');
-    if (addButton) {
-        addButton.addEventListener('click', function() {
-            const galleryForms = document.querySelector('.gallery-forms');
-            const totalFormsId = document.querySelector('input[name$="-TOTAL_FORMS"]');
-            const maxFormsId = document.querySelector('input[name$="-MAX_NUM_FORMS"]');
-
-            if (!totalFormsId || !maxFormsId) return;
-
-            let currentCount = parseInt(totalFormsId.value) || 0;
-            const maxCount = parseInt(maxFormsId.value) || 10;
-
-            if (currentCount >= maxCount) {
-                alert(`Максимальное количество изображений: ${maxCount}`);
-                return;
-            }
-
-            const formsetPrefix = totalFormsId.name.replace('-TOTAL_FORMS', '');
-
-            const newItem = document.createElement('div');
-            newItem.className = 'gallery-item';
-            newItem.setAttribute('data-form-index', currentCount);
-
-            newItem.innerHTML = `
-                <input type="hidden" name="${formsetPrefix}-${currentCount}-id" id="id_${formsetPrefix}-${currentCount}-id" value="">
-                <div class="gallery-item-content">
-                    <div class="empty-image-placeholder">
-                        <i class="fas fa-plus-circle"></i>
-                        <p>Добавить изображение</p>
-                    </div>
-                    <div class="image-upload-field">
-                        <input type="file" name="${formsetPrefix}-${currentCount}-image" accept="image/*"
-                               class="form-control-file" id="id_${formsetPrefix}-${currentCount}-image">
-                    </div>
-                </div>
-            `;
-
-            galleryForms.appendChild(newItem);
-            totalFormsId.value = currentCount + 1;
-
-            const newFileInput = newItem.querySelector('input[type="file"]');
-            if (newFileInput) {
-                newFileInput.addEventListener('change', function(e) {
-                    handleImagePreview(e, newItem);
-                });
-            }
-        });
-    }
 
     // Global mouseup handler to stop dragging if mouse released outside grid
     document.addEventListener('mouseup', function() {

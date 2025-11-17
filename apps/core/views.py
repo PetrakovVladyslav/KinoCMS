@@ -1,29 +1,83 @@
+import logging
+from datetime import datetime, timedelta
+
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
-from apps.cinema.models import Movie
+from apps.cinema.models import Movie, Session
 from apps.core.forms import MailingFileUploadForm
 from apps.core.models import Mailing, MailingFile, MailingRecipient
 from apps.core.tasks import send_mailing_task
 from apps.users.forms import CustomUserUpdateForm
-from apps.users.models import CustomUser
+from apps.users.models import CustomUser, Gender
 
 # Create your views here.
 
 
 @staff_member_required(login_url="users:admin_login")
 def admin_dashboard(request):
-    context = {
-        "total_movies": 42,
-        "total_sessions": 156,
-        "total_users": CustomUser.objects.count(),
-        "total_pages": 8,
+    # 1. Количество пользователей
+    total_users = CustomUser.objects.count()
+
+    # 2. Данные для графика сеансов
+    today = timezone.now().date()
+    sessions_data = []
+
+    for i in range(7):
+        date = today + timedelta(days=i)
+        # Используем datetime напрямую
+        date_start = timezone.make_aware(datetime.combine(date, datetime.min.time()))
+        date_end = timezone.make_aware(datetime.combine(date, datetime.max.time()))
+
+        count = Session.objects.filter(start_time__gte=date_start, start_time__lte=date_end).count()
+        sessions_data.append({"date": date.strftime("%d.%m"), "count": count})
+
+    # 3. Статистика по полу
+    gender_stats = CustomUser.objects.aggregate(
+        male=Count("id", filter=Q(gender=Gender.MALE)), female=Count("id", filter=Q(gender=Gender.FEMALE))
+    )
+
+    total_gender = sum(gender_stats.values())
+    if total_gender > 0:
+        male_percent = round((gender_stats["male"] / total_gender) * 100, 1)
+        female_percent = round((gender_stats["female"] / total_gender) * 100, 1)
+    else:
+        male_percent = female_percent = 0
+
+    today = timezone.now().date()
+    date_start = timezone.make_aware(datetime.combine(today, datetime.min.time()))
+    date_end = timezone.make_aware(datetime.combine(today, datetime.max.time()))
+
+    popular_movie = (
+        Session.objects.filter(start_time__gte=date_start, start_time__lte=date_end)
+        .values("movie__id", "movie__name")
+        .annotate(sessions_count=Count("id"))
+        .order_by("-sessions_count")
+        .first()
+    )
+
+    print(f"Популярный фильм: {popular_movie}")
+
+    gender_data = {
+        "labels": ["Мужчины", "Женщины"],
+        "data": [male_percent, female_percent],
+        "counts": [gender_stats["male"], gender_stats["female"]],
+        "colors": ["#3498db", "#e74c3c"],
     }
+
+    context = {
+        "total_users": total_users,
+        "sessions_data": sessions_data,
+        "gender_data": gender_data,
+        "popular_movie": popular_movie,
+    }
+
     return render(request, "core/admin_dashboard.html", context)
 
 
@@ -51,6 +105,8 @@ def admin_users_list(request):
         "-gender",
         "city",
         "-city",
+        "nickname",
+        "-nickname",
     ]
     if sort_by not in allowed_sort_fields:
         sort_by = "-date_joined"
@@ -62,6 +118,7 @@ def admin_users_list(request):
             | Q(last_name__icontains=search_query)
             | Q(email__icontains=search_query)
             | Q(phone_number__icontains=search_query)
+            | Q(nickname__icontains=search_query)
         )
 
     # Пагинация
@@ -156,12 +213,8 @@ def search_movies(request):
     return JsonResponse({"results": results})
 
 
-# === РАССЫЛКИ ===
-
-
 @staff_member_required(login_url="users:admin_login")
 def admin_mailing(request):
-    """Главная страница рассылки"""
     recent_files = MailingFile.objects.all()[:5]
     selected_user_ids = request.session.get("selected_users", [])
     active_mailing = Mailing.objects.filter(status__in=["pending", "processing"]).first()
@@ -177,7 +230,6 @@ def admin_mailing(request):
 
 @staff_member_required(login_url="users:admin_login")
 def admin_user_select(request):
-    """Страница выбора пользователей для рассылки"""
     if request.method == "POST":
         selected_users = request.POST.getlist("selected_users")
         request.session["selected_users"] = [int(uid) for uid in selected_users]
@@ -207,7 +259,6 @@ def admin_user_select(request):
 
 @staff_member_required(login_url="users:admin_login")
 def upload_mailing_file(request):
-    """AJAX загрузка файла"""
     if request.method == "POST":
         form = MailingFileUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -226,7 +277,6 @@ def upload_mailing_file(request):
 
 @staff_member_required(login_url="users:admin_login")
 def delete_mailing_file(request, file_id):
-    """AJAX удаление файла"""
     if request.method == "POST":
         try:
             MailingFile.objects.get(id=file_id).delete()
@@ -238,10 +288,15 @@ def delete_mailing_file(request, file_id):
 
 @staff_member_required(login_url="users:admin_login")
 def start_mailing(request):
-    """Запуск рассылки (фоновая задача через Celery)"""
+    logger = logging.getLogger(__name__)
+
     if request.method == "POST":
         file_id = request.POST.get("file_id")
         send_to_all = request.POST.get("send_to_all") == "true"
+
+        # ВАЖНО: Проверяем что file_id передан
+        if not file_id:
+            return JsonResponse({"success": False, "error": "Не выбран файл"}, status=400)
 
         try:
             with transaction.atomic():
@@ -252,6 +307,8 @@ def start_mailing(request):
                     users = CustomUser.objects.filter(is_active=True)
                 else:
                     user_ids = request.session.get("selected_users", [])
+                    if not user_ids:
+                        return JsonResponse({"success": False, "error": "Не выбраны пользователи"}, status=400)
                     users = CustomUser.objects.filter(id__in=user_ids, is_active=True)
 
                 # Создаем рассылку
@@ -259,6 +316,7 @@ def start_mailing(request):
                     file=mailing_file,
                     send_to_all=send_to_all,
                     total_recipients=users.count(),
+                    status="pending",  # Явно устанавливаем статус
                 )
 
                 # Создаем получателей
@@ -266,25 +324,33 @@ def start_mailing(request):
                 MailingRecipient.objects.bulk_create(recipients)
 
                 # Запускаем задачу в фоне
-                send_mailing_task.delay(mailing.id)
+                task = send_mailing_task.delay(mailing.id)
+
+                # Сохраняем task_id в рассылке
+                mailing.celery_task_id = task.id
+                mailing.save(update_fields=["celery_task_id"])
 
                 request.session.pop("selected_users", None)
 
-                return JsonResponse({"success": True, "mailing_id": mailing.id})
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "mailing_id": mailing.id,
+                        "task_id": task.id,  # Возвращаем оба ID
+                    }
+                )
 
+        except MailingFile.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Файл не найден"}, status=404)
         except Exception as e:
+            logger.error(f"Error starting mailing: {str(e)}")
             return JsonResponse({"success": False, "error": str(e)}, status=400)
 
-    return JsonResponse({"success": False}, status=400)
+    return JsonResponse({"success": False, "error": "Invalid method"}, status=400)
 
 
 @staff_member_required(login_url="users:admin_login")
 def mailing_status(request, mailing_id):
-    """
-    Гибридная проверка статуса:
-    1. Для активных задач - берем из Celery (real-time)
-    2. Для завершенных - из БД (надежно)
-    """
     try:
         from celery.result import AsyncResult
 
@@ -325,7 +391,6 @@ def mailing_status(request, mailing_id):
                     {"status": "failed", "error": str(task.info), "total_recipients": mailing.total_recipients}
                 )
 
-        # Fallback: берем из БД (если задача завершена или state потерян)
         return JsonResponse(
             {
                 "status": mailing.status,

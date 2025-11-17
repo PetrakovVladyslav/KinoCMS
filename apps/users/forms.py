@@ -84,6 +84,13 @@ class CustomUserUpdateForm(forms.ModelForm):
         label="Повторить пароль",
     )
 
+    nickname = forms.CharField(
+        required=False,
+        max_length=100,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        label="Псевдоним",
+    )
+
     gender = forms.ChoiceField(
         choices=[("male", "Мужской"), ("female", "Женский")],
         required=False,
@@ -137,6 +144,7 @@ class CustomUserUpdateForm(forms.ModelForm):
         fields = (
             "first_name",
             "last_name",
+            "nickname",
             "email",
             "address",
             "card_number",
@@ -147,6 +155,7 @@ class CustomUserUpdateForm(forms.ModelForm):
         labels = {
             "first_name": "Имя",
             "last_name": "Фамилия",
+            "nickname": "Псевдоним",
             "email": "E-mail",
             "address": "Адрес",
             "card_number": "Номер карты",
@@ -156,6 +165,7 @@ class CustomUserUpdateForm(forms.ModelForm):
         widgets = {
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "nickname": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
             "address": forms.TextInput(attrs={"class": "form-control"}),
             "date_of_birth": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
@@ -168,6 +178,12 @@ class CustomUserUpdateForm(forms.ModelForm):
             raise forms.ValidationError("Email уже зарегистрирован")
         return email
 
+    def clean_nickname(self):
+        nickname = self.cleaned_data.get("nickname")
+        if nickname and User.objects.filter(nickname=nickname).exclude(id=self.instance.id).exists():
+            raise forms.ValidationError("Псевдоним уже используется")
+        return nickname
+
     def clean(self):
         cleaned_data = super().clean()
         text_fields = [
@@ -177,6 +193,7 @@ class CustomUserUpdateForm(forms.ModelForm):
             "address",
             "phone_number",
             "card_number",
+            "nickname",
         ]
         for field in text_fields:
             if cleaned_data.get(field):

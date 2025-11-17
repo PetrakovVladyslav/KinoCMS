@@ -1,0 +1,337 @@
+/* ==========================================================================
+   Frontend Common Components - KinoCMS
+   Общие компоненты для всех frontend страниц
+   ========================================================================== */
+
+/* ===== CARDS ===== */
+.content-card,
+.info-card,
+.cinema-info-card,
+.movie-info-card,
+.booking-info-card,
+.hall-info-card,
+.profile-card,
+.login-form,
+.register-form {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.login-form,
+.register-form,
+.profile-card {
+    backdrop-filter: blur(10px);
+}
+
+/* Card hover effects */
+.cinema-card,
+.movie-card,
+.news-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.cinema-card:hover,
+.movie-card:hover,
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-color);
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary-custom,
+.btn-book,
+.btn-buy {
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary-custom {
+    background: linear-gradient(45deg, var(--accent-color), #ff6b8a);
+    color: white;
+}
+
+.btn-primary-custom:hover {
+    background: linear-gradient(45deg, #ff6b8a, var(--accent-color));
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(233, 69, 96, 0.4);
+}
+
+.btn-outline-custom {
+    border: 2px solid var(--accent-color);
+    color: var(--accent-color);
+    background: transparent;
+    padding: 10px 25px;
+    border-radius: 25px;
+    transition: all 0.3s;
+}
+
+.btn-outline-custom:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* ===== FORMS ===== */
+.form-control,
+.form-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
+    color: var(--text-color);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+.form-label {
+    color: var(--text-color);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(233, 69, 96, 0.25);
+}
+
+.form-check-input[type="radio"] {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-check-input[type="radio"]:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.form-check-label {
+    color: var(--text-color);
+    user-select: none;
+}
+
+.form-select option {
+    background: var(--secondary-color);
+    color: var(--text-color);
+}
+
+/* ===== TABLES ===== */
+.hall-table,
+.session-table {
+    background: var(--secondary-color);
+    margin-bottom: 1rem;
+    --bs-table-bg: var(--secondary-color);
+}
+
+.hall-table thead,
+.session-table thead {
+    background: rgba(233, 69, 96, 0.2);
+}
+
+.hall-table th,
+.session-table th {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--accent-color);
+    padding: 0.75rem;
+    font-weight: 600;
+    background: transparent;
+}
+
+.hall-table td,
+.session-table td {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    padding: 0.75rem;
+    background: transparent;
+}
+
+.hall-table tbody tr,
+.session-table tbody tr {
+    transition: all 0.3s;
+    cursor: pointer;
+    background: var(--secondary-color);
+}
+
+.hall-table tbody tr:hover,
+.session-table tbody tr:hover {
+    background: rgba(233, 69, 96, 0.15) !important;
+}
+
+.table-dark {
+    --bs-table-bg: transparent;
+    --bs-table-border-color: rgba(255, 255, 255, 0.1);
+}
+
+.table-dark tbody tr:hover {
+    background-color: rgba(233, 69, 96, 0.1);
+}
+
+/* ===== BADGES ===== */
+.format-badge,
+.format-badge-inline {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.format-badge-inline {
+    margin-left: 8px;
+}
+
+/* Format colors */
+.format-2D,
+.format-badge-2D,
+.format-badge.format-2d,
+.format-badge-inline.format-2D {
+    background: #4CAF50;
+    color: white;
+}
+
+.format-3D,
+.format-badge-3D,
+.format-badge.format-3d,
+.format-badge-inline.format-3D {
+    background: #2196F3;
+    color: white;
+}
+
+.format-IMAX,
+.format-badge-IMAX,
+.format-badge.format-imax,
+.format-badge-inline.format-IMAX {
+    background: #FF9800;
+    color: white;
+}
+
+/* ===== IMAGES ===== */
+.cinema-logo,
+.movie-poster {
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.cinema-logo {
+    max-height: 150px;
+}
+
+.movie-poster {
+    max-height: 400px;
+}
+
+/* Image placeholders */
+.cinema-logo-placeholder,
+.banner-placeholder {
+    background: #333;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+/* ===== BANNERS ===== */
+.banner-container {
+    position: relative;
+    background: #000;
+    overflow: hidden;
+}
+
+.banner-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+}
+
+.banner-placeholder {
+    width: 100%;
+    height: 300px;
+    background: var(--secondary-color);
+}
+
+/* ===== TEXT UTILITIES ===== */
+.text-danger {
+    color: #ff6b8a !important;
+}
+
+.text-success {
+    color: #4ade80 !important;
+}
+
+.text-light-muted {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.info-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.info-value {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* ===== LINKS ===== */
+.hall-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.hall-link:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .content-card,
+    .info-card,
+    .cinema-info-card,
+    .movie-info-card,
+    .booking-info-card,
+    .hall-info-card {
+        padding: 1rem;
+    }
+    
+    .banner-image,
+    .banner-placeholder {
+        height: 200px;
+    }
+}

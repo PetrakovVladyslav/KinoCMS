@@ -7,369 +7,8 @@
 {% block main_class %}{% endblock %}
 
 {% block extra_css %}
-<style>
-    .banner-container {
-        position: relative;
-        background: #000;
-        overflow: hidden;
-    }
-    
-    .banner-image {
-        width: 100%;
-        height: 300px;
-        object-fit: cover;
-        display: block;
-    }
-    
-    .banner-placeholder {
-        width: 100%;
-        height: 300px;
-        background: var(--secondary-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-muted);
-    }
-    
-    .hall-info-card {
-        background: var(--card-bg);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    
-    .cinema-logo {
-        max-width: 150px;
-        max-height: 100px;
-        object-fit: contain;
-    }
-    
-    .session-table {
-        background: var(--secondary-color);
-        margin-bottom: 1rem;
-        --bs-table-bg: var(--secondary-color);
-    }
-    
-    .session-table thead {
-        background: rgba(233, 69, 96, 0.2);
-    }
-    
-    .session-table th {
-        border-color: rgba(255, 255, 255, 0.1);
-        color: var(--accent-color);
-        padding: 0.75rem;
-        font-weight: 600;
-        background: transparent;
-    }
-    
-    .session-table td {
-        border-color: rgba(255, 255, 255, 0.1);
-        color: var(--text-color);
-        padding: 0.75rem;
-        background: transparent;
-    }
-    
-    .session-table tbody tr {
-        transition: all 0.3s;
-        cursor: pointer;
-        background: var(--secondary-color);
-    }
-    
-    .session-table tbody tr:hover {
-        background: rgba(233, 69, 96, 0.15) !important;
-    }
-    
-    /* Hall Map Styles */
-    .hall-map-container {
-        background: var(--card-bg);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-    }
-    
-    .screen {
-        background: linear-gradient(180deg, #444 0%, #222 100%);
-        border: 3px solid var(--accent-color);
-        border-radius: 12px;
-        padding: 12px 20px;
-        margin: 0 auto 30px;
-        text-align: center;
-        color: white;
-        font-weight: 700;
-        font-size: 1.1rem;
-        max-width: 80%;
-        box-shadow: 
-            0 4px 20px rgba(233, 69, 96, 0.4),
-            inset 0 2px 4px rgba(255, 255, 255, 0.1),
-            inset 0 -2px 4px rgba(0, 0, 0, 0.3);
-        letter-spacing: 0.15em;
-    }
-    
-    .screen.bottom {
-        margin: 30px auto 0;
-    }
-    
-    .hall-grid {
-        display: inline-block;
-        margin: 0 auto;
-        padding: 20px;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 12px;
-        border: 2px solid rgba(233, 69, 96, 0.3);
-        box-shadow: 
-            0 0 20px rgba(233, 69, 96, 0.2),
-            inset 0 0 30px rgba(0, 0, 0, 0.4);
-    }
-    
-    .hall-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-    
-    .row-number {
-        width: 40px;
-        text-align: right;
-        padding-right: 10px;
-        color: var(--accent-color);
-        font-weight: 700;
-        font-size: 1rem;
-        text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
-    }
-    
-    .row-number-right {
-        width: 40px;
-        text-align: left;
-        padding-left: 10px;
-        color: var(--accent-color);
-        font-weight: 700;
-        font-size: 1rem;
-        text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
-    }
-    
-    .seats-container {
-        display: flex;
-        gap: 6px;
-    }
-    
-    .seat {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        font-weight: 600;
-        transition: all 0.3s;
-        position: relative;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-    
-    .seat.available {
-        background: linear-gradient(135deg, rgba(76, 175, 80, 0.4) 0%, rgba(76, 175, 80, 0.2) 100%);
-        border: 2px solid rgba(76, 175, 80, 0.7);
-        color: #C8E6C9;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    }
-    
-    .seat.available::before {
-        content: '';
-        position: absolute;
-        top: 2px;
-        left: 4px;
-        right: 4px;
-        height: 40%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
-        border-radius: 4px;
-        pointer-events: none;
-    }
-    
-    .seat.occupied {
-        background: linear-gradient(135deg, rgba(244, 67, 54, 0.4) 0%, rgba(244, 67, 54, 0.2) 100%);
-        border: 2px solid rgba(244, 67, 54, 0.7);
-        color: #FFCDD2;
-        cursor: not-allowed;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    }
-    
-    .seat.occupied::before {
-        content: '';
-        position: absolute;
-        top: 2px;
-        left: 4px;
-        right: 4px;
-        height: 40%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
-        border-radius: 4px;
-        pointer-events: none;
-    }
-    
-    .seat.aisle {
-        visibility: hidden;
-    }
-    
-    
-    .hall-info {
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        margin-top: 20px;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-    }
-    
-    /* Gallery Slider Styles */
-    .gallery-container {
-        background: var(--card-bg);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        overflow: hidden;
-    }
-
-    .slider {
-        position: relative;
-        width: 100%;
-        height: 400px;
-        overflow: hidden;
-        border-radius: 12px;
-        background: #000;
-    }
-
-    .slides {
-        display: flex;
-        width: 100%;
-        height: 100%;
-        transition: transform 0.5s ease;
-    }
-
-    .slide {
-        flex: 0 0 100%;
-        width: 100%;
-        height: 100%;
-        position: relative;
-    }
-
-    .slide-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .slide:hover .slide-image {
-        transform: scale(1.05);
-    }
-
-    .slider-nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        border: none;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .slider-nav:hover {
-        background: var(--accent-color);
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    .slider-nav.prev {
-        left: 15px;
-    }
-
-    .slider-nav.next {
-        right: 15px;
-    }
-
-    .slider-indicators {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 8px;
-        z-index: 10;
-    }
-
-    .indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.5);
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .indicator.active {
-        background: var(--accent-color);
-        transform: scale(1.2);
-    }
-
-    .indicator:hover {
-        background: rgba(255, 255, 255, 0.8);
-    }
-
-    .slide-counter {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 8px 12px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        z-index: 10;
-    }
-    
-    @media (max-width: 768px) {
-        .banner-image, .banner-placeholder {
-            height: 200px;
-        }
-        
-        .hall-grid {
-            padding: 12px;
-        }
-        
-        .seat {
-            width: 24px;
-            height: 24px;
-            font-size: 0.6rem;
-        }
-        
-        .row-number, .row-number-right {
-            width: 25px;
-            font-size: 0.85rem;
-            padding: 0 5px;
-        }
-        
-        .hall-map-container {
-            padding: 1rem;
-        }
-        
-        .screen {
-            font-size: 0.9rem;
-            padding: 8px 12px;
-        }
-        
-        .slider {
-            height: 250px;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/frontend/hall-detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/frontend/booking.css' %}"> <!-- для hall scheme styles -->
 {% endblock %}
 
 {% block content %}
@@ -486,11 +125,9 @@
 
             <!-- Section 5: Photo Gallery -->
             {% if hall.get_gallery_images %}
-            <div class="gallery-container">
+            <div class="gallery-container mb-4">
                 <div class="p-3">
-                    <h4 class="text-white mb-3 text-center">
-                        <i class="fas fa-images me-2"></i>{% trans "Фотогалерея" %}
-                    </h4>
+                    <h4 class="text-white mb-3 text-center">{% trans "Фотогалерея" %}</h4>
                     <div class="slider" id="gallerySlider">
                         <div class="slides" id="slidesTrack">
                             {% for image in hall.get_gallery_images %}
@@ -502,11 +139,11 @@
 
                         <button class="slider-nav prev" onclick="prevSlide()"><i class="fas fa-chevron-left"></i></button>
                         <button class="slider-nav next" onclick="nextSlide()"><i class="fas fa-chevron-right"></i></button>
-                        
+
                         <div class="slide-counter" id="slideCounter">
                             <span id="currentSlide">1</span> / <span id="totalSlides">{{ hall.get_gallery_images.count }}</span>
                         </div>
-                        
+
                         <div class="slider-indicators" id="sliderIndicators">
                             {% for image in hall.get_gallery_images %}
                             <div class="indicator{% if forloop.first %} active{% endif %}" onclick="goToSlide({{ forloop.counter0 }})"></div>
@@ -522,45 +159,41 @@
 
 <script>
 // Hall map data from backend
+// Hall map data from backend
 const hallSchemeData = {{ hall.scheme_data|safe|default:"null" }};
 
-// Render Hall Map
+// ===== HALL MAP FUNCTIONS =====
 function renderHallMap() {
     const hallMapContainer = document.getElementById('hall-map');
     const hallMapWrapper = document.getElementById('hall-map-wrapper');
-    
+
     if (!hallSchemeData) {
         hallMapContainer.innerHTML = '<p class="text-muted">{% trans "Схема зала не задана" %}</p>';
         return;
     }
-    
-    // Get screen position from scheme data
+
     const screenPosition = hallSchemeData.screen_position || 'top';
-    
-    // Create screen element
+
     const screenDiv = document.createElement('div');
     screenDiv.className = 'screen' + (screenPosition === 'bottom' ? ' bottom' : '');
     screenDiv.innerHTML = '<i class="fas fa-tv me-2"></i>{% trans "ЭКРАН" %}';
-    
-    // Position screen based on settings
+
     const hallMapCenterDiv = hallMapWrapper.querySelector('.text-center');
     if (screenPosition === 'bottom') {
         hallMapWrapper.appendChild(screenDiv);
     } else {
         hallMapWrapper.insertBefore(screenDiv, hallMapCenterDiv);
     }
-    
+
     let rows;
-    
-    // Support both formats: new (with rows array) and legacy (with scheme matrix)
+
     if (hallSchemeData.rows && Array.isArray(hallSchemeData.rows)) {
         rows = hallSchemeData.rows;
     } else if (hallSchemeData.scheme && Array.isArray(hallSchemeData.scheme)) {
-        // Convert legacy format to new format
         rows = hallSchemeData.scheme.map(row => ({
-            seats: row.map(cell => 
-                cell === 1 
-                    ? {type: 'seat', status: 'available'} 
+            seats: row.map(cell =>
+                cell === 1
+                    ? {type: 'seat', status: 'available'}
                     : {type: 'aisle'}
             )
         }));
@@ -568,57 +201,52 @@ function renderHallMap() {
         hallMapContainer.innerHTML = '<p class="text-muted">{% trans "Неверный формат схемы зала" %}</p>';
         return;
     }
-    
+
     let totalSeats = 0;
     let html = '';
-    
-    // Determine row numbering based on screen position
     const totalRows = rows.length;
-    
+
     rows.forEach((row, rowIndex) => {
-        // If screen is at bottom, number rows from bottom to top (reverse)
-        const rowNumber = screenPosition === 'bottom' 
-            ? totalRows - rowIndex 
+        const rowNumber = screenPosition === 'bottom'
+            ? totalRows - rowIndex
             : rowIndex + 1;
-        
+
         html += `<div class="hall-row">`;
         html += `<div class="row-number">${rowNumber}</div>`;
         html += `<div class="seats-container">`;
-        
-        // Count actual seats in this row for proper numbering
+
         let seatNumberInRow = 0;
-        
+
         row.seats.forEach((seat, seatIndex) => {
             if (seat.type === 'aisle') {
                 html += `<div class="seat aisle"></div>`;
             } else {
-                seatNumberInRow++; // Increment only for real seats
+                seatNumberInRow++;
                 const seatNumber = seatNumberInRow;
                 const status = seat.status || 'available';
                 totalSeats++;
-                
-                html += `<div class="seat ${status}" 
-                              data-row="${rowNumber}" 
+
+                html += `<div class="seat ${status}"
+                              data-row="${rowNumber}"
                               data-seat="${seatNumber}"
                               title="{% trans 'Ряд' %} ${rowNumber}, {% trans 'Место' %} ${seatNumber}">
                             ${seatNumber}
                          </div>`;
             }
         });
-        
+
         html += `</div>`;
         html += `<div class="row-number-right">${rowNumber}</div>`;
         html += `</div>`;
     });
-    
+
     hallMapContainer.innerHTML = html;
-    
-    // Update info
+
     document.getElementById('total-rows').textContent = rows.length;
     document.getElementById('total-seats').textContent = totalSeats;
 }
 
-// Gallery Slider Functions
+// ===== GALLERY SLIDER FUNCTIONS =====
 let currentSlideIndex = 0;
 let totalSlidesCount = 0;
 let slidesTrack = null;
@@ -628,12 +256,12 @@ function initSlider() {
     slidesTrack = document.getElementById('slidesTrack');
     const slides = document.querySelectorAll('#gallerySlider .slide');
     totalSlidesCount = slides.length;
-    
+
     if (totalSlidesCount <= 1) return;
-    
+
     updateSliderPosition();
     startAutoSlide();
-    
+
     const slider = document.getElementById('gallerySlider');
     if (slider) {
         slider.addEventListener('mouseenter', stopAutoSlide);
@@ -643,15 +271,15 @@ function initSlider() {
 
 function updateSliderPosition() {
     if (!slidesTrack) return;
-    
+
     const translateX = -currentSlideIndex * 100;
     slidesTrack.style.transform = `translateX(${translateX}%)`;
-    
+
     const currentSlideSpan = document.getElementById('currentSlide');
     if (currentSlideSpan) {
         currentSlideSpan.textContent = currentSlideIndex + 1;
     }
-    
+
     const indicators = document.querySelectorAll('.indicator');
     indicators.forEach((indicator, index) => {
         indicator.classList.toggle('active', index === currentSlideIndex);
@@ -699,7 +327,7 @@ function restartAutoSlide() {
     startAutoSlide();
 }
 
-// Keyboard navigation
+// ===== KEYBOARD NAVIGATION =====
 document.addEventListener('keydown', function(e) {
     if (document.getElementById('gallerySlider') && totalSlidesCount > 1) {
         if (e.key === 'ArrowLeft') {
@@ -712,7 +340,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Touch swipe support
+// ===== TOUCH SWIPE SUPPORT =====
 let touchStartX = 0;
 let touchEndX = 0;
 
@@ -727,7 +355,7 @@ function handleTouchEnd(e) {
 
 function handleSwipe() {
     const swipeThreshold = 50;
-    
+
     if (touchEndX < touchStartX - swipeThreshold) {
         nextSlide();
     } else if (touchEndX > touchStartX + swipeThreshold) {
@@ -735,7 +363,7 @@ function handleSwipe() {
     }
 }
 
-// Initialize on DOM ready
+// ===== INITIALIZE ON DOM READY =====
 document.addEventListener('DOMContentLoaded', function() {
     renderHallMap();
     initSlider();

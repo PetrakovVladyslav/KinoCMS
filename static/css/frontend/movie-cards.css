@@ -1,0 +1,126 @@
+/* ========================================
+   MOVIE CARDS STYLES (Afisha, Soon, Home)
+   ======================================== */
+
+/* Movie cards grid */
+.movie-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 320px));
+    gap: 20px;
+    margin-bottom: 40px;
+    justify-content: center;
+}
+
+.movie-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-align: center;
+    padding: 20px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 320px;
+    position: relative;
+}
+
+.movie-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-color);
+}
+
+.movie-card img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.movie-card h3 {
+    color: var(--text-color);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.movie-card .release-date {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* Format badges in top right corner */
+.format-badges {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.format-badge {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
+}
+
+.format-badge.format-2d {
+    background: linear-gradient(45deg, rgba(23, 162, 184, 0.9), rgba(32, 201, 151, 0.9));
+    color: white;
+}
+
+.format-badge.format-3d {
+    background: linear-gradient(45deg, rgba(40, 167, 69, 0.9), rgba(32, 201, 151, 0.9));
+    color: white;
+}
+
+.format-badge.format-imax {
+    background: linear-gradient(45deg, rgba(255, 193, 7, 0.9), rgba(253, 126, 20, 0.9));
+    color: #212529;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .movie-cards {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 300px));
+    }
+    .movie-card {
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .movie-cards {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 280px));
+    }
+    .movie-card {
+        max-width: 280px;
+        padding: 15px;
+    }
+    .movie-card img {
+        height: 250px;
+    }
+    .format-badges {
+        top: 10px;
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .movie-cards {
+        grid-template-columns: 1fr;
+        max-width: 320px;
+        margin: 0 auto 40px;
+    }
+    .movie-card {
+        max-width: 100%;
+    }
+}

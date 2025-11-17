@@ -19,27 +19,12 @@ from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 from django.urls import include, path
 from django.views.i18n import set_language
-
-
-@login_required
-def admin_dashboard_demo(request):
-    context = {
-        "total_movies": 42,
-        "total_sessions": 156,
-        "total_users": 1234,
-        "total_pages": 8,
-    }
-    return render(request, "core/admin_dashboard.html", context)
-
 
 urlpatterns = [
     # path('', home_view, name='home'),  # Добавляем главную страницу в основные паттерны
     path("admin/", admin.site.urls),
-    path("admin-dashboard/", admin_dashboard_demo, name="admin_dashboard_demo"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("", include("apps.core.urls")),
     path("", include("apps.banner.urls")),

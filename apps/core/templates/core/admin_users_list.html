@@ -7,35 +7,6 @@
 {% block breadcrumb_active %}Пользователи{% endblock %}
 
 {% block extra_css %}
-<style>
-.user-actions {
-    white-space: nowrap;
-}
-.user-actions .btn {
-    padding: 0.25rem 0.5rem;
-    margin: 0 0.125rem;
-}
-.table th {
-    border-bottom: 2px solid #dee2e6;
-    font-weight: 600;
-}
-.pagination-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-}
-.pagination-info {
-    color: #6c757d;
-    font-size: 0.875rem;
-}
-.sortable-header {
-    cursor: pointer;
-}
-.sortable-header:hover {
-    background-color: rgba(0,0,0,0.05);
-}
-</style>
 {% endblock %}
 
 {% block content %}
@@ -132,6 +103,16 @@
                   </a>
                 </th>
                 <th scope="col">
+                  <a href="javascript:void(0)" onclick="sortTable('nickname')" class="text-decoration-none text-dark d-flex align-items-center">
+                    Псевдоним
+                    {% if current_sort == 'nickname' %}
+                      <i class="bi bi-arrow-up ms-1"></i>
+                    {% elif current_sort == '-nickname' %}
+                      <i class="bi bi-arrow-down ms-1"></i>
+                    {% endif %}
+                  </a>
+                </th>
+                <th scope="col">
                   <a href="javascript:void(0)" onclick="sortTable('gender')" class="text-decoration-none text-dark d-flex align-items-center">
                     Пол
                     {% if current_sort == 'gender' %}
@@ -186,6 +167,9 @@
                 </td>
                 <td class="fw-medium">
                   {{ user.first_name }} {{ user.last_name }}
+                </td>
+                <td class="fw-medium">
+                  {{ user.nickname }}
                 </td>
                 <td>
                   {% if user.gender %}

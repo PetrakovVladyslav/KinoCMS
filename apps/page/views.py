@@ -486,6 +486,16 @@ def contacts_admin_edit_view(request):
         else:
             # Если есть ошибки, показываем их
             messages.error(request, "Пожалуйста, исправьте ошибки в форме")
+            # Отладочный вывод ошибок
+            if not main_form.is_valid():
+                print("Main form errors:", main_form.errors)
+            if not formset.is_valid():
+                print("Formset errors:", formset.errors)
+                for i, form in enumerate(formset):
+                    if form.errors:
+                        print(f"Form {i} errors:", form.errors)
+            if not seo_form.is_valid():
+                print("SEO form errors:", seo_form.errors)
     else:
         # Формы для GET запроса
         main_form = PageContactsForm(instance=main_contact, prefix="main")

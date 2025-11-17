@@ -18,20 +18,27 @@
     <!--end::Primary Meta Tags-->
     <!--begin::Accessibility Features-->
     <meta name="supported-color-schemes" content="light dark" />
-    <link rel="preload" href="{% static 'adminlte/dist/css/adminlte.css' %}" as="style" />
+    <link rel="preload" href="{% static 'vendor/adminlte/dist/css/adminlte.css' %}" as="style" />
     <!--end::Accessibility Features-->
-    <!--begin::Fonts-->
-    <!-- <link rel="stylesheet" href="{% static 'adminlte/dist/css/source-sans-3.css' %}" /> -->
-    <!--end::Fonts-->
-    <!--begin::Third Party Plugin(OverlayScrollbars)-->
-    <link rel="stylesheet" href="{% static 'adminlte/dist/css/overlayscrollbars.min.css' %}" />
-    <!--end::Third Party Plugin(OverlayScrollbars)-->
-    <!--begin::Third Party Plugin(Font Awesome Icons)-->
-    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
-    <!--end::Third Party Plugin(Bootstrap Icons)-->
-    <!--begin::Required Plugin(AdminLTE)-->
-    <link rel="stylesheet" href="{% static 'adminlte/dist/css/adminlte.css' %}" />
-    <!--end::Required Plugin(AdminLTE)-->
+    
+    <!--begin::Vendor Libraries-->
+    <link rel="stylesheet" href="{% static 'vendor/adminlte/dist/css/overlayscrollbars.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'vendor/adminlte/dist/css/adminlte.css' %}" />
+    <!--end::Vendor Libraries-->
+    
+    <!--begin::KinoCMS Styles-->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/admin/common.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/admin/forms.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/admin/lists.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/admin/components/language-toggle.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/admin/components/switch.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/admin/components/image-preview.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/admin/components/gallery.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/admin/components/hall-scheme.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/admin/components/banner-management.css' %}" />
+    <!--end::KinoCMS Styles-->
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -59,13 +66,13 @@
             <!--begin::User Menu Dropdown-->
             <li class="nav-item dropdown user-menu">
               <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                <img src="{% static 'adminlte/dist/assets/img/user2-160x160.jpg' %}" class="user-image img-size-xs rounded-circle shadow" alt="User Image">
+                <img src="{% static 'vendor/adminlte/dist/assets/img/user2-160x160.jpg' %}" class="user-image img-size-xs rounded-circle shadow" alt="User Image">
                 <span class="d-none d-md-inline">{% if user.is_authenticated %}{{ user.first_name|default:user.username }}{% else %}Гость{% endif %}</span>
               </a>
               <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                 <!-- User image -->
                 <li class="user-header text-bg-primary">
-                  <img src="{% static 'adminlte/dist/assets/img/user2-160x160.jpg' %}" class="rounded-circle shadow" alt="User Image">
+                  <img src="{% static 'vendor/adminlte/dist/assets/img/user2-160x160.jpg' %}" class="rounded-circle shadow" alt="User Image">
                   <p>
                     {% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% else %}Гость{% endif %}
                     <small>Администратор</small>
@@ -91,7 +98,7 @@
         <div class="sidebar-brand">
           <!--begin::Brand Link-->
           <a href="{% url 'page:home' %}" class="brand-link">
-            <img src="{% static 'adminlte/dist/assets/img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image opacity-75 shadow">
+            <img src="{% static 'vendor/adminlte/dist/assets/img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image opacity-75 shadow">
             <span class="brand-text fw-light">KinoCMS</span>
           </a>
           <!--end::Brand Link-->
@@ -196,7 +203,7 @@
               <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-end">
                   {% block breadcrumb %}
-                  <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">Главная</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'core:admin_dashboard' %}">Главная</a></li>
                   <li class="breadcrumb-item active">{% block breadcrumb_active %}Админ панель{% endblock %}</li>
                   {% endblock %}
                 </ol>
@@ -244,15 +251,11 @@
     <!--end::App Wrapper-->
     
     <!--begin::Script-->
-    <!--begin::Third Party Plugin(OverlayScrollbars)-->
-    <script src="{% static 'adminlte/dist/js/overlayscrollbars.browser.es6.min.js' %}"></script>
-    <!--end::Third Party Plugin(OverlayScrollbars)-->
-    <!--begin::Required Plugin(Bootstrap 5)-->
-    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <!--end::Required Plugin(Bootstrap 5)-->
-    <!--begin::Required Plugin(AdminLTE)-->
-    <script src="{% static 'adminlte/dist/js/adminlte.js' %}"></script>
-    <!--end::Required Plugin(AdminLTE)-->
+    <!--begin::Vendor Scripts-->
+    <script src="{% static 'vendor/adminlte/dist/js/overlayscrollbars.browser.es6.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/adminlte/dist/js/adminlte.js' %}"></script>
+    <!--end::Vendor Scripts--&gt
     <!--begin::OverlayScrollbars Configure-->
     <script>
       const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
