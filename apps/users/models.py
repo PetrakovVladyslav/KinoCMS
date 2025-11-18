@@ -49,7 +49,7 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractUser):
     username = None
-    nickname = models.CharField(unique=True, max_length=128)
+    nickname = models.CharField(max_length=128, null=True, blank=True)
     email = models.EmailField(unique=True, max_length=250)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -87,3 +87,10 @@ class CustomUser(AbstractUser):
             value = getattr(self, field, None)
             if value:
                 setattr(self, field, strip_tags(str(value)))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["nickname"], condition=models.Q(nickname__isnull=False), name="unique_nickname_when_not_null"
+            ),
+        ]

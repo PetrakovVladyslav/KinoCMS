@@ -150,10 +150,10 @@
 										<div class="form-section">
 										    <h5><i class="fas fa-image"></i> Баннер</h5>
 										    <div class="form-group">
-										        {% if cinema.banner %}
+										        {% if hall.banner %}
 										            <div class="current-banner-preview mb-3">
 										                <div class="banner-preview-wrapper">
-										                    <img src="{{ cinema.banner.url }}" alt="Баннер" class="banner-preview">
+										                    <img src="{{ hall.banner.url }}" alt="Баннер" class="banner-preview">
 										                    <button type="button" class="btn btn-sm btn-danger delete-banner">
 										                        <i class="fas fa-times"></i>
 										                    </button>
@@ -174,6 +174,8 @@
           {% if gallery_formset %}
           <div class="form-section">
             <h5><i class="fas fa-images"></i> Галерея изображений</h5>
+	           <input type="text" id="gallery-validator" required style="position:absolute;left:-9999px;width:1px;height:1px;" tabindex="-1" aria-hidden="true">
+
             <div class="gallery-container">
               {{ gallery_formset.management_form }}
               <div class="gallery-forms">

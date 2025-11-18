@@ -3,12 +3,101 @@ class GalleryManager {
     constructor(options = {}) {
         this.formsetPrefix = options.formsetPrefix || 'images';
         this.maxImages = options.maxImages || 10;
+        this.validator = null;
+        this.form = null;
         this.init();
     }
 
     init() {
+        this.setupValidator();
         this.setupGalleryImages();
         this.setupAddImageButton();
+        this.setupFormValidation();
+    }
+
+    setupValidator() {
+        // Создаем скрытое поле для HTML5 валидации, если его нет
+        this.validator = document.getElementById('gallery-validator');
+        if (!this.validator) {
+            this.validator = document.createElement('input');
+            this.validator.type = 'hidden';
+            this.validator.id = 'gallery-validator';
+            this.validator.required = true;
+
+            const galleryContainer = document.querySelector('.gallery-container');
+            if (galleryContainer) {
+                galleryContainer.parentNode.insertBefore(this.validator, galleryContainer);
+            }
+        }
+
+        this.form = document.querySelector('form');
+    }
+
+    setupFormValidation() {
+        if (!this.form || !this.validator) return;
+
+        // Проверяем при загрузке страницы (для режима редактирования)
+        if (this.hasImages()) {
+            this.validator.removeAttribute('required');
+        }
+
+        // Валидация при отправке формы
+        this.form.addEventListener('submit', (e) => {
+            if (!this.validateGallery(e)) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    validateGallery(e) {
+        const hasImages = this.hasImages();
+
+        if (hasImages) {
+            this.validator.removeAttribute('required');
+            this.validator.setCustomValidity('');
+            return true;
+        } else {
+            this.validator.setAttribute('required', '');
+            this.validator.setCustomValidity('Загрузите хотя бы одно изображение в галерею');
+
+            // Показываем браузерное сообщение
+            if (!this.validator.reportValidity()) {
+                // Скроллим к галерее
+                const gallerySection = document.querySelector('.gallery-container');
+                if (gallerySection) {
+                    gallerySection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    hasImages() {
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        let hasImage = false;
+
+        galleryItems.forEach((item) => {
+            // Пропускаем скрытые элементы
+            if (item.style.display === 'none') return;
+
+            const deleteCheckbox = item.querySelector('input[name$="-DELETE"]');
+            const isMarkedForDeletion = deleteCheckbox && deleteCheckbox.checked;
+
+            if (!isMarkedForDeletion) {
+                // Проверяем есть ли превью (существующее изображение)
+                const imagePreview = item.querySelector('.gallery-image-preview');
+                // Или новый файл
+                const fileInput = item.querySelector('input[type="file"]');
+                const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+                if (imagePreview || hasNewFile) {
+                    hasImage = true;
+                }
+            }
+        });
+
+        return hasImage;
     }
 
     setupGalleryImages() {
@@ -17,6 +106,8 @@ class GalleryManager {
             input.addEventListener('change', (e) => {
                 const galleryItem = e.target.closest('.gallery-item');
                 this.handleImagePreview(e, galleryItem);
+                // Обновляем валидацию после загрузки файла
+                this.updateValidation();
             });
         });
 
@@ -33,8 +124,21 @@ class GalleryManager {
             button.addEventListener('click', () => {
                 const galleryItem = button.closest('.gallery-item');
                 this.markForDeletion(galleryItem);
+                // Обновляем валидацию после удаления
+                this.updateValidation();
             });
         });
+    }
+
+    updateValidation() {
+        if (!this.validator) return;
+
+        if (this.hasImages()) {
+            this.validator.removeAttribute('required');
+            this.validator.setCustomValidity('');
+        } else {
+            this.validator.setAttribute('required', '');
+        }
     }
 
     handleImagePreview(e, galleryItem) {
@@ -51,7 +155,7 @@ class GalleryManager {
 
             // Create or get preview container
             if (!previewContainer) {
-                previewContainer = this.createPreviewContainer(e.target, placeholder);
+                previewContainer = this.createPreviewContainer(e.target, placeholder, galleryItem);
                 const itemContent = galleryItem.querySelector('.gallery-item-content');
                 itemContent.insertBefore(previewContainer, itemContent.firstChild);
             }
@@ -63,7 +167,7 @@ class GalleryManager {
         reader.readAsDataURL(file);
     }
 
-    createPreviewContainer(fileInput, placeholder) {
+    createPreviewContainer(fileInput, placeholder, galleryItem) {
         const previewContainer = document.createElement('div');
         previewContainer.className = 'image-preview-container';
 
@@ -77,10 +181,12 @@ class GalleryManager {
         deleteButton.innerHTML = '<i class="fas fa-times"></i>';
 
         // Clear new image preview
-        deleteButton.addEventListener('click', function() {
+        deleteButton.addEventListener('click', () => {
             previewContainer.remove();
             fileInput.value = '';
             if (placeholder) placeholder.style.display = 'flex';
+            // Обновляем валидацию после удаления превью
+            this.updateValidation();
         });
 
         previewContainer.appendChild(img);
@@ -159,6 +265,8 @@ class GalleryManager {
         if (newFileInput) {
             newFileInput.addEventListener('change', (e) => {
                 this.handleImagePreview(e, newItem);
+                // Обновляем валидацию после загрузки файла
+                this.updateValidation();
             });
         }
 

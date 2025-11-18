@@ -92,90 +92,118 @@
 
 <!-- Logo Section -->
 <!-- Logo Section -->
+											<div class="form-section">
+											    <h5><i class="fas fa-image"></i> Постер</h5>
+											    <div class="form-group">
+											        {% if movie.poster %}
+											            <div class="current-logo-preview mb-3">
+											                <div class="logo-preview-wrapper">
+											                    <img src="{{ movie.poster.url }}" alt="Постер" class="logo-preview">
+											                    <button type="button" class="btn btn-sm btn-danger delete-logo">
+											                        <i class="fas fa-times"></i>
+											                    </button>
+											                </div>
+											            </div>
+											        {% endif %}
+											        <div class="logo-upload-container">
+											            <div class="file-input-wrapper">
+											                {{ form.poster }}
+											                <button type="button" class="btn btn-primary mt-2 custom-file-button">
+											                    <i class="fas fa-folder-open"></i> Выбрать
+											                </button>
+											            </div>
+											            {% if form.poster.errors %}
+											                <div class="invalid-feedback d-block">
+											                    {% for error in form.poster.errors %}
+											                        <p>{{ error }}</p>
+											                    {% endfor %}
+											                </div>
+											            {% endif %}
+											        </div>
+											    </div>
+											</div>
+
+										{% if gallery_formset %}
 										<div class="form-section">
-										    <h5><i class="fas fa-image"></i> Постер</h5>
-										    <div class="form-group">
-										        {% if movie.poster %}
-										            <div class="current-logo-preview mb-3">
-										                <div class="logo-preview-wrapper">
-										                    <img src="{{ movie.poster.url }}" alt="Постер" class="logo-preview">
-										                    <button type="button" class="btn btn-sm btn-danger delete-logo">
-										                        <i class="fas fa-times"></i>
-										                    </button>
-										                </div>
-										            </div>
-										        {% endif %}
-										        <div class="logo-upload-container">
-										            <div class="file-input-wrapper">
-										                {{ form.poster }}
-										                <button type="button" class="btn btn-primary mt-2 custom-file-button">
-										                    <i class="fas fa-folder-open"></i> Выбрать
+										  <h5><i class="fas fa-images"></i> Галерея изображений</h5>
+            <input type="text" id="gallery-validator" required style="position:absolute;left:-9999px;width:1px;height:1px;" tabindex="-1" aria-hidden="true">
+
+
+										  <!-- ВЫВОД ОШИБОК FORMSET-А -->
+												{% if gallery_formset.non_form_errors %}
+														  <div class="invalid-feedback d-block mb-3">
+														    {% for error in gallery_formset.non_form_errors %}
+														      <p>{{ error }}</p>
+														    {% endfor %}
+														  </div>
+														{% endif %}
+
+										  <div class="gallery-container">
+										    {{ gallery_formset.management_form }}
+
+										    <div class="gallery-forms">
+										      {% for form in gallery_formset %}
+										        <div class="gallery-item" data-form-index="{{ forloop.counter0 }}">
+
+										          <!-- hidden поля -->
+										          <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+										          <input type="hidden" name="{{ form.gallery.html_name }}" value="{{ form.gallery.value|default:'' }}" id="{{ form.gallery.id_for_label }}">
+
+										          {% if form.instance.pk %}
+										            <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="display: none;">
+										          {% endif %}
+
+										          <div class="gallery-item-content">
+
+										            {% if form.instance.image %}
+										              <div class="image-preview-container">
+										                <img src="{{ form.instance.image.url }}" alt="Изображение {{ forloop.counter }}" class="gallery-image-preview">
+										                <button type="button" class="btn btn-sm btn-danger delete-image">
+										                  <i class="fas fa-times"></i>
 										                </button>
+										              </div>
+										            {% else %}
+										              <div class="empty-image-placeholder">
+										                <i class="fas fa-plus-circle"></i>
+										                <p>Добавить изображение</p>
+										              </div>
+										            {% endif %}
+
+										            <div class="image-upload-field">
+										              <div class="file-input-wrapper">
+										                {{ form.image }}
+										                <button type="button" class="btn btn-sm btn-primary custom-file-button">
+										                  <i class="fas fa-folder-open"></i> Добавить
+										                </button>
+										              </div>
+
+										              {% if form.image.errors %}
+										                <div class="invalid-feedback d-block">
+										                  {% for error in form.image.errors %}
+										                    {{ error }}
+										                  {% endfor %}
+										                </div>
+										              {% endif %}
 										            </div>
+
+										          </div>
 										        </div>
+										      {% endfor %}
 										    </div>
+
+										    <div class="gallery-controls mt-3">
+										      <button type="button" class="btn btn-success" id="add-gallery-image">
+										        <i class="fas fa-plus"></i> Добавить еще изображение
+										      </button>
+
+										      <small class="form-text text-muted ml-3">
+										        Можно загрузить до 10 изображений. Поддерживаемые форматы: JPG, PNG, GIF
+										      </small>
+										    </div>
+
+										  </div>
 										</div>
-          {% if gallery_formset %}
-          <div class="form-section">
-            <h5><i class="fas fa-images"></i> Галерея изображений</h5>
-            <div class="gallery-container">
-              {{ gallery_formset.management_form }}
-              <div class="gallery-forms">
-                {% for form in gallery_formset %}
-                  <div class="gallery-item" data-form-index="{{ forloop.counter0 }}">
-                    <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
-                    <input type="hidden" name="{{ form.gallery.html_name }}" value="{{ form.gallery.value|default:'' }}" id="{{ form.gallery.id_for_label }}">
-                    {% if form.instance.pk %}
-                      <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="display: none;">
-                    {% endif %}
-
-                    <div class="gallery-item-content">
-                      {% if form.instance.image %}
-                        <div class="image-preview-container">
-                          <img src="{{ form.instance.image.url }}" alt="Изображение {{ forloop.counter }}" class="gallery-image-preview">
-                          <!-- Убрали image-overlay и перенесли кнопку прямо в контейнер -->
-                          <button type="button" class="btn btn-sm btn-danger delete-image">
-                            <i class="fas fa-times"></i>
-                          </button>
-                        </div>
-                      {% else %}
-                        <div class="empty-image-placeholder">
-                          <i class="fas fa-plus-circle"></i>
-                          <p>Добавить изображение</p>
-                        </div>
-                      {% endif %}
-
-                      <div class="image-upload-field">
-                        <div class="file-input-wrapper">
-                          {{ form.image }}
-                          <button type="button" class="btn btn-sm btn-primary custom-file-button">
-                            <i class="fas fa-folder-open"></i> Добавить
-                          </button>
-                        </div>
-                        {% if form.image.errors %}
-                          <div class="invalid-feedback d-block">
-                            {% for error in form.image.errors %}
-                              {{ error }}
-                            {% endfor %}
-                          </div>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
-
-              <div class="gallery-controls mt-3">
-                <button type="button" class="btn btn-success" id="add-gallery-image">
-                  <i class="fas fa-plus"></i> Добавить еще изображение
-                </button>
-                <small class="form-text text-muted ml-3">
-                  Можно загрузить до 10 изображений. Поддерживаемые форматы: JPG, PNG, GIF
-                </small>
-              </div>
-            </div>
-          </div>
-          {% endif %}
+										{% endif %}
 
           <!-- Ссылка на трейлер -->
           {% if form.trailer_url %}

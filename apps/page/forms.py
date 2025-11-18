@@ -151,8 +151,30 @@ class PageNewsSalesForm(forms.ModelForm):
         # Устанавливаем формат для поля даты
         self.fields["publish_date"].input_formats = [DATE_INPUT_FORMAT]
 
+        # Явно указываем обязательные поля
+        required_fields = [
+            "name_ru",
+            "name_uk",
+            "description_ru",
+            "description_uk",
+            "logo",
+            "video_url",
+            "publish_date",
+        ]
+
+        for field_name in required_fields:
+            if field_name in self.fields:
+                self.fields[field_name].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Дополнительная валидация (если нужна кастомная логика)
+        # Базовая валидация уже выполнена Django благодаря required=True
+
+        return cleaned_data
+
     def save(self, commit=True):
-        # Стандартное сохранение без вмешательства в мультиязычные поля
         instance = super().save(commit=commit)
         return instance
 

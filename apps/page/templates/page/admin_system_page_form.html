@@ -134,6 +134,8 @@
           {% if gallery_formset %}
           <div class="form-section">
             <h5><i class="fas fa-images"></i> Галерея изображений</h5>
+	           <input type="text" id="gallery-validator" required style="position:absolute;left:-9999px;width:1px;height:1px;" tabindex="-1" aria-hidden="true">
+
             <div class="gallery-container">
               {{ gallery_formset.management_form }}
               <div class="gallery-forms">

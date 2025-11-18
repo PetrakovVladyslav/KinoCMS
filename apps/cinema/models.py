@@ -14,16 +14,15 @@ from .enums import MovieFormat
 
 class Movie(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Название фильма")
-    description = models.TextField(blank=True, verbose_name="Описание фильма")
-    poster = models.ImageField(upload_to="posters/", null=True, blank=True)
+    description = models.TextField(verbose_name="Описание фильма")
+    poster = models.ImageField(upload_to="posters/")
     gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
-    trailer_url = models.URLField(null=True, blank=True, verbose_name="Ссылка на трейлер")
-    start_date = models.DateField(null=True, blank=True, verbose_name="Дата начала проката")
-    end_date = models.DateField(null=True, blank=True, verbose_name="Дата окончания проката")
+    trailer_url = models.URLField(verbose_name="Ссылка на трейлер")
+    start_date = models.DateField(verbose_name="Дата начала проката")
+    end_date = models.DateField(verbose_name="Дата окончания проката")
     formats = ArrayField(
         models.CharField(max_length=10, choices=MovieFormat.choices),
         default=list,
-        blank=True,
         verbose_name="Форматы показа",
     )
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
@@ -44,13 +43,13 @@ class Movie(models.Model):
 
 class Cinema(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Название кинотеатра")
-    description = models.TextField(blank=True, verbose_name="Описание")
-    conditions = models.TextField(blank=True, verbose_name="Условия")
-    logo = models.ImageField(upload_to="cinema/logos/", null=True, blank=True)
-    banner = models.ImageField(upload_to="cinema/banners/", null=True, blank=True)
+    description = models.TextField(verbose_name="Описание")
+    conditions = models.TextField(verbose_name="Условия")
+    logo = models.ImageField(upload_to="cinema/logos/")
+    banner = models.ImageField(upload_to="cinema/banners/")
     gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
         verbose_name_plural = "Кинотеатры"
@@ -69,11 +68,9 @@ class Cinema(models.Model):
 class Hall(models.Model):
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name="halls")
     name = models.CharField(max_length=20)
-    description = models.TextField(
-        blank=True,
-    )
-    banner = models.ImageField(upload_to="banners/", null=True, blank=True)
-    scheme_data = models.JSONField(null=True, blank=True, verbose_name="Схема зала")
+    description = models.TextField(verbose_name="Описание")
+    banner = models.ImageField(upload_to="hall/banners/")
+    scheme_data = models.JSONField(verbose_name="Схема зала")
     gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)

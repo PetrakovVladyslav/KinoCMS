@@ -151,6 +151,8 @@ class GalleryImageForm(forms.ModelForm):
 
 class BaseGalleryFormSet(BaseInlineFormSet):
     def clean(self):
+        super().clean()
+
         if any(self.errors):
             return
 
@@ -160,7 +162,6 @@ class BaseGalleryFormSet(BaseInlineFormSet):
             if not form.cleaned_data or form.cleaned_data.get("DELETE", False):
                 continue
 
-            # Считаем существующие и новые изображения
             if form.cleaned_data.get("image"):
                 images_count += 1
 

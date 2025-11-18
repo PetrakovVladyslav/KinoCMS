@@ -60,16 +60,16 @@ class PageNewsSales(models.Model):
 
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, verbose_name="Тип")
     name = models.CharField(max_length=100, verbose_name="Название")
-    description = models.TextField(blank=True, verbose_name="Описание")
+    description = models.TextField(verbose_name="Описание")
 
     date = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
-    publish_date = models.DateField(null=True, blank=True, verbose_name="Дата публикации")
+    publish_date = models.DateField(verbose_name="Дата публикации")
 
-    logo = models.ImageField(upload_to="page/logo", null=True, blank=True, verbose_name="Главная картинка")
+    logo = models.ImageField(upload_to="page/logo", verbose_name="Главная картинка")
     gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
-    video_url = models.URLField(blank=True, verbose_name="Ссылка на видео")
+    video_url = models.URLField(verbose_name="Ссылка на видео")
 
-    seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
+    seo_block = models.OneToOneField(SeoBlock, on_delete=models.SET_NULL, blank=True, null=True)
     status = models.BooleanField(default=False, verbose_name="Активна")
 
     class Meta:
@@ -91,7 +91,9 @@ class PageElse(models.Model):
     slug = models.SlugField(max_length=100, unique=True, blank=True)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, verbose_name="Описание")
-    logo = models.ImageField(upload_to="page/logo", null=True, blank=True)
+    logo = models.ImageField(
+        upload_to="page/logo",
+    )
     gallery = models.ForeignKey(Gallery, on_delete=models.SET_NULL, blank=True, null=True)
     seo_block = models.OneToOneField(SeoBlock, on_delete=models.CASCADE, blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
