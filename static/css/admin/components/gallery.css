@@ -24,6 +24,7 @@
     background: #f8f9fa;
     min-height: 200px;
     transition: all 0.3s ease;
+    overflow: hidden;
 }
 
 .gallery-item:hover {
@@ -40,11 +41,14 @@
 
 .image-preview-container {
     position: relative;
-    flex: 1;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    min-height: 150px;
+    max-height: 150px;
+    background: #f8f9fa;
 }
 
 .gallery-image-preview {
@@ -56,7 +60,7 @@
     border-radius: 4px;
 }
 
-/* Стили для кнопки удаления в галерее как в movie-card */
+/* Стили для кнопки удаления в галерее */
 .image-preview-container .delete-image {
     position: absolute;
     top: 8px;
@@ -85,21 +89,19 @@
     transform: scale(1.1);
 }
 
-/* Убираем старый overlay */
-.image-overlay {
-    display: none;
-}
-
 .empty-image-placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 150px;
+    min-height: 150px;
+    max-height: 150px;
     color: #6c757d;
     text-align: center;
     cursor: pointer;
     transition: color 0.2s ease;
+    background: #f8f9fa;
+    flex-shrink: 0;
 }
 
 .empty-image-placeholder:hover {
@@ -131,9 +133,10 @@
     position: relative;
     display: block;
     width: 100%;
+    overflow: hidden; /* Скрываем любой переполнение */
 }
 
-/* Скрываем нативный input file но оставляем кликабельным */
+/* Скрываем нативный input file */
 .file-input-wrapper input[type="file"] {
     position: absolute;
     left: 0;
@@ -150,26 +153,22 @@
     border-color: #0056b3 !important;
 }
 
-/* Стили для кастомной кнопки - теперь она активна */
+/* Стили для кастомной кнопки */
 .file-input-wrapper .custom-file-button {
     position: relative;
     z-index: 1;
     cursor: pointer;
     pointer-events: auto;
+    width: 100%;
 }
 
 /* Для галереи изображений */
-.gallery-container .file-input-wrapper {
-    margin-top: 10px;
-    text-align: center;
-}
-
 .gallery-container .image-upload-field {
     display: block !important;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border-top: 1px solid #dee2e6;
-    background: white;
-    border-radius: 0 0 6px 6px;
+    background: #ffffff;
+    flex-shrink: 0;
 }
 
 /* Центрируем кнопку в контейнере загрузки */
@@ -181,15 +180,100 @@
 
 /* Стили для кнопки добавления в галерее */
 .gallery-container .custom-file-button {
-    width: auto !important;
-    min-width: 120px;
-    padding: 0.375rem 0.75rem;
+    width: 100% !important;
+    padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     font-weight: 500;
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
     gap: 0.25rem;
+}
+
+/* Стили для полей формы в галерее */
+.gallery-item .form-group {
+    padding: 0.5rem 0.75rem;
+    background: #ffffff;
+    border-top: 1px solid #dee2e6;
+    margin: 0;
+}
+
+.gallery-item .form-group label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.gallery-item .form-group input[type="url"],
+.gallery-item .form-group input[type="text"] {
+    width: 100%;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    background-color: #fff;
+    color: #495057;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.gallery-item .form-group textarea {
+    width: 100%;
+    min-height: 60px;
+    resize: vertical;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    background-color: #fff;
+    color: #495057;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.gallery-item .form-group input:focus,
+.gallery-item .form-group textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Скрываем все служебные элементы Django для полей файлов */
+.gallery-item .image-upload-field a,
+.gallery-item .image-upload-field p,
+.gallery-item .image-upload-field .help,
+.gallery-item .image-upload-field .helptext,
+.gallery-item .image-upload-field br,
+.gallery-item .clearable-file-input,
+.gallery-item .clearable-file-input label,
+.gallery-item .clearable-file-input a,
+.image-upload-field .file-upload,
+.image-upload-field p.help {
+    display: none !important;
+}
+
+/* Скрываем чекбокс "Очистить" для файлов */
+.gallery-item input[type="checkbox"][id*="clear"],
+.gallery-item input[type="checkbox"][name*="clear"] {
+    display: none !important;
+}
+
+.gallery-item input[type="checkbox"][id*="clear"] + label,
+.gallery-item input[type="checkbox"][name*="clear"] + label {
+    display: none !important;
+}
+
+/* Скрываем текстовые узлы с названиями файлов */
+.gallery-item .image-upload-field .file-input-wrapper > a {
+    display: none !important;
+}
+
+/* Принудительно скрываем любой текст после input file */
+.gallery-item .form-control-file ~ *:not(.custom-file-button) {
+    display: none !important;
 }
 
 .gallery-controls {
@@ -249,7 +333,7 @@
     font-size: 12px;
 }
 
-/* Мультиязычные поля (если используются в других местах) */
+/* Мультиязычные поля */
 .field-group {
     display: none;
 }

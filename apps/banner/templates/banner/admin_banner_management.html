@@ -13,71 +13,98 @@
 {% block content %}
 <div class="row">
     <div class="col-12">
-        
+
         <!-- 1️⃣ Верхний баннер (На главной верх) -->
         <div class="banner-block top-banner">
             <div class="banner-header">
                 <h4>🎬 На главной верх</h4>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="top-banner-toggle" 
-                           name="top-is_active" 
+                    <input type="checkbox" id="top-banner-toggle"
+                           name="top-is_active"
                            form="top-banner-form"
                            {% if top_slider_form.instance.is_active %}checked{% endif %}>
                     <span class="slider-toggle"></span>
                 </label>
             </div>
-            
+
             <form method="post" enctype="multipart/form-data" id="top-banner-form">
                 {% csrf_token %}
                 {{ top_items_formset.management_form }}
-                
-                <div id="top-banner-formset" class="formset-grid">
-                    {% for form in top_items_formset %}
-                        <div class="formset-item" data-form-index="{{ forloop.counter0 }}">
-                            <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
-                            {% if form.instance.pk %}
-                                <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="display: none;">
-                            {% endif %}
-                            
-                            <div class="formset-item-content">
-                                {% if form.instance.image %}
-                                    <div class="image-preview-container">
-                                        <img src="{{ form.instance.image.url }}" alt="Баннер {{ forloop.counter }}" class="banner-image-preview">
-                                        <div class="image-overlay">
-                                            <button type="button" class="btn btn-sm btn-danger delete-banner-image">
-                                                <i class="fas fa-trash"></i>
+
+                <div class="gallery-container">
+                    <div class="gallery-forms" id="top-banner-formset">
+                        {% for form in top_items_formset %}
+                            <div class="gallery-item" data-form-index="{{ forloop.counter0 }}">
+                                <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                {% if form.instance.pk %}
+                                    <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="display: none;">
+                                {% endif %}
+
+                                <div class="gallery-item-content">
+                                    {% if form.instance.image %}
+                                        <div class="image-preview-container">
+                                            <img src="{{ form.instance.image.url }}" alt="Баннер {{ forloop.counter }}" class="gallery-image-preview">
+                                            <button type="button" class="btn btn-sm btn-danger delete-image">
+                                                <i class="fas fa-times"></i>
                                             </button>
                                         </div>
+                                    {% else %}
+                                        <div class="empty-image-placeholder">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <p>Добавить изображение</p>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="image-upload-field">
+                                        <div class="file-input-wrapper">
+                                            <input type="file"
+                                                   name="{{ form.image.html_name }}"
+                                                   accept="image/*"
+                                                   id="{{ form.image.id_for_label }}"
+                                                   class="form-control-file">
+                                            <button type="button" class="btn btn-sm btn-primary custom-file-button">
+                                                <i class="fas fa-folder-open"></i> Добавить
+                                            </button>
+                                        </div>
+                                        {% if form.image.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.image.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
                                     </div>
-                                {% else %}
-                                    <div class="empty-image-placeholder">
-                                        <i class="fas fa-plus-circle"></i>
-                                        <p>Добавить изображение</p>
+
+                                    <div class="form-group">
+                                        <label for="{{ form.url.id_for_label }}">URL:</label>
+                                        <input type="url"
+                                               name="{{ form.url.html_name }}"
+                                               value="{{ form.url.value|default:'' }}"
+                                               id="{{ form.url.id_for_label }}"
+                                               class="form-control">
                                     </div>
-                                {% endif %}
-                                
-                                <div class="image-upload-field">
-                                    {{ form.image }}
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="{{ form.url.id_for_label }}">URL:</label>
-                                    {{ form.url }}
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="{{ form.text.id_for_label }}">Текст:</label>
-                                    {{ form.text }}
+
+                                    <div class="form-group">
+                                        <label for="{{ form.text.id_for_label }}">Текст:</label>
+                                        <textarea name="{{ form.text.html_name }}"
+                                                  id="{{ form.text.id_for_label }}"
+                                                  class="form-control">{{ form.text.value|default:'' }}</textarea>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="gallery-controls mt-3">
+                        <button type="button" class="btn btn-success" id="add-top-photo">
+                            <i class="fas fa-plus"></i> Добавить еще изображение
+                        </button>
+                        <small class="form-text text-muted ml-3">
+                            Можно загрузить до 10 изображений. Поддерживаемые форматы: JPG, PNG, GIF
+                        </small>
+                    </div>
                 </div>
-                
-                <button type="button" class="btn-add-photo" id="add-top-photo">
-                    <i class="fas fa-plus"></i> Добавить фото
-                </button>
-                
+
                 <div class="form-group" style="margin-top: 20px;">
                     <label for="{{ top_slider_form.rotation_time.id_for_label }}">Скорость вращения (секунды):</label>
                     <select name="top-rotation_time" id="{{ top_slider_form.rotation_time.id_for_label }}" class="form-control rotation-select">
@@ -88,14 +115,14 @@
                         {% endfor %}
                     </select>
                 </div>
-                
+
                 <input type="hidden" name="top-title" value="{{ top_slider_form.instance.title }}">
                 <button type="submit" name="save_top" class="btn-save">
                     <i class="fas fa-save"></i> Сохранить
                 </button>
             </form>
         </div>
-        
+
         <!-- 2️⃣ Сквозной баннер на заднем фоне -->
         <div class="banner-block background-banner">
             <div class="banner-header">
@@ -134,7 +161,6 @@
                         {% if background_form.instance.image %}
                             <div style="margin-bottom: 15px;">
                                 <img src="{{ background_form.instance.image.url }}" alt="Background" style="max-width: 300px; max-height: 200px; border-radius: 4px; border: 1px solid #ddd; display: block; margin-bottom: 8px;">
-                                <small style="color: #666;">{{ background_form.instance.image.name }}</small>
                             </div>
                         {% endif %}
                         {{ background_form.image }}
@@ -152,60 +178,85 @@
             <div class="banner-header">
                 <h4>📰 На главной Новости Акции внизу</h4>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="bottom-banner-toggle" 
-                           name="bottom-is_active" 
+                    <input type="checkbox" id="bottom-banner-toggle"
+                           name="bottom-is_active"
                            form="bottom-banner-form"
                            {% if bottom_slider_form.instance.is_active %}checked{% endif %}>
                     <span class="slider-toggle"></span>
                 </label>
             </div>
-            
+
             <form method="post" enctype="multipart/form-data" id="bottom-banner-form">
                 {% csrf_token %}
                 {{ bottom_items_formset.management_form }}
-                
-                <div id="bottom-banner-formset" class="formset-grid">
-                    {% for form in bottom_items_formset %}
-                        <div class="formset-item" data-form-index="{{ forloop.counter0 }}">
-                            <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
-                            {% if form.instance.pk %}
-                                <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="display: none;">
-                            {% endif %}
-                            
-                            <div class="formset-item-content">
-                                {% if form.instance.image %}
-                                    <div class="image-preview-container">
-                                        <img src="{{ form.instance.image.url }}" alt="Баннер {{ forloop.counter }}" class="banner-image-preview">
-                                        <div class="image-overlay">
-                                            <button type="button" class="btn btn-sm btn-danger delete-banner-image">
-                                                <i class="fas fa-trash"></i>
+
+                <div class="gallery-container">
+                    <div class="gallery-forms" id="bottom-banner-formset">
+                        {% for form in bottom_items_formset %}
+                            <div class="gallery-item" data-form-index="{{ forloop.counter0 }}">
+                                <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                {% if form.instance.pk %}
+                                    <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" style="display: none;">
+                                {% endif %}
+
+                                <div class="gallery-item-content">
+                                    {% if form.instance.image %}
+                                        <div class="image-preview-container">
+                                            <img src="{{ form.instance.image.url }}" alt="Баннер {{ forloop.counter }}" class="gallery-image-preview">
+                                            <button type="button" class="btn btn-sm btn-danger delete-image">
+                                                <i class="fas fa-times"></i>
                                             </button>
                                         </div>
+                                    {% else %}
+                                        <div class="empty-image-placeholder">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <p>Добавить изображение</p>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="image-upload-field">
+                                        <div class="file-input-wrapper">
+                                            <input type="file"
+                                                   name="{{ form.image.html_name }}"
+                                                   accept="image/*"
+                                                   id="{{ form.image.id_for_label }}"
+                                                   class="form-control-file">
+                                            <button type="button" class="btn btn-sm btn-primary custom-file-button">
+                                                <i class="fas fa-folder-open"></i> Добавить
+                                            </button>
+                                        </div>
+                                        {% if form.image.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.image.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
                                     </div>
-                                {% else %}
-                                    <div class="empty-image-placeholder">
-                                        <i class="fas fa-plus-circle"></i>
-                                        <p>Добавить изображение</p>
+
+                                    <div class="form-group">
+                                        <label for="{{ form.url.id_for_label }}">URL:</label>
+                                        <input type="url"
+                                               name="{{ form.url.html_name }}"
+                                               value="{{ form.url.value|default:'' }}"
+                                               id="{{ form.url.id_for_label }}"
+                                               class="form-control">
                                     </div>
-                                {% endif %}
-                                
-                                <div class="image-upload-field">
-                                    {{ form.image }}
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="{{ form.url.id_for_label }}">URL:</label>
-                                    {{ form.url }}
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="gallery-controls mt-3">
+                        <button type="button" class="btn btn-success" id="add-bottom-photo">
+                            <i class="fas fa-plus"></i> Добавить еще изображение
+                        </button>
+                        <small class="form-text text-muted ml-3">
+                            Можно загрузить до 10 изображений. Поддерживаемые форматы: JPG, PNG, GIF
+                        </small>
+                    </div>
                 </div>
-                
-                <button type="button" class="btn-add-photo" id="add-bottom-photo">
-                    <i class="fas fa-plus"></i> Добавить фото
-                </button>
-                
+
                 <div class="form-group" style="margin-top: 20px;">
                     <label for="{{ bottom_slider_form.rotation_time.id_for_label }}">Скорость вращения (секунды):</label>
                     <select name="bottom-rotation_time" id="{{ bottom_slider_form.rotation_time.id_for_label }}" class="form-control rotation-select">
@@ -216,30 +267,28 @@
                         {% endfor %}
                     </select>
                 </div>
-                
+
                 <input type="hidden" name="bottom-title" value="{{ bottom_slider_form.instance.title }}">
                 <button type="submit" name="save_bottom" class="btn-save">
                     <i class="fas fa-save"></i> Сохранить
                 </button>
             </form>
         </div>
-        
+
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/admin/banner-slider-manager.js' %}"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    initBannerManagement();
-});
-
-function initBannerManagement() {
     // Переключение между "Фото на фон" и "Просто фон"
     const bgPhotoOption = document.getElementById('bg-photo-option');
     const bgPlainOption = document.getElementById('bg-plain-option');
     const bgPhotoUpload = document.getElementById('bg-photo-upload');
-    
+
     function toggleBackgroundUpload() {
         if (bgPhotoOption && bgPhotoUpload) {
             if (bgPhotoOption.checked) {
@@ -249,287 +298,24 @@ function initBannerManagement() {
             }
         }
     }
-    
+
     if (bgPhotoOption) bgPhotoOption.addEventListener('change', toggleBackgroundUpload);
     if (bgPlainOption) bgPlainOption.addEventListener('change', toggleBackgroundUpload);
-    
-    // Функция для обработки превью изображений
-    window.handleBannerImagePreview = function(e, formsetItem) {
-        const file = e.target.files[0];
-        let previewContainer = formsetItem.querySelector('.image-preview-container');
-        const placeholder = formsetItem.querySelector('.empty-image-placeholder');
-        
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                // Скрываем placeholder
-                if (placeholder) {
-                    placeholder.style.display = 'none';
-                }
-                
-                // Если контейнера нет, создаем новый
-                if (!previewContainer) {
-                    previewContainer = document.createElement('div');
-                    previewContainer.className = 'image-preview-container';
-                    const itemContent = formsetItem.querySelector('.formset-item-content');
-                    itemContent.insertBefore(previewContainer, itemContent.firstChild);
-                }
-                
-                // Очищаем контейнер
-                previewContainer.innerHTML = '';
-                
-                // Создаем изображение
-                const img = document.createElement('img');
-                img.className = 'banner-image-preview';
-                img.alt = 'Превью баннера';
-                img.src = event.target.result;
-                
-                // Создаем overlay с кнопкой удаления
-                const overlay = document.createElement('div');
-                overlay.className = 'image-overlay';
-                overlay.innerHTML = `
-                    <button type="button" class="btn btn-sm btn-danger delete-banner-image">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
-                
-                previewContainer.appendChild(img);
-                previewContainer.appendChild(overlay);
-                
-                // Добавляем обработчик для новой кнопки удаления
-                overlay.querySelector('.delete-banner-image').addEventListener('click', function(event) {
-                    event.stopPropagation();
-                    markBannerForDeletion(formsetItem);
-                });
-                
-                // Добавляем обработчик клика на превью для смены файла
-                previewContainer.addEventListener('click', function(event) {
-                    if (!event.target.closest('.delete-banner-image')) {
-                        e.target.click(); // Кликаем по инпуту файла
-                    }
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-    
-    // Обработчики для существующих полей загрузки
-    document.querySelectorAll('.formset-item input[type="file"]').forEach(input => {
-        input.addEventListener('change', function(e) {
-            const formsetItem = e.target.closest('.formset-item');
-            handleBannerImagePreview(e, formsetItem);
-        });
-    });
-    
-    // Обработчики для существующих кнопок удаления
-    document.querySelectorAll('.delete-banner-image').forEach(button => {
-        button.addEventListener('click', function() {
-            const formsetItem = this.closest('.formset-item');
-            markBannerForDeletion(formsetItem);
-        });
-    });
-    
-    // Добавление нового слайда для верхнего баннера
-    const addTopPhotoBtn = document.getElementById('add-top-photo');
-    if (addTopPhotoBtn) {
-        addTopPhotoBtn.addEventListener('click', function() {
-            const container = document.getElementById('top-banner-formset');
-            const totalForms = document.querySelector('input[name="top_items-TOTAL_FORMS"]');
-            
-            if (!totalForms) {
-                alert('Ошибка: не найдены поля управления формсетом');
-                return;
-            }
-            
-            const currentCount = parseInt(totalForms.value) || 0;
-            
-            // Создаем новый элемент
-            const newItem = document.createElement('div');
-            newItem.className = 'formset-item';
-            newItem.setAttribute('data-form-index', currentCount);
-            
-            newItem.innerHTML = `
-                <input type="hidden" name="top_items-${currentCount}-id" id="id_top_items-${currentCount}-id" value="">
-                <div class="formset-item-content">
-                    <div class="empty-image-placeholder">
-                        <i class="fas fa-plus-circle"></i>
-                        <p>Добавить изображение</p>
-                        <div class="empty-image-overlay">
-                            <button type="button" class="btn btn-sm btn-danger delete-empty-item" title="Удалить">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="image-upload-field">
-                        <input type="file" name="top_items-${currentCount}-image" accept="image/*"
-                               class="form-control-file" id="id_top_items-${currentCount}-image">
-                    </div>
-                    <div class="form-group">
-                        <label for="id_top_items-${currentCount}-url">URL:</label>
-                        <input type="url" name="top_items-${currentCount}-url" class="form-control"
-                               id="id_top_items-${currentCount}-url">
-                    </div>
-                    <div class="form-group">
-                        <label for="id_top_items-${currentCount}-text">Текст:</label>
-                        <textarea name="top_items-${currentCount}-text" class="form-control"
-                                  id="id_top_items-${currentCount}-text"></textarea>
-                    </div>
-                </div>
-            `;
-            
-            // Добавляем в DOM
-            container.appendChild(newItem);
-            totalForms.value = currentCount + 1;
-            
-            // Добавляем обработчик для нового input
-            const newFileInput = newItem.querySelector('input[type="file"]');
-            if (newFileInput) {
-                newFileInput.addEventListener('change', function(e) {
-                    handleBannerImagePreview(e, newItem);
-                });
-            }
-            
-            // Добавляем обработчик клика на placeholder
-            const newPlaceholder = newItem.querySelector('.empty-image-placeholder');
-            if (newPlaceholder) {
-                newPlaceholder.addEventListener('click', function(e) {
-                    // Не открываем диалог если кликнули на кнопку удаления
-                    if (!e.target.closest('.delete-empty-item')) {
-                        newFileInput.click();
-                    }
-                });
-            }
-            
-            // Добавляем обработчик удаления для нового элемента
-            const deleteBtn = newItem.querySelector('.delete-empty-item');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    if (confirm('Удалить этот элемент?')) {
-                        newItem.remove();
-                    }
-                });
-            }
-        });
-    }
-    
-    // Добавление нового слайда для нижнего баннера
-    const addBottomPhotoBtn = document.getElementById('add-bottom-photo');
-    if (addBottomPhotoBtn) {
-        addBottomPhotoBtn.addEventListener('click', function() {
-            const container = document.getElementById('bottom-banner-formset');
-            const totalForms = document.querySelector('input[name="bottom_items-TOTAL_FORMS"]');
-            
-            if (!totalForms) {
-                alert('Ошибка: не найдены поля управления формсетом');
-                return;
-            }
-            
-            const currentCount = parseInt(totalForms.value) || 0;
-            
-            // Создаем новый элемент
-            const newItem = document.createElement('div');
-            newItem.className = 'formset-item';
-            newItem.setAttribute('data-form-index', currentCount);
-            
-            newItem.innerHTML = `
-                <input type="hidden" name="bottom_items-${currentCount}-id" id="id_bottom_items-${currentCount}-id" value="">
-                <div class="formset-item-content">
-                    <div class="empty-image-placeholder">
-                        <i class="fas fa-plus-circle"></i>
-                        <p>Добавить изображение</p>
-                        <div class="empty-image-overlay">
-                            <button type="button" class="btn btn-sm btn-danger delete-empty-item" title="Удалить">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="image-upload-field">
-                        <input type="file" name="bottom_items-${currentCount}-image" accept="image/*"
-                               class="form-control-file" id="id_bottom_items-${currentCount}-image">
-                    </div>
-                    <div class="form-group">
-                        <label for="id_bottom_items-${currentCount}-url">URL:</label>
-                        <input type="url" name="bottom_items-${currentCount}-url" class="form-control"
-                               id="id_bottom_items-${currentCount}-url">
-                    </div>
-                </div>
-            `;
-            
-            // Добавляем в DOM
-            container.appendChild(newItem);
-            totalForms.value = currentCount + 1;
-            
-            // Добавляем обработчик для нового input
-            const newFileInput = newItem.querySelector('input[type="file"]');
-            if (newFileInput) {
-                newFileInput.addEventListener('change', function(e) {
-                    handleBannerImagePreview(e, newItem);
-                });
-            }
-            
-            // Добавляем обработчик клика на placeholder
-            const newPlaceholder = newItem.querySelector('.empty-image-placeholder');
-            if (newPlaceholder) {
-                newPlaceholder.addEventListener('click', function(e) {
-                    // Не открываем диалог если кликнули на кнопку удаления
-                    if (!e.target.closest('.delete-empty-item')) {
-                        newFileInput.click();
-                    }
-                });
-            }
-            
-            // Добавляем обработчик удаления для нового элемента
-            const deleteBtn = newItem.querySelector('.delete-empty-item');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    if (confirm('Удалить этот элемент?')) {
-                        newItem.remove();
-                    }
-                });
-            }
-        });
-    }
-    
-    // Добавляем обработчики клика на существующие placeholder и preview
-    document.querySelectorAll('.formset-item').forEach(item => {
-        const fileInput = item.querySelector('input[type="file"]');
-        const placeholder = item.querySelector('.empty-image-placeholder');
-        const previewContainer = item.querySelector('.image-preview-container');
-        
-        if (fileInput) {
-            if (placeholder) {
-                placeholder.addEventListener('click', function() {
-                    fileInput.click();
-                });
-            }
-            
-            if (previewContainer) {
-                previewContainer.addEventListener('click', function(e) {
-                    // Не открываем диалог если кликнули на кнопку удаления
-                    if (!e.target.closest('.delete-banner-image')) {
-                        fileInput.click();
-                    }
-                });
-            }
-        }
-    });
-}
 
-function markBannerForDeletion(formsetItem) {
-    const deleteCheckbox = formsetItem.querySelector('input[type="checkbox"][name$="-DELETE"]');
-    if (deleteCheckbox) {
-        if (confirm('Удалить этот баннер?')) {
-            deleteCheckbox.checked = true;
-            formsetItem.classList.add('marked-for-deletion');
-        }
-    } else {
-        // Для новых элементов без checkbox просто удаляем из DOM
-        if (confirm('Удалить этот баннер?')) {
-            formsetItem.remove();
-        }
-    }
-}
+    // Инициализация менеджеров для верхнего и нижнего баннеров
+    new BannerSliderManager({
+        formsetPrefix: 'top_items',
+        containerId: 'top-banner-formset',
+        addButtonId: 'add-top-photo',
+        hasTextField: true
+    });
+
+    new BannerSliderManager({
+        formsetPrefix: 'bottom_items',
+        containerId: 'bottom-banner-formset',
+        addButtonId: 'add-bottom-photo',
+        hasTextField: false
+    });
+});
 </script>
 {% endblock %}

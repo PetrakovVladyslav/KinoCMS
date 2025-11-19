@@ -1,22 +1,30 @@
-FROM python:3.13-slim
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    gettext \
+    && rm -rf /var/lib/apt/lists/*
+
+
 
 WORKDIR /app
 
-# Устанавливаем uv
-RUN uv pip install --upgrade pip && pip install uv
+# Включаем кэширование uv
+ENV UV_CACHE_DIR=/root/.cache/uv
 
-# Копируем pyproject.toml (и poetry.lock, если есть)
-COPY pyproject.toml /app/
-COPY uv.lock* /app/  # если есть lock-файл
-COPY . /app/
+# Сначала только файлы зависимостей (для кэширования слоя)
+COPY pyproject.toml uv.lock ./
+
+# Устанавливаем зависимости
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
 # Устанавливаем зависимости через uv
 RUN uv pip install
 # Копируем весь проект
-COPY . /app/
+COPY . .
 
-# Команда по умолчанию для запуска Django
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+RUN uv run python manage.py collectstatic --noinput
+
+
+EXPOSE 8000
