@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ru"><!--begin::Head--><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Рассылка - KinoCMS</title>
+    <!--begin::Accessibility Meta Tags-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
+    <!--end::Accessibility Meta Tags-->
+    <!--begin::Primary Meta Tags-->
+    <meta name="title" content="KinoCMS - Админ панель">
+    <meta name="author" content="KinoCMS">
+    <meta name="description" content="Система управления контентом кинотеатра">
+    <!--end::Primary Meta Tags-->
+    <!--begin::Accessibility Features-->
+    <meta name="supported-color-schemes" content="light dark">
+    <link rel="preload" href="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/adminlte.css" as="style">
+    <!--end::Accessibility Features-->
+    <!--begin::Fonts-->
+    <!-- <link rel="stylesheet" href="/static/adminlte/dist/css/source-sans-3.css" /> -->
+    <!--end::Fonts-->
+    <!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <link rel="stylesheet" href="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/overlayscrollbars.min.css">
+    <!--end::Third Party Plugin(OverlayScrollbars)-->
+    <!--begin::Third Party Plugin(Font Awesome Icons)-->
+    <link rel="stylesheet" href="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/all.min.css">
+    <!--end::Third Party Plugin(Bootstrap Icons)-->
+    <!--begin::Required Plugin(AdminLTE)-->
+    <link rel="stylesheet" href="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/adminlte.css">
+    <!--end::Required Plugin(AdminLTE)-->
+    
+    
+</head>
+<!--end::Head-->
+<!--begin::Body-->
+<body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary app-loaded"><div class="skip-links"><a href="#main" class="skip-link">Skip to main content</a><a href="#navigation" class="skip-link">Skip to navigation</a></div>
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
+      <!--begin::Header-->
+      <nav class="app-header navbar navbar-expand bg-body" id="navigation" tabindex="-1">
+        <!--begin::Container-->
+        <div class="container-fluid">
+          <!--begin::Start Navbar Links-->
+          <ul class="navbar-nav" role="navigation" aria-label="Navigation 1">
+            <li class="nav-item">
+              <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                <i class="fas fa-bars"></i>
+              </a>
+            </li>
+            <li class="nav-item d-none d-md-block"><a href="http://127.0.0.1:8000/uk/" class="nav-link">На сайт</a></li>
+          </ul>
+          <!--end::Start Navbar Links-->
+          <!--begin::End Navbar Links-->
+          <ul class="navbar-nav ms-auto" role="navigation" aria-label="Navigation 2">
+            <!--begin::User Menu Dropdown-->
+            <li class="nav-item dropdown user-menu">
+              <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <img src="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/user2-160x160.jpg" class="user-image img-size-xs rounded-circle shadow" alt="User Image">
+                <span class="d-none d-md-inline">Vladyslav</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <!-- User image -->
+                <li class="user-header text-bg-primary">
+                  <img src="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/user2-160x160.jpg" class="rounded-circle shadow" alt="User Image">
+                  <p>
+                    Vladyslav Petrakov
+                    <small>Администратор</small>
+                  </p>
+                </li>
+                <!-- Menu Footer-->
+                <li class="user-footer">
+                  <a href="#" class="btn btn-default btn-flat">Профиль</a>
+                  <a href="http://127.0.0.1:8000/admin/logout/" class="btn btn-default btn-flat float-end">Выход</a>
+                </li>
+              </ul>
+            </li>
+            <!--end::User Menu Dropdown-->
+          </ul>
+          <!--end::End Navbar Links-->
+        </div>
+        <!--end::Container-->
+      </nav>
+      <!--end::Header-->
+      <!--begin::Sidebar-->
+      <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+        <!--begin::Sidebar Brand-->
+        <div class="sidebar-brand">
+          <!--begin::Brand Link-->
+          <a href="http://127.0.0.1:8000/uk/" class="brand-link">
+            <img src="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image opacity-75 shadow">
+            <span class="brand-text fw-light">KinoCMS</span>
+          </a>
+          <!--end::Brand Link-->
+        </div>
+        <!--end::Sidebar Brand-->
+        <!--begin::Sidebar Wrapper-->
+        <div class="sidebar-wrapper" data-overlayscrollbars="host"><div class="os-size-observer"><div class="os-size-observer-listener"></div></div><div class="" data-overlayscrollbars-viewport="scrollbarHidden overflowXHidden overflowYHidden" tabindex="-1" style="margin-right: -16px; margin-bottom: -16px; margin-left: 0px; top: -8px; right: auto; left: -8px; width: calc(100% + 16px); padding: 8px;">
+          <nav class="mt-2">
+            <!--begin::Sidebar Menu-->
+            <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false" aria-label="Navigation 3">
+              <li class="nav-item">
+                <a href="http://127.0.0.1:8000/admin-dashboard/" class="nav-link">
+                  <i class="nav-icon fas fa-tachometer-alt"></i>
+                  <p>
+                    Статистика
+                  </p>
+                </a>
+              </li>
+             <li class="nav-item">
+                <a href="http://127.0.0.1:8000/admin-panel/banners/" class="nav-link">
+                  <i class="nav-icon fas fa-images"></i>
+                  <p>
+                    Баннера/Слайдеры
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="http://127.0.0.1:8000/uk/admin-panel/movies/" class="nav-link">
+                  <i class="nav-icon fas fa-film"></i>
+                  <p>
+                    Фильмы
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="http://127.0.0.1:8000/uk/admin-panel/cinemas/" class="nav-link">
+                  <i class="nav-icon fas fa-film"></i>
+                  <p>
+                    Кинотеатры
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="http://127.0.0.1:8000/uk/admin-panel/news/" class="nav-link">
+                  <i class="nav-icon fas fa-file-alt"></i>
+                  <p>
+                    Новости
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="http://127.0.0.1:8000/uk/admin-panel/sales/" class="nav-link">
+                  <i class="nav-icon fas fa-file-alt"></i>
+                  <p>
+                    Акции
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="http://127.0.0.1:8000/uk/admin-panel/pages/" class="nav-link">
+                  <i class="nav-icon fas fa-file-alt"></i>
+                  <p>
+                    Страницы
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="http://127.0.0.1:8000/admin-panel/users/" class="nav-link">
+                  <i class="nav-icon fas fa-users"></i>
+                  <p>
+                    Пользователи
+                  </p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="http://127.0.0.1:8000/admin-panel/mailing/" class="nav-link">
+                  <i class="nav-icon fas fa-envelope"></i>
+                  <p>
+                    Рассылка
+                  </p>
+                </a>
+              </li>
+              
+            </ul>
+            <!--end::Sidebar Menu-->
+          </nav>
+        </div><div class="os-scrollbar os-scrollbar-horizontal os-theme-light os-scrollbar-auto-hide os-scrollbar-handle-interactive os-scrollbar-track-interactive os-scrollbar-cornerless os-scrollbar-unusable os-scrollbar-auto-hide-hidden" style="--os-scroll-percent: 0; --os-viewport-percent: 1; --os-scroll-direction: 0;"><div class="os-scrollbar-track"><div class="os-scrollbar-handle"></div></div></div><div class="os-scrollbar os-scrollbar-vertical os-theme-light os-scrollbar-auto-hide os-scrollbar-handle-interactive os-scrollbar-track-interactive os-scrollbar-cornerless os-scrollbar-unusable os-scrollbar-auto-hide-hidden" style="--os-scroll-percent: 0; --os-viewport-percent: 1; --os-scroll-direction: 0;"><div class="os-scrollbar-track"><div class="os-scrollbar-handle"></div></div></div></div>
+        <!--end::Sidebar Wrapper-->
+      </aside>
+      <!--end::Sidebar-->
+      <!--begin::App Main-->
+      <main class="app-main" id="main" tabindex="-1">
+        <!--begin::App Content Header-->
+        <div class="app-content-header">
+          <!--begin::Container-->
+          <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+              <div class="col-sm-6">
+                <h3 class="mb-0">Рассылка</h3>
+              </div>
+              <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                  
+                  <li class="breadcrumb-item"><a href="http://127.0.0.1:8000/admin/">Главная</a></li>
+                  <li class="breadcrumb-item active">Рассылка</li>
+                  
+                </ol>
+              </div>
+            </div>
+            <!--end::Row-->
+          </div>
+          <!--end::Container-->
+        </div>
+        <!--end::App Content Header-->
+        <!--begin::App Content-->
+        <div class="app-content">
+          <!--begin::Container-->
+          <div class="container-fluid">
+            
+            
+            
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-envelope me-2"></i>Email-рассылка</h3>
+      </div>
+      
+      <div class="card-body">
+        <!-- Выбор получателей -->
+        <div class="form-group mb-4">
+          <label class="fw-bold mb-2">Кому отправить:</label>
+          
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="recipient_type" id="send_to_all" value="all" checked="checked">
+            <label class="form-check-label" for="send_to_all">
+              Всем пользователям (21)
+            </label>
+          </div>
+          
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="recipient_type" id="send_selective" value="selective">
+            <label class="form-check-label" for="send_selective">
+              Выборочно
+            </label>
+          </div>
+          
+          <div id="selective_controls" class="mt-2" style="display: none;">
+            <a href="http://127.0.0.1:8000/admin-panel/mailing/users/" class="btn btn-primary">
+              <i class="fas fa-users"></i> Выбрать пользователей
+            </a>
+            <span class="ms-3 text-muted" id="selected_count">
+              
+                Пользователи не выбраны
+              
+            </span>
+          </div>
+        </div>
+
+        <!-- Загрузка файла -->
+        <div class="form-group mb-4">
+          <label class="fw-bold mb-2">Загрузить HTML-файл:</label>
+          <form id="uploadForm" enctype="multipart/form-data">
+            <input type="hidden" name="csrfmiddlewaretoken" value="xS38WmGeoOXZP3uiI2Gc7qgXDEwujGlHEwgxpCB2glQy1VJxK64C3ZGf6rgZJPve">
+            <div class="input-group">
+              <input type="file" class="form-control" id="file_input" name="file" accept=".html,.htm" required="">
+              <button class="btn btn-success" type="submit">
+                <i class="fas fa-upload"></i> Загрузить
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Список последних файлов -->
+        <div class="form-group mb-4">
+          <label class="fw-bold mb-2">Последние загруженные файлы:</label>
+          <div id="files_list" class="list-group">
+            
+              <div class="alert alert-info">Файлы еще не загружены</div>
+            
+          </div>
+        </div>
+
+        <!-- Выбранный файл -->
+        <div class="form-group mb-4" id="selected_file_container" style="display: none;">
+          <label class="fw-bold mb-2">Выбранный файл для отправки:</label>
+          <div class="alert alert-success">
+            <i class="fas fa-file-code"></i>
+            <strong id="selected_file_name"></strong>
+          </div>
+        </div>
+
+        <!-- Количество писем -->
+        <div class="form-group mb-4">
+          <label class="fw-bold">Количество писем:</label>
+          <p class="fs-4" id="email_count">21</p>
+        </div>
+
+        <!-- Кнопка запуска -->
+        <div class="form-group mb-4">
+          <button id="start_mailing_btn" class="btn btn-lg btn-success" disabled="disabled">
+            <i class="fas fa-paper-plane"></i> Запустить рассылку
+          </button>
+        </div>
+
+        <!-- Прогресс-бар -->
+        <div id="progress_container" style="display: none;">
+          <label class="fw-bold mb-2">Прогресс рассылки:</label>
+          <div class="progress mb-2" style="height: 30px;">
+            <div id="progress_bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+              <span id="progress_text">0%</span>
+            </div>
+          </div>
+          <p class="text-muted">
+            Отправлено: <strong id="sent_count">0</strong> / 
+            <strong id="total_count">0</strong>
+            <span class="ms-3">Ошибок: <strong id="failed_count">0</strong></span>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+          </div>
+          <!--end::Container-->
+        </div>
+        <!--end::App Content-->
+      </main>
+      <!--end::App Main-->
+    <div class="sidebar-overlay"></div></div>
+    <!--end::App Wrapper-->
+    
+    <!--begin::Script-->
+    <!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <script src="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/overlayscrollbars.browser.es6.min.js"></script>
+    <!--end::Third Party Plugin(OverlayScrollbars)-->
+    <!--begin::Required Plugin(Bootstrap 5)-->
+    <script src="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/bootstrap.bundle.min.js"></script>
+    <!--end::Required Plugin(Bootstrap 5)-->
+    <!--begin::Required Plugin(AdminLTE)-->
+    <script src="%D0%A0%D0%B0%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0%20-%20KinoCMS_files/adminlte.js"></script>
+    <!--end::Required Plugin(AdminLTE)-->
+    <!--begin::OverlayScrollbars Configure-->
+    <script>
+      const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
+      const Default = {
+        scrollbarTheme: "os-theme-light",
+        scrollbarAutoHide: "leave",
+        scrollbarClickScroll: true,
+      };
+      document.addEventListener("DOMContentLoaded", function () {
+        const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+        if (
+          sidebarWrapper &&
+          typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== "undefined"
+        ) {
+          OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+            scrollbars: {
+              theme: Default.scrollbarTheme,
+              autoHide: Default.scrollbarAutoHide,
+              clickScroll: Default.scrollbarClickScroll,
+            },
+          });
+        }
+      });
+    </script>
+    <!--end::OverlayScrollbars Configure-->
+    
+    
+<script>
+let selectedFileId = null;
+let currentMailingId = null;
+let progressInterval = null;
+
+// Переключение типа получателей
+document.querySelectorAll('input[name="recipient_type"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const selectiveControls = document.getElementById('selective_controls');
+    const emailCount = document.getElementById('email_count');
+    
+    if (this.value === 'selective') {
+      selectiveControls.style.display = 'block';
+      emailCount.textContent = 0;
+    } else {
+      selectiveControls.style.display = 'none';
+      emailCount.textContent = 21;
+    }
+    
+    updateStartButton();
+  });
+});
+
+// Загрузка файла
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const response = await fetch('/admin-panel/mailing/upload/', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': 'xS38WmGeoOXZP3uiI2Gc7qgXDEwujGlHEwgxpCB2glQy1VJxK64C3ZGf6rgZJPve'
+    }
+  });
+  
+  const data = await response.json();
+  
+  if (data.success) {
+    // Обновляем список файлов
+    location.reload();
+  } else {
+    alert('Ошибка загрузки файла');
+  }
+});
+
+// Выбор файла
+document.querySelectorAll('.select-file-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    selectedFileId = this.dataset.fileId;
+    document.getElementById('selected_file_name').textContent = this.dataset.fileName;
+    document.getElementById('selected_file_container').style.display = 'block';
+    updateStartButton();
+  });
+});
+
+// Удаление файла
+document.querySelectorAll('.delete-file-btn').forEach(btn => {
+  btn.addEventListener('click', async function() {
+    if (!confirm('Удалить файл?')) return;
+    
+    const fileId = this.dataset.fileId;
+    const response = await fetch(`/admin-panel/mailing/file/${fileId}/delete/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': 'xS38WmGeoOXZP3uiI2Gc7qgXDEwujGlHEwgxpCB2glQy1VJxK64C3ZGf6rgZJPve'
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    }
+  });
+});
+
+// Проверка доступности кнопки запуска
+function updateStartButton() {
+  const sendToAll = document.getElementById('send_to_all').checked;
+  const hasFile = selectedFileId !== null;
+  const hasRecipients = sendToAll || 0 > 0;
+  
+  document.getElementById('start_mailing_btn').disabled = !(hasFile && hasRecipients);
+}
+
+// Запуск рассылки
+document.getElementById('start_mailing_btn').addEventListener('click', async function() {
+  const sendToAll = document.getElementById('send_to_all').checked;
+  
+  const response = await fetch('/admin-panel/mailing/start/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': 'xS38WmGeoOXZP3uiI2Gc7qgXDEwujGlHEwgxpCB2glQy1VJxK64C3ZGf6rgZJPve'
+    },
+    body: `file_id=${selectedFileId}&send_to_all=${sendToAll}`
+  });
+  
+  const data = await response.json();
+  
+  if (data.success) {
+    currentMailingId = data.mailing_id;
+    document.getElementById('progress_container').style.display = 'block';
+    startProgressTracking();
+    this.disabled = true;
+  } else {
+    alert('Ошибка запуска рассылки: ' + (data.error || 'Неизвестная ошибка'));
+  }
+});
+
+// Отслеживание прогресса
+function startProgressTracking() {
+  if (!currentMailingId) return;
+  
+  progressInterval = setInterval(async () => {
+    const response = await fetch(`/admin-panel/mailing/status/${currentMailingId}/`);
+    const data = await response.json();
+    
+    // Обновляем UI
+    document.getElementById('progress_bar').style.width = data.progress + '%';
+    document.getElementById('progress_bar').setAttribute('aria-valuenow', data.progress);
+    document.getElementById('progress_text').textContent = data.progress + '%';
+    document.getElementById('sent_count').textContent = data.sent_count;
+    document.getElementById('failed_count').textContent = data.failed_count;
+    document.getElementById('total_count').textContent = data.total_recipients;
+    
+    // Останавливаем, если рассылка завершена
+    if (data.status === 'completed' || data.status === 'failed') {
+      clearInterval(progressInterval);
+      document.getElementById('progress_bar').classList.remove('progress-bar-animated');
+      
+      if (data.status === 'completed') {
+        alert('Рассылка завершена!');
+      } else {
+        alert('Рассылка завершилась с ошибкой');
+      }
+    }
+  }, 2000); // Каждые 2 секунды
+}
+
+// Запускаем отслеживание, если есть активная рассылка
+if (currentMailingId) {
+  startProgressTracking();
+}
+
+// Инициализация
+updateStartButton();
+</script>
+
+    <!--end::Script-->
+
+
+<div id="live-region" class="live-region" aria-live="polite" aria-atomic="true" role="status"></div></body><!--end::Body--></html>

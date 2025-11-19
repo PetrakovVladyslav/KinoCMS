@@ -8,7 +8,6 @@ out
 gen
 .venv
 .env
-media/
 
 
 __pycache__/
@@ -22,7 +21,6 @@ venv/
 
 
 db.sqlite3
-media/
 staticfiles/
 .DS_Store
 
