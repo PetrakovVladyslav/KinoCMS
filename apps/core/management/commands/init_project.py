@@ -25,7 +25,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self._create_superuser()
         self._create_system_pages()
-        self._generate_sessions(options.get["days", 3])
+        self._generate_sessions(options.get("days", 3))
 
         self.stdout.write(self.style.SUCCESS("\n✓ Все системные данные созданы!"))
 
