@@ -406,7 +406,6 @@ def sales_delete_view(request, sales_id):
         return redirect("page:admin_sales_list")
 
 
-@staff_member_required(login_url="users:admin_login")
 def sale_detail_view(request, item_id):
     item = get_object_or_404(PageNewsSales, pk=item_id, type__in=["sale", "news"], status=True)
 
