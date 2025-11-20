@@ -1,10 +1,14 @@
 MANAGE=python manage.py
+CELERY=celery -A config
 
 run-dev:
 	$(MANAGE) migrate --noinput
 	$(MANAGE) collectstatic --noinput
 	$(MANAGE) init_project --days 7
 	gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+
+run-celery:
+	$(CELERY) worker -l info
 
 
 

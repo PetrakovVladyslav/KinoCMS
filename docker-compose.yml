@@ -15,10 +15,7 @@ services:
 
   web:
     build: .
-    command: >
-      sh -c "chmod +x /app/init.sh && 
-             /app/init.sh && 
-             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+    command: make run-dev
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -39,7 +36,7 @@ services:
   celery:
     build: .
     container_name: kino_celery
-    command: uv run celery -A config worker -l info
+    command: make run-celery
     volumes:
       - .:/app
     env_file:
