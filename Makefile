@@ -1,5 +1,5 @@
-MANAGE=python manage.py
-CELERY=celery -A config
+MANAGE= uv run python manage.py
+CELERY=uv run celery -A config
 
 run-dev:
 	$(MANAGE) migrate --noinput
