@@ -7,8 +7,9 @@
 {% endblock %}
 
 {% block content %}
+<form method="post">
                 {% csrf_token %}
-                
+
                 <!-- Отображение общих ошибок формы -->
                 {% if form.non_field_errors %}
                     <div class="alert alert-danger" role="alert">
