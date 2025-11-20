@@ -60,7 +60,7 @@ services:
     restart: always
 
 
-  volumes:
-    postgres_data:
-    static_volume:
-    media_volume:
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
