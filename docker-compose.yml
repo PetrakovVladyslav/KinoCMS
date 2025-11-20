@@ -4,14 +4,19 @@ services:
 
   db:
     image: postgres:15
+    container_name: kino_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: always
-
 
   web:
     build: .
@@ -30,8 +35,6 @@ services:
   redis:
     image: redis:7-alpine
     container_name: kino_redis
-    ports:
-      - "6379:6379"
 
   celery:
     build: .
