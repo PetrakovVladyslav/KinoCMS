@@ -27,9 +27,6 @@ COPY .env ./
 # Задаём минимальные переменные окружения, чтобы Django мог собрать статику
 ENV DJANGO_SETTINGS_MODULE=config.settings
 
-# Собираем статические файлы Django
-RUN uv run python manage.py collectstatic --noinput
-
 # Открываем порт приложения
 EXPOSE 8000
 
