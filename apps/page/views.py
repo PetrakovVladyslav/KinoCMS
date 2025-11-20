@@ -417,7 +417,6 @@ def sale_detail_view(request, item_id):
     return render(request, "page/sale_news_detail.html", context)
 
 
-@staff_member_required(login_url="users:admin_login")
 def sale_news_list_view(request):
     sales = PageNewsSales.objects.filter(type__in=["sale", "news"], status=True).order_by("-publish_date", "-date")
 
